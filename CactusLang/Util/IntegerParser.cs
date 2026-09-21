@@ -1,6 +1,5 @@
 using System.Numerics;
 using CactusLang.Model.Types;
-using CactusLang.Semantics.Types;
 
 namespace CactusLang.Util;
 
@@ -23,7 +22,7 @@ public static class IntegerParser {
                     return ParseToBaseTwoPow(input[2..], 3);
             }
         }
-        catch (Exception e) {
+        catch (Exception) {
             return null;
         }
     }

@@ -1,9 +1,8 @@
-using System.Diagnostics;
 using CactusLang.CodeGeneration;
 using CactusLang.Model.CodeStructure.File;
 using CactusLang.Model.CodeStructure.Statements;
 
-namespace CactusLang.Tags.StatementTags;
+namespace CactusLang.Tags;
 
 public abstract class Tag {
     public static string StaticID { get; }

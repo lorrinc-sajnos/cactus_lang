@@ -1,5 +1,4 @@
 using CactusLang.Model.Types;
-using CactusLang.Semantics.Types;
 
 namespace CactusLang.Model.Operators;
 

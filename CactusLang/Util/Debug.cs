@@ -3,10 +3,9 @@ using Antlr4.Runtime;
 
 namespace CactusLang.Util;
 
+#pragma warning disable CS0162 
 public class Debug {
-    
     public const bool DEBUG = false;
-
 
     public static void Log(string msg) {
         if(!DEBUG) return;

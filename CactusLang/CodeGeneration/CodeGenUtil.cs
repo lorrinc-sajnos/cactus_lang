@@ -1,4 +1,3 @@
-using CactusLang.Model;
 using CactusLang.Model.CodeStructure;
 using CactusLang.Model.CodeStructure.File;
 using CactusLang.Model.CodeStructure.Statements;

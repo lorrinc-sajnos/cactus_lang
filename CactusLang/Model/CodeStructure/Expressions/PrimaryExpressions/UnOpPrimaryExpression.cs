@@ -1,20 +1,14 @@
 using CactusLang.Model.Operators;
+using CactusLang.Model.Operators.Unary;
 using CactusLang.Model.Types;
 
 namespace CactusLang.Model.CodeStructure.Expressions.PrimaryExpressions;
 
-public class UnOpPrimaryExpression : PrimaryExpression {
-    private PrimaryExpression _primExpr;
-    public PrimaryExpression PrimaryExpression => _primExpr;
-    private UnaryOp _unaryOperation = null;
-    public UnaryOp UnaryOperation => _unaryOperation;
+public class UnOpPrimaryExpression(PrimaryExpression exp, UnaryOp op) : PrimaryExpression {
+    public PrimaryExpression PrimaryExpression => exp;
+    public UnaryOp UnaryOperation => op;
 
-    
-    
-    public UnOpPrimaryExpression(PrimaryExpression exp, UnaryOp op) {
-        _primExpr = exp;
-        _unaryOperation = op;
-    }
-    public override BaseType GetResultType() => _unaryOperation.Evaluate(_primExpr.GetResultType());
-    public override bool IsLValue() => _primExpr.IsLValue();
+
+    public override BaseType GetResultType() => op.Evaluate(exp.GetResultType());
+    public override bool IsLValue() => exp.IsLValue();
 }

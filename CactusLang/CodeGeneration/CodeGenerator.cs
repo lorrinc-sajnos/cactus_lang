@@ -1,21 +1,17 @@
 using CactusLang.CodeGeneration.CCodeGenerator;
-using CactusLang.Model;
 using CactusLang.Model.CodeStructure;
-using CactusLang.Model.CodeStructure.Expressions;
 using CactusLang.Model.CodeStructure.File;
 using CactusLang.Model.CodeStructure.Statements;
 using CactusLang.Model.CodeStructure.Structs;
 using CactusLang.Model.Visitors;
 using CactusLang.Tags;
-using CactusLang.Tags.StatementTags;
-using CactusLang.Util;
 
 namespace CactusLang.CodeGeneration;
 
 public class CodeGenerator : CodeModelVisitor<int> {
     public struct State { }
 
-    public const string CCTS_STD_HEADER = "ccts_std.h";
+    public const string CCTS_STD_DIRECTORY = "ccts_std.h";
 
     private State _state;
     public State GenState => _state;
@@ -268,7 +264,6 @@ public class CodeGenerator : CodeModelVisitor<int> {
 
     #endregion
 
-
     #region IO
 
     public void GenerateFiles() {
@@ -283,7 +278,7 @@ public class CodeGenerator : CodeModelVisitor<int> {
         string sourcePath = $"{_outDirectory}/{_fileName}.c";
         WriteCodeScopeToFile(sourcePath, Source);
 
-        CopyCctsStd();
+        //CopyCctsStd();
     }
 
     private void WriteCodeScopeToFile(string path, CodeScope codeScope) {
@@ -299,6 +294,6 @@ public class CodeGenerator : CodeModelVisitor<int> {
     #endregion
 
     private void CopyCctsStd() {
-        File.Copy(CCTS_STD_HEADER, $"{_outDirectory}/{CCTS_STD_HEADER}", overwrite: true);
+        File.Copy(CCTS_STD_DIRECTORY, $"{_outDirectory}/{CCTS_STD_DIRECTORY}", overwrite: true);
     }
 }

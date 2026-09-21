@@ -1,5 +1,3 @@
-using CactusLang.Tags.StatementTags;
-
 namespace CactusLang.Tags;
 
 public class CommonVariable {

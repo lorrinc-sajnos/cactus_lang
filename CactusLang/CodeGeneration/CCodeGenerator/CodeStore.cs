@@ -1,14 +1,12 @@
 namespace CactusLang.CodeGeneration.CCodeGenerator;
 
 public class CodeStore {
-    private CodeScope _source;
-    public CodeScope Source => _source;
-    
-    private CodeScope _header;
-    public CodeScope Header => _header;
+    public CodeScope Source { get; }
+
+    public CodeScope Header { get; }
 
     public CodeStore() {
-        _source = new CodeScope();
-        _header = new CodeScope();
+        Source = new CodeScope();
+        Header = new CodeScope();
     }
 }

@@ -1,0 +1,113 @@
+//Template
+
+//They MUST be pointers! Either Addr, or Regular
+
+
+struct LinkedList<T*>{
+    @private LListNode* start;
+
+    T* get(u64 idx){
+        LListNode* current = this.start;
+
+    }
+    T* [](u64 idx){
+        return this.get(idx);
+    }
+}
+
+
+@private struct LListNode<T*>{
+    T* data;
+    LListNode* next;
+}
+
+LinkedList<i32>
+LinkedList<ch08>
+
+//Lényegében, mi is a class?
+//Olyan struct, ami tárolja a saját típusát -> amikor azon. oszt. két, különböző gyerekének metódusát hívjuk, tudjuk, melyik fgv-t hívjuk!
+
+
+C {
+    struct Object{
+
+        void*
+    }
+
+}
+
+
+
+//Interface
+interface Yunk<T*> {
+    i32 yunk(T* this, i32 input, i32 long_input, i32 anouther_input);
+}
+
+
+//Class, that implements an interface
+class Foo : Yunk {
+    @private bool _yippe;
+
+
+    //Constructor, returns T
+    Foo(){
+        this._yippie = false;
+    }
+
+    bool yippie(this){
+        return _yippie;
+    }
+
+    //Implementation of interface
+    i32 yunk(Foo* this, i32 input, i32 long_input, i32 anouther_input)) {
+        if (this._yippie)
+            return input * -1 * long_input + anouther_input;
+        else
+            return 0;
+    }
+}
+
+//Class is treated as an interface
+class Bar: Foo {
+    @private Foo* _foo;
+
+    Bar(){
+        _foo = new Foo();
+    }
+
+
+    bool yippie() from _foo;        //from keyword: calls the matching function
+    //Equivalent to
+    //ch08 func(i32 a, bool b) => _foo.func(a,b);
+
+
+    i32 yunk(...) from _foo;
+    //if using 'from'; can use ... instead of writing out the parameters,
+}
+
+
+
+class Bar_B: Foo {
+    @private Foo* _foo;
+
+    new Bar(){
+        _foo = new Foo();
+    }
+
+}
+//ERROR: Bar_A does not implement 'yippie'!
+//ERROR: Bar_A does not implement 'yunk'!
+
+
+//Abstract class: interface, w/ implemented methods
+
+
+interface Pak{
+
+    u08 pak_func();
+
+    u16 pak(thisu08 gol){
+        return
+    }
+
+}

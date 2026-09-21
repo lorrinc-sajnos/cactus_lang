@@ -1,10 +1,9 @@
 using System.Text;
 using CactusLang.Model.Types;
-using CactusLang.Semantics.Types;
 
 namespace CactusLang.Model.Symbols;
 
-public struct FuncId {
+public struct FuncId : IEquatable<FuncId> {
     public string Name { get; private set; }
 
     private List<BaseType> _params;
@@ -35,6 +34,19 @@ public struct FuncId {
 
 
 
+
+    public override string ToString() {
+        StringBuilder  sb = new();
+        sb.Append($"{Name}(");
+        for (int i = 0; i < _params.Count - 1; i++) {
+            sb.Append($"{_params[i]}, ");
+        }
+        if(_params.Count!=0)
+            sb.Append($"{_params[_params.Count - 1]}");
+        sb.Append(')');
+        return sb.ToString();
+    }
+
     public override bool Equals(object? obj) {
         if (obj is not FuncId funcId)
             return false;
@@ -53,16 +65,11 @@ public struct FuncId {
 
         return true;
     }
+    public bool Equals(FuncId other) {
+        return _params.Equals(other._params);
+    }
 
-    public override string ToString() {
-        StringBuilder  sb = new();
-        sb.Append($"{Name}(");
-        for (int i = 0; i < _params.Count - 1; i++) {
-            sb.Append($"{_params[i]}, ");
-        }
-        if(_params.Count!=0)
-            sb.Append($"{_params[_params.Count - 1]}");
-        sb.Append(')');
-        return sb.ToString();
+    public override int GetHashCode() {
+        return HashCode.Combine(_params, Name);
     }
 }

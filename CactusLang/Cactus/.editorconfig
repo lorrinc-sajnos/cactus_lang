@@ -1,0 +1,4 @@
+#Ignore warnings for Auto-generated code
+
+[*.cs]
+dotnet_diagnostic.CS3021.severity = none

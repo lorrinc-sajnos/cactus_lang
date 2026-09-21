@@ -5,7 +5,6 @@ using CactusLang.Model.Symbols;
 using CactusLang.Model.Types;
 using CactusLang.Semantics;
 using CactusLang.Semantics.Errors;
-using CactusLang.Semantics.Types;
 
 namespace CactusLang.Model.Scopes;
 

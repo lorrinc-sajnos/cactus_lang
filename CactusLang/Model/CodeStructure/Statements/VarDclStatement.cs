@@ -16,15 +16,14 @@ public class VarDclStatement : Statement {
     public List<Body> GetBodies() => _variables;
 
     public class Body {
-        VariableSymbol _variable;
-        public VariableSymbol Variable => _variable;
-        
+        public VariableSymbol Variable { get; }
+
         Expression? _expression;
         public bool HasValue => _expression != null;
         public Expression? Value => _expression;
 
         public Body(VariableSymbol variable, Expression expression) {
-            _variable = variable;
+            Variable = variable;
             _expression = expression;
         }
         public Body(VariableSymbol variable) :this(variable, null) { }

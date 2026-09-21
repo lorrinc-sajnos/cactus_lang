@@ -1,0 +1,9 @@
+i32 main(){
+    print_ln("Hello, world!");
+    
+    
+    return 0;
+}
+
+
+void print_ln(ch08* str) $$C=> printf("%s\n", str);

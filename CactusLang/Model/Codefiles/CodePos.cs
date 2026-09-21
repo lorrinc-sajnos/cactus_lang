@@ -1,4 +1,4 @@
-namespace CactusLang.Model;
+namespace CactusLang.Model.Codefiles;
 
 public struct CodePos(string fileName, int line, int column) {
     public string FileName { get; private set; } = fileName;

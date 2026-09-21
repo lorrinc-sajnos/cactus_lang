@@ -1,11 +1,9 @@
-using CactusLang.Model.CodeStructure;
 using CactusLang.Model.CodeStructure.Structs;
 using CactusLang.Model.Errors;
 using CactusLang.Model.Types;
 using CactusLang.Semantics.Errors;
-using CactusLang.Util;
 
-namespace CactusLang.Semantics.Types;
+namespace CactusLang.Semantics;
 
 //
 

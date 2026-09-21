@@ -9,11 +9,11 @@ using CactusLang.Model.CodeStructure.Structs;
 using CactusLang.Model.Errors;
 using CactusLang.Model.Operators;
 using CactusLang.Model.Operators.ObjectRefference;
+using CactusLang.Model.Operators.Unary;
 using CactusLang.Model.Scopes;
 using CactusLang.Model.Symbols;
 using CactusLang.Model.Types;
 using CactusLang.Semantics.Errors;
-using CactusLang.Semantics.Types;
 using CactusLang.Util;
 using GP = GrammarParser;
 

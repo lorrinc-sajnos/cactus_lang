@@ -1,5 +1,3 @@
-using CactusLang.Semantics.Types;
-
 namespace CactusLang.Model.Types;
 
 public abstract class BaseType {

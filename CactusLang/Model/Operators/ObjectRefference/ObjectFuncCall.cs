@@ -1,13 +1,13 @@
 using CactusLang.Model.CodeStructure;
 using CactusLang.Model.CodeStructure.Structs;
+using CactusLang.Model.Operators.Unary;
 using CactusLang.Model.Symbols;
 using CactusLang.Model.Types;
 
 namespace CactusLang.Model.Operators.ObjectRefference;
 
 public class ObjectFuncCall : UnaryOp {
-    private FileStruct _struct;
-    public FileStruct Struct => _struct;
+    public FileStruct Struct { get; }
 
     private StructFunction _function;
     public StructFunction Function => _function;
@@ -16,7 +16,7 @@ public class ObjectFuncCall : UnaryOp {
 
 
     public ObjectFuncCall(FileStruct referedStruct, StructFunction structFunc) : base(Side.RIGHT, structFunc.FuncId.ToString()) {
-        _struct = referedStruct;
+        Struct = referedStruct;
         _function = structFunc;
     }
 

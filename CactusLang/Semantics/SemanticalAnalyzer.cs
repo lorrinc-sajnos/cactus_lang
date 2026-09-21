@@ -12,7 +12,6 @@ using CactusLang.Model.Scopes;
 using CactusLang.Model.Symbols;
 using CactusLang.Model.Types;
 using CactusLang.Semantics.Errors;
-using CactusLang.Semantics.Types;
 using CactusLang.Util;
 using GP = GrammarParser;
 
@@ -23,9 +22,9 @@ public class SemanticAnalyzer : GrammarBaseVisitor<StatusCode> {
     private readonly TypeSystem _typeSystem;
     private readonly FileScope _fileScope;
     private readonly ErrorHandler _errorHandler;
-    private readonly CodeFile _codeFile;
     private readonly TagFactory _tagFactory;
-    public CodeFile CodeFile => _codeFile;
+    public CodeFile CodeFile { get; }
+
     public ErrorHandler ErrorHandler => _errorHandler;
 
     private Scope CurrentScope => _fileScope.CurrentScope;
@@ -40,14 +39,14 @@ public class SemanticAnalyzer : GrammarBaseVisitor<StatusCode> {
         lexer.RemoveErrorListeners();
         var tokenStream = new CommonTokenStream(lexer);
         _parser = new GrammarParser(tokenStream);
-        _codeFile = new CodeFile(sourceFile);
+        CodeFile = new CodeFile(sourceFile);
 
         _errorHandler = new ErrorHandler(sourceFile.Path);
         //Remove error listeners so it doesn't print it to the log
         _parser.RemoveErrorListeners();
         _parser.AddErrorListener(_errorHandler.ErrorListener);
 
-        _fileScope = new FileScope(_codeFile, _errorHandler);
+        _fileScope = new FileScope(CodeFile, _errorHandler);
         _typeSystem = new TypeSystem(_errorHandler);
         _tagFactory = new();
     }
@@ -81,9 +80,9 @@ public class SemanticAnalyzer : GrammarBaseVisitor<StatusCode> {
             if (statement.structDcl() != null) {
                 var structDcl = statement.structDcl();
                 string structName = structDcl.structName().GetText();
-                FileStruct fileStruct = new FileStruct(structName, _codeFile);
+                FileStruct fileStruct = new FileStruct(structName, CodeFile);
                 //Debug.LogLine($"Struct {structName} declared");
-                _codeFile.AddStruct(fileStruct);
+                CodeFile.AddStruct(fileStruct);
                 _typeSystem.AddStruct(structDcl, fileStruct); //TODO err Already defined?
             }
         }
@@ -125,7 +124,7 @@ public class SemanticAnalyzer : GrammarBaseVisitor<StatusCode> {
                 RegisterFileVarDcl(globVarCtx);
             }
             else if (fileStatement.tags() != null) {
-                _codeFile.AddTags(_tagFactory.CreateTags(fileStatement.tags()));
+                CodeFile.AddTags(_tagFactory.CreateTags(fileStatement.tags()));
             }
         }
     }
@@ -142,8 +141,8 @@ public class SemanticAnalyzer : GrammarBaseVisitor<StatusCode> {
             funcSymb.AddParameter(new VariableSymbol(pType, pName));
         }
 
-        FileFunction fileFunc = new FileFunction(funcSymb, _codeFile);
-        var result = _codeFile.Functions.AddFunction(fileFunc);
+        FileFunction fileFunc = new FileFunction(funcSymb, CodeFile);
+        var result = CodeFile.Functions.AddFunction(fileFunc);
         if (result == false) {
             _errorHandler.ErrorInExpression(CctsError.OVERLOAD_DOESNT_MATCH_RET_TYPE, ctx, header.funcName());
         }
@@ -160,10 +159,10 @@ public class SemanticAnalyzer : GrammarBaseVisitor<StatusCode> {
         var varSymbols = SemanticUtil.GetVarSymbols(varCtx, _typeSystem);
 
         foreach (VariableSymbol symb in varSymbols) {
-            FileField field = new FileField(symb, _codeFile);
+            FileField field = new FileField(symb, CodeFile);
 
             var result = _fileScope.AddVariable(symb);
-            _codeFile.Fields.AddField(field);
+            CodeFile.Fields.AddField(field);
 
             if (!result)
                 _errorHandler.Error(CctsError.ALREADY_DEFINED, ctx);
@@ -185,7 +184,7 @@ public class SemanticAnalyzer : GrammarBaseVisitor<StatusCode> {
             funcSymb.AddParameter(new VariableSymbol(pType, pName));
         }
 
-        StructFunction structFunc = new StructFunction(_codeFile, funcSymb, fileStruct);
+        StructFunction structFunc = new StructFunction(CodeFile, funcSymb, fileStruct);
         fileStruct.Functions.AddFunction(structFunc);
     }
 
@@ -239,7 +238,11 @@ public class SemanticAnalyzer : GrammarBaseVisitor<StatusCode> {
         ModelFunction? func =
             CurrentScope.GetMatchingFunction(
                 SemanticUtil.GetIdFromDclCtx(ctx.funcDclHeader(), _typeSystem)
-            ); //Should be always non-null
+            );
+        
+        //Should be always non-null
+        if (func is null)
+            return;
 
         _currentBlock = func.CodeBody;
 

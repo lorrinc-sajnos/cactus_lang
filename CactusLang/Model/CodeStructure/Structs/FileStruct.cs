@@ -4,26 +4,22 @@ using CactusLang.Model.Types;
 namespace CactusLang.Model.CodeStructure.Structs;
 
 public class FileStruct {
-    private readonly string _id;
-    public string Name => _id;
-    
-    private CodeFile _codeFile;
-    public CodeFile CodeFile => _codeFile;
+    public string Name { get; }
 
-    private FieldStore<StructField> _fields;
-    public FieldStore<StructField> Fields => _fields;
+    public CodeFile CodeFile { get; }
 
-    private FunctionStore<StructFunction> _functions;
-    public FunctionStore<StructFunction> Functions => _functions;
-    
-    private FileStruct.Type _struct;
-    public FileStruct.Type StructType => _struct;
+    public FieldStore<StructField> Fields { get; }
+
+    public FunctionStore<StructFunction> Functions { get; }
+
+    public Type StructType { get; }
+
     public FileStruct(string id,  CodeFile codeFile) {
-        _id = id;
-        _codeFile = codeFile;
-        _fields = new FieldStore<StructField?>();
-        _functions = new FunctionStore<StructFunction>();
-        _struct = new(this);
+        Name = id;
+        CodeFile = codeFile;
+        Fields = new FieldStore<StructField>();
+        Functions = new FunctionStore<StructFunction>();
+        StructType = new(this);
     }
 
 
@@ -42,7 +38,8 @@ public class FileStruct {
         public override int Size => -999; //TODO C generálás alapján kiszámolni...
 
         protected override bool CanImplicitCastInto(BaseType other) {
-            throw new NotImplementedException();
+            //TODO
+            return false;
         }
     }
 }

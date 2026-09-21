@@ -1,16 +1,14 @@
-using CactusLang.Model.CodeStructure;
 using CactusLang.Model.CodeStructure.CodeBlocks;
 using CactusLang.Model.CodeStructure.File;
 using CactusLang.Model.Symbols;
 using CactusLang.Model.Types;
 using CactusLang.Tags;
 
-namespace CactusLang.Model;
+namespace CactusLang.Model.CodeStructure;
 
 public abstract class ModelFunction {
-    private TagContainer _tagContainer;
-    public TagContainer TagContainer => _tagContainer;
-    
+    public TagContainer TagContainer { get; }
+
     protected FunctionSymbol _symbol;
     protected CodeBlock _codeBody;
 
@@ -21,7 +19,7 @@ public abstract class ModelFunction {
         _symbol = symbol;
         _codeBody = new CodeBlock(this);
         _codeFile = file;
-        _tagContainer = new();
+        TagContainer = new();
     }
     public CodeBlock CodeBody => _codeBody;
     public FunctionSymbol Symbol => _symbol;

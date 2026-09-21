@@ -28,11 +28,6 @@ public class LiteralIntegerType : BaseType {
 
     //Maybe slow but it runs
     protected override bool CanImplicitCastInto(BaseType superiorType) {
-        foreach (var possibleType in _canBeUsedAs) {
-            if (possibleType.CanBeUsedAs(superiorType))
-                return true;
-        }
-
-        return false;
+        return _canBeUsedAs.Any(possibleType => possibleType.CanBeUsedAs(superiorType));
     }
 }

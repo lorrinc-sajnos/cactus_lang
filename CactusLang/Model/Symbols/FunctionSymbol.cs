@@ -1,7 +1,5 @@
 using CactusLang.Model.Types;
-using CactusLang.Semantics.Types;
 using CactusLang.Tags;
-using CactusLang.Tags.StatementTags;
 
 namespace CactusLang.Model.Symbols;
 

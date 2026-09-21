@@ -1,6 +1,6 @@
 using CactusLang.Model.Types;
 
-namespace CactusLang.Model.Operators;
+namespace CactusLang.Model.Operators.Unary;
 
 public class DereferenceOperator : UnaryOp {
     internal DereferenceOperator() : base(Side.LEFT, "*") { }

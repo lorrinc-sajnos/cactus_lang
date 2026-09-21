@@ -1,9 +1,8 @@
 using CactusLang.CodeGeneration;
-using CactusLang.CodeGeneration.CCodeGenerator;
 using CactusLang.Model;
+using CactusLang.Model.CodeStructure;
 using CactusLang.Model.CodeStructure.Statements;
 using CactusLang.Tags;
-using CactusLang.Tags.StatementTags;
 
 namespace CactusLang.CustomTagDll;
 

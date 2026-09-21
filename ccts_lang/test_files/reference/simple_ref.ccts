@@ -1,0 +1,20 @@
+struct Foo{
+    i32 bar_a;
+    ch08* st;
+}
+
+i32 main(){
+    Foo foo_1;
+
+    //Direct access
+    foo_1:bar_a = 1234;
+
+
+    //Creates a pointer
+    Foo* foo_2 = alloc Foo;
+    
+    //Access using dot! :)
+    foo_2.bar_a = 124;
+
+    return 0;
+}

@@ -5,12 +5,11 @@ using CactusLang.Model.Types;
 namespace CactusLang.Model.CodeStructure.Statements;
 
 public class ReturnStatement : Statement {
-    private Expression _expression;
-    
-    public Expression Expression => _expression;
+    public Expression Expression { get; }
+
     public BaseType ReturnType => Expression.GetResultType();
 
     public ReturnStatement(CodeBlock codeBlock, Expression expression) : base(codeBlock) {
-        _expression = expression;
+        Expression = expression;
     }
 }

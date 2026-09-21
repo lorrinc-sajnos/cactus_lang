@@ -1,5 +1,3 @@
-using System.Runtime.CompilerServices;
-
 namespace CactusLang.CodeGeneration.CCodeGenerator;
 
 public class CodeScope : CodeSegment {

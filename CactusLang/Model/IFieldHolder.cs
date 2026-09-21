@@ -1,3 +1,5 @@
+using CactusLang.Model.CodeStructure;
+
 namespace CactusLang.Model;
 
 public interface IFieldHolder {

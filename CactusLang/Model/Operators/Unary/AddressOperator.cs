@@ -1,6 +1,6 @@
 using CactusLang.Model.Types;
 
-namespace CactusLang.Model.Operators;
+namespace CactusLang.Model.Operators.Unary;
 
 public class AddressOperator : UnaryOp {
     internal AddressOperator() : base(Side.LEFT, "&") { }

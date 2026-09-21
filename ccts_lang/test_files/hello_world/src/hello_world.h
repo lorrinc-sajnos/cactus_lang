@@ -3,5 +3,6 @@
 // :D
 #include "ccts_std.h"
 i32 main();
+void print_ln(ch08* str);
 #endif
 

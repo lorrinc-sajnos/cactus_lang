@@ -5,10 +5,9 @@ using CactusLang.Model.Types;
 namespace CactusLang.Model.Symbols;
 
 public class StructFieldRefSymbol : VariableSymbol {
-    private FileStruct _parent;
-    public FileStruct Parent => _parent;
+    public FileStruct Parent { get; }
 
     public StructFieldRefSymbol(FileStruct parent, VariableSymbol symbol) : base(symbol) {
-        _parent = parent;
+        Parent = parent;
     }
 }

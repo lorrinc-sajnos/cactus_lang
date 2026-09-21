@@ -1,9 +1,7 @@
-using CactusLang.Semantics.Types;
-
 namespace CactusLang.Model.Types;
 
 public class PointerType : BaseType {
-    private BaseType _pointsTo;
+    private readonly BaseType _pointsTo;
     
     public BaseType PointsTo => _pointsTo;
     
@@ -38,5 +36,9 @@ public class PointerType : BaseType {
         }
 
         return false;
+    }
+
+    public override int GetHashCode() {
+        return _pointsTo.GetHashCode();
     }
 }

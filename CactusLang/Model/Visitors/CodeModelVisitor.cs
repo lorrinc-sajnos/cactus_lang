@@ -10,6 +10,7 @@ using CactusLang.Model.CodeStructure.Statements;
 using CactusLang.Model.CodeStructure.Structs;
 using CactusLang.Model.Operators;
 using CactusLang.Model.Operators.ObjectRefference;
+using CactusLang.Model.Operators.Unary;
 using Expression = CactusLang.Model.CodeStructure.Expressions.Expression;
 using ObjectFieldRef = CactusLang.Model.Operators.ObjectRefference.ObjectFieldRef;
 

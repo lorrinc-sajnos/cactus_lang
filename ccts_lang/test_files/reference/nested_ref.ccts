@@ -1,0 +1,26 @@
+struct Foo{
+    Foo* parent;
+    Bar* inner_bar;
+}
+
+struct Bar{
+    i32 number;
+}
+
+
+i32 main(){
+    Foo* foo_a = alloc Foo;
+    Foo* foo_b = alloc Foo;
+
+    Bar* bar_0 = alloc Bar;
+
+    bar_0.number = 2026;
+
+    foo_b.inner_bar = bar_0;
+
+    foo_a.parent = foo_b;
+
+    foo_a.parent.parent.inner_bar.number += 2;
+
+    return 0;
+}

@@ -1,0 +1,71 @@
+//C pointer: '%'
+//Works the same as in C
+
+i32 val = 1234;
+i32% ptr = &val;
+i32 b = %ptr;
+
+printf(b);      //1234
+
+//Pointer arithmetic
+i32[] array = [-1,789,145,0];
+i32% ptr = &array;
+ptr++;
+
+printf(%ptr);   //789
+
+
+//Dynamic pointers
+i32% dyn_ptr = alloc;
+
+%dyn_ptr = 6767;
+
+//Dynamic array
+i32% dyn_array = alloc i32%[10];
+
+
+
+
+//Cactus pointer
+//'new' Keyword
+
+i32 foo = 1234;
+i32* bar = new 1234; //
+
+//Translates to
+$$C{
+    i32* bar = (i32*)malloc(sizeof(bar));
+
+    *bar = 1234;
+
+}C$$
+
+printf(*bar); // 1234
+
+bar.val = 5678;
+
+printf(*bar); // 5678
+printf(bar.val); // 5678
+
+
+i32 main(){
+
+    i32* temp = new 1234;
+
+    foo(temp);
+
+
+    temp.val = 12; //ERROR, nullptr
+
+
+}
+
+
+void ptr_print_func(keep Foo* ptr) {
+
+
+}
+
+
+
+

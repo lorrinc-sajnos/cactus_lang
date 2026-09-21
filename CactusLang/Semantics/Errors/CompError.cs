@@ -1,5 +1,6 @@
 using Antlr4.Runtime;
 using CactusLang.Model;
+using CactusLang.Model.Codefiles;
 using CactusLang.Model.Errors;
 
 namespace CactusLang.Semantics.Errors;
@@ -25,7 +26,7 @@ public class CompError {
             Title = string.Format(error.Title, errParams);
             Msg = string.Format(error.Msg, errParams);
         }
-        catch (Exception e) {
+        catch (Exception) {
             Title = Error.Title+"|ERR";
             Msg = Error.Msg+"|ERR";
         }

@@ -9,7 +9,7 @@ public class CctsError {
     public string Msg { get; private set; }
     public Exception Exception { get; private set; }
 
-    private readonly List<CctsError> errors = new();
+    private readonly List<CctsError> _errors = [];
 
     private CctsError(int code, string title, string msg) {
         Code = code;
@@ -17,15 +17,15 @@ public class CctsError {
         Msg = msg;
         Exception = new Exception(msg);
 
-        if (errors.Any(e => e.Code == code)) {
-            var err = errors.First(e => e.Code == code);
+        if (_errors.Any(e => e.Code == code)) {
+            var err = _errors.First(e => e.Code == code);
             throw new Exception($"Two errors with the code {code}:"
                                 + $"\n{Title}:\n{Msg}"
                                 + $"\n{err.Title}:\n{err.Msg}"
             );
         }
 
-        errors.Add(this);
+        _errors.Add(this);
     }
 
     public CompError CompTime(ErrorHandler errorHandler, ParserRuleContext ctx, params object[] msgParams) =>
