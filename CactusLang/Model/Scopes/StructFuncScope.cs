@@ -1,5 +1,4 @@
 using CactusLang.Model.CodeStructure;
-using CactusLang.Model.CodeStructure.File;
 using CactusLang.Model.CodeStructure.Structs;
 using CactusLang.Model.Symbols;
 using CactusLang.Model.Types;
@@ -7,7 +6,7 @@ using CactusLang.Model.Types;
 namespace CactusLang.Model.Scopes;
 
 public class StructFuncScope : Scope {
-    private FileStruct _fileStruct;
+    private readonly FileStruct _fileStruct;
     private VariableSymbol _thisPtr;
 
     public StructFuncScope(FileStruct fileStruct) {
@@ -19,11 +18,11 @@ public class StructFuncScope : Scope {
 
     private void InitVariables() {
         foreach (var varSymbol in _fileStruct.Fields.GetFields()) {
-            var result = this.AddVariable(new StructFieldRefSymbol(_fileStruct, varSymbol.Symbol));
+            var result = AddVariable(new StructFieldRefSymbol(_fileStruct, varSymbol.Symbol));
         }
     }
 
-    public override ModelFunction? GetMatchingFunction(FuncId id) {
+    public override ModelFunction? GetMatchingFunction(FuncID id) {
         if (_fileStruct.Functions.ContainsMatchingFunction(id))
             return _fileStruct.Functions.GetMatchingFunction(id);
 

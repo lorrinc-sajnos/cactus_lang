@@ -25,8 +25,8 @@ public class StructType_OLD : BaseType {
         return _variables.Values.ToList();
     }
 
-    public bool ContainsMatchingFunction(FuncId id) => _instanceFunctionsSymbol.ContainsMatchingFunction(id);
-    public FunctionSymbol? GetMatchingFunction(FuncId id) => _instanceFunctionsSymbol.GetMatchingFunction(id);
+    public bool ContainsMatchingFunction(FuncID id) => _instanceFunctionsSymbol.ContainsMatchingFunction(id);
+    public FunctionSymbol? GetMatchingFunction(FuncID id) => _instanceFunctionsSymbol.GetMatchingFunction(id);
 
     public VariableSymbol? GetField(string name) {
         if  (_variables.ContainsKey(name)) { return _variables[name]; }

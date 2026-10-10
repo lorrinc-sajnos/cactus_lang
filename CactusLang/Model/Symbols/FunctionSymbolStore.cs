@@ -3,13 +3,13 @@ using CactusLang.Util;
 namespace CactusLang.Model.Symbols;
 
 public class FunctionSymbolStore {
-    private readonly OrderedDictionary<FuncId, FunctionSymbol> _functions;
+    private readonly OrderedDictionary<FuncID, FunctionSymbol> _functions;
 
     public FunctionSymbolStore() {
-        _functions = new OrderedDictionary<FuncId, FunctionSymbol>();
+        _functions = new OrderedDictionary<FuncID, FunctionSymbol>();
     }
 
-    public FunctionSymbol? GetExactFunction(FuncId id) {
+    public FunctionSymbol? GetExactFunction(FuncID id) {
         if (!_functions.ContainsKey(id)) {
             //throw new Exception($"Function {id} does not exist.");
 
@@ -20,28 +20,28 @@ public class FunctionSymbolStore {
         return _functions[id];
     }
 
-    public bool ContainsExactFunction(FuncId id) => _functions.ContainsKey(id);
+    public bool ContainsExactFunction(FuncID id) => _functions.ContainsKey(id);
     
     
-    public FunctionSymbol? GetMatchingFunction(FuncId id) {
+    public FunctionSymbol? GetMatchingFunction(FuncID id) {
         if (ContainsExactFunction(id))
             return _functions[id];
 
-        FuncId? guessedId = GetMatchingId(id);
+        FuncID? guessedId = GetMatchingId(id);
 
         if (guessedId == null)
             return null;
 
         return _functions[guessedId.Value];
     }
-    public bool ContainsMatchingFunction(FuncId id) {
+    public bool ContainsMatchingFunction(FuncID id) {
         if (ContainsExactFunction(id)) return true;
 
-        FuncId? guessedId = GetMatchingId(id);
+        FuncID? guessedId = GetMatchingId(id);
         return guessedId != null;
     }
 
-    public FuncId? GetMatchingId(FuncId id) {
+    public FuncID? GetMatchingId(FuncID id) {
         if (_functions.ContainsKey(id))
             return id;
 

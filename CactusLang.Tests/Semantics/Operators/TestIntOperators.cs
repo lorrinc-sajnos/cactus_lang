@@ -6,7 +6,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace CactusLang.Tests.Semantics.Operators;
 
 [TestClass]
-[TestSubject(typeof(SemanticAnalyzer))]
+[TestSubject(typeof(SemanticFileAnalyzer))]
 public class TestIntOperators {
     
     #region Basic operators

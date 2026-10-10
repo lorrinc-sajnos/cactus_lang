@@ -1,6 +1,6 @@
 using Antlr4.Runtime;
+using CactusLang.Compiling.Codefiles;
 using CactusLang.Model;
-using CactusLang.Model.Codefiles;
 using CactusLang.Model.Errors;
 
 namespace CactusLang.Semantics.Errors;

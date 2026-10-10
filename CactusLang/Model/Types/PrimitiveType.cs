@@ -46,7 +46,7 @@ public class PrimitiveType : BaseType {
 
     protected override bool CanImplicitCastInto(BaseType superiorType) {
         if (superiorType is PrimitiveType superiorPrim) {
-            return (superiorPrim._subset.Contains(this) || this.Equals(superiorPrim));
+            return (superiorPrim._subset.Contains(this) || Equals(superiorPrim));
         }
         if (superiorType is LiteralIntegerType superiorInt) {
             return superiorInt.CanBeUsedAs(this);

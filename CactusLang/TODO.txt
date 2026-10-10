@@ -1,0 +1,16 @@
+TODO:
+Test!
+Essential features
+    Linking multiple files    
+    Templates
+        Arrays
+    String
+    Interface
+    
+    Class
+    
+    
+    
+    
+LINKING MULTIPLE FILES
+    

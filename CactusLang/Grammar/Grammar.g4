@@ -3,12 +3,26 @@
 grammar Grammar;
 
 
-codefile: (fileStatement)* EOF;
+codefile
+    : (headerStatement)*
+     (fileStatement)* EOF;
 
 //Parser Rules
 tags: tag+;
 tag: TAG;
 
+headerStatement
+        : (includeFile EOS);
+    
+    
+    includeFile: KYW_INCLUDE filepath KYW_AS fileAlias; //include <file>;
+        fileAlias: ID;
+        
+        
+        filepath: ID (OP_DIV ID)* (OP_REF ID)? ;
+    
+    
+    
 fileStatement
     : (tags EOS)
 	//| tags EOS
@@ -17,12 +31,6 @@ fileStatement
 	| (structDcl)
 	//| (classDcl)
 	;
-
-preprocessor_stm: (ppc__Include);
-
-
-filepath: OP_LST ID (OP_DIV ID)* OP_GRT;
-ppc__Include: KYW_INCLUDE filepath; //include <file>;
 
 type: ID | PTR_ID;
 
@@ -285,28 +293,39 @@ ppc__funcCall: ppc__funcRef PARN_OPN funcParamVals? PARN_CLS;
 //Global Statements
 
 //Keywords:
+
+//
 KYW_INCLUDE: 'include';
+KYW_AS: 'as';
+KYW_UNDERSC: '_';
+
+//Class keywords:
 KYW_STRUCT: 'struct';
-KYW_IMPLEMENTS: 'implements';
-
-//class keywords:
-
 KYW_CLASS: 'class';
 KYW_STATIC: 'static';
+KYW_IMPLEMENTS: 'implements';
 
 //Literal keywords
+KYW_RETURN: 'return';
 KYW_TRUE: 'true';
 KYW_FALSE: 'false';
 KYW_NULL: 'nullptr';
-KYW_IF: 'if';
+
+//Controll
+KYW_IF: 'if';           
 KYW_ELSE: 'else';
 KYW_FOR: 'for';
 KYW_WHILE: 'while';
-KYW_RETURN: 'return';
 KYW_BREAK: 'break';
 KYW_CONTINUE: 'continue';
+
+//Memory management
 KYW_FREE: 'free';
 KYW_ALLOC: 'alloc';
+KYW_KEEP: 'keep';
+
+//
+
 
 TAG_PRFX: '@';
 
@@ -361,7 +380,7 @@ PARN_CLS: ')';
 SQPN_OPN: '[';
 SQPN_CLS: ']';
 
-//Literal operators:
+//Literal operators: haló
 
 
 //Preprocessor magic

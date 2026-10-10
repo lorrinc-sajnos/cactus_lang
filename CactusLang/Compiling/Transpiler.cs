@@ -1,50 +1,54 @@
 using CactusLang.CodeGeneration;
-using CactusLang.Model.Codefiles;
+using CactusLang.Compiling.Codefiles;
 using CactusLang.Semantics;
 
-namespace CactusLang.Transpiling;
+namespace CactusLang.Compiling;
 
 public class Transpiler {
-	public string InputFile { get; private set; }
-	public string OutputFile { get; private set; }
+	public string InputFilepath { get; }
+	public string OutputFile { get; }
 
 	//Transpiler 
-	public CodeSourceFile CodeSourceFile { get; private set; }
-	public SemanticAnalyzer? Analyzer { get; private set; }
+	public CactusGrove Grove { get; }
 	public CodeGenerator? CodeGenerator { get; private set; }
 	public GccInstance? GccInstance { get; private set; }
+	
+	public SemanticFileAnalyzer RootFileAnalyzer { get; private set; }
 
-	public Transpiler(string inputFile, string outputFile) {
-		InputFile = inputFile;
-		OutputFile = outputFile;
-		
-		CodeSourceFile = new CodeSourceFile(InputFile);
+	public Transpiler(CactusGrove grove) {
+		Grove = grove;
+		InputFilepath = grove.RootFilePath;
+		OutputFile = grove.OutputFilePath;
 	}
 
 	public void SemanticAnalysis() {
-		Analyzer = new SemanticAnalyzer(CodeSourceFile);
-		Analyzer.Analyze();
+		RootFileAnalyzer = new SemanticFileAnalyzer(Grove.RootFile);
+		
+		RootFileAnalyzer.AnalyzeFile();
 	}
 
 	public void GenerateCCode() {
-		CodeGenerator = new CodeGenerator(Analyzer!.CodeFile, InputFile);
-		
-		CodeGenerator.GenerateCode();
-		CodeGenerator.GenerateFiles();
+		foreach(var file in Grove.GetFiles()){
+			var codeGenerator = new CodeGenerator(file, file.SourceFile.Path);
+
+			codeGenerator.GenerateCode();
+			codeGenerator.GenerateFiles();
+		}
 	}
 
 	public void GccCompilation() {
-		GccInstance = new GccInstance(CodeGenerator!.FilePath, OutputFile);
+		//TEMP
+		GccInstance = new GccInstance(Grove, OutputFile);
 		GccInstance.Compile();
 	}
 
 	public void Compile() {
-		Console.WriteLine($"-\tBegin parsing file {InputFile}");
-		
+		Console.WriteLine($"-\tBegin parsing file {InputFilepath}");
+
 		SemanticAnalysis();
-		
-		Analyzer!.ErrorHandler.PrintErrors();
-		if (Analyzer!.ErrorHandler.GetErrors().Count > 0) {
+
+		RootFileAnalyzer!.ErrorHandler.PrintErrors();
+		if (RootFileAnalyzer!.ErrorHandler.GetErrors().Count > 0) {
 			Console.WriteLine("-\tParsing failed");
 			Console.WriteLine("-\tC code generation terminated");
 
@@ -52,13 +56,13 @@ public class Transpiler {
 		}
 
 		Console.WriteLine("-\tParsing finished");
-		
+
 		GenerateCCode();
 
 		Console.WriteLine("-\tC code generation finished");
 
 		GccCompilation();
-		
+
 		if (GccInstance!.HasError) {
 			Console.WriteLine("-\tGCC ERROR:");
 			Console.WriteLine($"-\t{GccInstance!.ErrorStr}");

@@ -1,5 +1,4 @@
 using CactusLang.Model.CodeStructure;
-using CactusLang.Model.CodeStructure.File;
 using CactusLang.Model.Symbols;
 using CactusLang.Util;
 
@@ -52,7 +51,7 @@ public class Scope {
         return true;
     }
 
-    public virtual ModelFunction? GetMatchingFunction(FuncId id) {
+    public virtual ModelFunction? GetMatchingFunction(FuncID id) {
         return _parent.GetMatchingFunction(id);
     }
 

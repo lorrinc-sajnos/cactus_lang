@@ -55,7 +55,7 @@ public class CctsError {
         "Overload of function \"{0}\" return type has to be \"{1}\"");
 
     public static readonly CctsError BAD_OBJ_REF =
-        new(7, "Invalid referrence: {0}", "Object reference {0} is not valid.");
+        new(7, "Invalid reference: {0}", "Object reference {0} is not valid.");
 
     public static readonly CctsError TYPE_MISMATCH =
         new(8, "Cannot assign type {0} =/> {1}", "Cannot assign type {0} to {1}.");

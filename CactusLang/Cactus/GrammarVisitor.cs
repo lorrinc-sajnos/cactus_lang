@@ -50,17 +50,11 @@ public interface IGrammarVisitor<Result> : IParseTreeVisitor<Result> {
 	/// <return>The visitor result.</return>
 	Result VisitTag([NotNull] GrammarParser.TagContext context);
 	/// <summary>
-	/// Visit a parse tree produced by <see cref="GrammarParser.fileStatement"/>.
+	/// Visit a parse tree produced by <see cref="GrammarParser.headerStatement"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	/// <return>The visitor result.</return>
-	Result VisitFileStatement([NotNull] GrammarParser.FileStatementContext context);
-	/// <summary>
-	/// Visit a parse tree produced by <see cref="GrammarParser.preprocessor_stm"/>.
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	/// <return>The visitor result.</return>
-	Result VisitPreprocessor_stm([NotNull] GrammarParser.Preprocessor_stmContext context);
+	Result VisitHeaderStatement([NotNull] GrammarParser.HeaderStatementContext context);
 	/// <summary>
 	/// Visit a parse tree produced by <see cref="GrammarParser.filepath"/>.
 	/// </summary>
@@ -68,11 +62,23 @@ public interface IGrammarVisitor<Result> : IParseTreeVisitor<Result> {
 	/// <return>The visitor result.</return>
 	Result VisitFilepath([NotNull] GrammarParser.FilepathContext context);
 	/// <summary>
-	/// Visit a parse tree produced by <see cref="GrammarParser.ppc__Include"/>.
+	/// Visit a parse tree produced by <see cref="GrammarParser.includeFile"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	/// <return>The visitor result.</return>
-	Result VisitPpc__Include([NotNull] GrammarParser.Ppc__IncludeContext context);
+	Result VisitIncludeFile([NotNull] GrammarParser.IncludeFileContext context);
+	/// <summary>
+	/// Visit a parse tree produced by <see cref="GrammarParser.fileAlias"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitFileAlias([NotNull] GrammarParser.FileAliasContext context);
+	/// <summary>
+	/// Visit a parse tree produced by <see cref="GrammarParser.fileStatement"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitFileStatement([NotNull] GrammarParser.FileStatementContext context);
 	/// <summary>
 	/// Visit a parse tree produced by <see cref="GrammarParser.type"/>.
 	/// </summary>

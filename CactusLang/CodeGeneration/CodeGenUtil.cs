@@ -1,5 +1,5 @@
 using CactusLang.Model.CodeStructure;
-using CactusLang.Model.CodeStructure.File;
+using CactusLang.Model.CodeStructure.FileContent;
 using CactusLang.Model.CodeStructure.Statements;
 using CactusLang.Model.CodeStructure.Structs;
 using CactusLang.Util;
@@ -115,7 +115,7 @@ public static class CodeGenUtil {
                     result += $" = {varVal}";
                 }
             },
-            () => result += CodeGenUtil.PARAM_SEP
+            () => result += PARAM_SEP
         );
         result += ";";
         return result;

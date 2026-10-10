@@ -1,4 +1,6 @@
 using Antlr4.Runtime;
+using CactusLang.Compiling.Codefiles;
+using CactusLang.Model;
 using CactusLang.Model.CodeStructure.Expressions;
 using CactusLang.Model.Errors;
 using CactusLang.Model.Types;
@@ -30,11 +32,11 @@ public class ErrorHandler {
 
     private readonly List<CompError> _errors;
 
-    public ErrorHandler(string filename) {
+    public ErrorHandler(CactusFile file) {
         _errors = new List<CompError>();
         ErrorListener = new(this);
         //_throwOnError =  throwOnError;
-        Filename = filename;
+        Filename = file.Filename;
     }
 
     private void AddCompError(CompError error) {
@@ -79,6 +81,8 @@ public class ErrorHandler {
     }
 
     public List<CompError> GetErrors() => _errors;
+    
+    public bool HasErrors() => _errors.Count > 0;
     #endregion
 
     public void PrintErrors() {

@@ -1,8 +1,17 @@
 using System.Diagnostics;
 
-namespace CactusLang.Transpiling;
+namespace CactusLang.Compiling;
 
-public class GccInstance(string filename, string outputFileName) {
+public class GccInstance {
+	public string OutputFileName { get; }
+
+	private CactusGrove _grove;
+
+	public GccInstance(CactusGrove grove,  string outputFileName) {
+		_grove = grove;
+		OutputFileName = outputFileName;
+	}
+
 	public const string CCTS_STD_COMP_INCL = "/ccts_lang/cactus_std/ccts_std_comp_incl/";
 	
 	
@@ -15,20 +24,20 @@ public class GccInstance(string filename, string outputFileName) {
 		string gccCmd = "gcc";
 
 		List<string> args = new();
-		
-		args.Add($"\"{filename}.c\"");
-		
-		var includeFiles = GetIncludeFiles();
+		foreach (string filename in _grove.RootFile.CFilesGenerated)
+			args.Add($"\"{filename}\"");
 		
 		//Include the CCTS STD library
 		args.Add($"-I {CCTS_STD_COMP_INCL}");
 		
-		
-		foreach (var includeFile in includeFiles) {
-			args.Add($"\"{includeFile}\"");
+		//SSTD include
+		var stdIncludeFiles = GetIncludeFiles();
+		foreach (var stdIncludeFile in stdIncludeFiles) {
+			args.Add($"\"{stdIncludeFile}\"");
 		}
 		
-		args.Add($"-o \"{outputFileName}\"");
+		args.Add($"-o \"{OutputFileName}\"");
+		
 
 		string gccArgs =  string.Join(" ", args);
 
@@ -37,6 +46,10 @@ public class GccInstance(string filename, string outputFileName) {
 		gccProc.StartInfo.FileName = gccCmd;
 		gccProc.StartInfo.Arguments = gccArgs;
 
+		//Print cmd to console:
+		
+		
+		
 		// Redirect output so we can read it in C#
 		gccProc.StartInfo.RedirectStandardOutput = true;
 		gccProc.StartInfo.RedirectStandardError = true;

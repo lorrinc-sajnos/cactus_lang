@@ -1,5 +1,4 @@
 using CactusLang.Model.CodeStructure;
-using CactusLang.Model.CodeStructure.File;
 using CactusLang.Model.CodeStructure.Structs;
 using CactusLang.Model.Symbols;
 using CactusLang.Model.Types;
@@ -9,13 +8,13 @@ using CactusLang.Semantics.Errors;
 namespace CactusLang.Model.Scopes;
 
 public class FileScope : Scope {
-    private readonly CodeFile _codeFile;
+    private readonly CactusFile _cactusFile;
     private Scope _currentScope;
     private readonly ErrorHandler _errorHandler;
     public Scope CurrentScope => _currentScope;
 
-    public FileScope(CodeFile codeFile,ErrorHandler errorHandler) {
-        _codeFile = codeFile;
+    public FileScope(CactusFile cactusFile,ErrorHandler errorHandler) {
+        _cactusFile = cactusFile;
         _errorHandler = errorHandler;
         _currentScope = this;
         //_fileFunctionSymbolStore = new();
@@ -38,7 +37,7 @@ public class FileScope : Scope {
 
     //public override FunctionSymbol? GetExactFunction(FuncId id) => _fileFunctionStore.GetExactFunction(id);
 
-    public override ModelFunction? GetMatchingFunction(FuncId id) => _codeFile.Functions.GetMatchingFunction(id);
+    public override ModelFunction? GetMatchingFunction(FuncID id) => _cactusFile.Functions.GetMatchingFunction(id);
     
     public override int GetScopeDepth() => 0;
 }

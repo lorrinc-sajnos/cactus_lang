@@ -1,6 +1,6 @@
 using System;
+using CactusLang.Compiling.Codefiles;
 using CactusLang.Model;
-using CactusLang.Model.Codefiles;
 using CactusLang.Semantics;
 using JetBrains.Annotations;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -8,14 +8,12 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace CactusLang.Tests.Semantics;
 
 [TestClass]
-[TestSubject(typeof(SemanticAnalyzer))]
+[TestSubject(typeof(SemanticFileAnalyzer))]
 public class GrammarTest {
     
 
     [TestMethod]
     public void TestObjectReference() {
-        CactusLangModel.InitCactusLang();
-        
         CctsAssert.FileNoErrors("/ccts_lang/test_files/reference/simple_ref.ccts");
         //reference
         CctsAssert.FileNoErrors("/ccts_lang/test_files//reference/nested_ref.ccts");
@@ -27,11 +25,11 @@ public class GrammarTest {
         
         string path = "test_files/type_system/impl_cast/test_impl_cast_fail_small.ccts";
         
-        CodeSourceFile file = new CodeSourceFile(path);
+        CactusGrove grove = new(path);
         Console.WriteLine($"Testing file: {path}");
-        SemanticAnalyzer analyzer = new SemanticAnalyzer(file);
-        analyzer.Analyze();
-        analyzer.ErrorHandler.PrintErrors();
+        SemanticFileAnalyzer fileAnalyzer = new SemanticFileAnalyzer(grove.RootFile);
+        fileAnalyzer.AnalyzeFile();
+        fileAnalyzer.ErrorHandler.PrintErrors();
         //AssertNoErrors(analyzer);
         long test = 12345678901;
         Console.WriteLine($"Done!\n\n");

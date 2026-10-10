@@ -5,7 +5,7 @@ using CactusLang.Model.CodeStructure.Expressions;
 using CactusLang.Model.CodeStructure.Expressions.PrimaryExpressions;
 using CactusLang.Model.CodeStructure.Expressions.PrimaryExpressions.LiteralExpressions;
 using CactusLang.Model.CodeStructure.Expressions.PrimaryExpressions.ObjectReference;
-using CactusLang.Model.CodeStructure.File;
+using CactusLang.Model.CodeStructure.FileContent;
 using CactusLang.Model.CodeStructure.Statements;
 using CactusLang.Model.CodeStructure.Structs;
 using CactusLang.Model.Operators;
@@ -38,10 +38,10 @@ public class CodeModelVisitor<T> {
     private T GetResult(List<T> statuses) => AggregateResults(statuses.ToArray());
 
 
-    protected virtual T VisitCodeFile(CodeFile file) {
-        var strResult = VisitFileStructs(file.GetStructs());
-        var varResult = VisitFileFields(file.Fields.GetFields());
-        var funcResult = VisitFileFunctions(file.Functions.GetFunctions());
+    protected virtual T VisitCodeFile(CactusFile cactusFile) {
+        var strResult = VisitFileStructs(cactusFile.GetStructs());
+        var varResult = VisitFileFields(cactusFile.Fields.GetFields());
+        var funcResult = VisitFileFunctions(cactusFile.Functions.GetFunctions());
 
         return AggregateResults(strResult, varResult, funcResult);
     }

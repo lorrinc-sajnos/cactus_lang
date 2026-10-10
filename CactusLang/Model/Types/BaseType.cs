@@ -13,7 +13,7 @@ public abstract class BaseType {
     }
 
     public bool CanBeUsedAs(BaseType superiorType) {
-        return this.Equals(superiorType) || this.CanImplicitCastInto(superiorType);
+        return Equals(superiorType) || CanImplicitCastInto(superiorType);
     }
     
     protected abstract bool CanImplicitCastInto(BaseType superiorType);

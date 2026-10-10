@@ -1,6 +1,7 @@
 using CactusLang.CodeGeneration.CCodeGenerator;
+using CactusLang.Model;
 using CactusLang.Model.CodeStructure;
-using CactusLang.Model.CodeStructure.File;
+using CactusLang.Model.CodeStructure.FileContent;
 using CactusLang.Model.CodeStructure.Statements;
 using CactusLang.Model.CodeStructure.Structs;
 using CactusLang.Model.Visitors;
@@ -15,8 +16,8 @@ public class CodeGenerator : CodeModelVisitor<int> {
 
     private State _state;
     public State GenState => _state;
-    private CodeFile _codeFile;
-    public CodeFile CodeFile => _codeFile;
+    private CactusFile _cactusFile;
+    public CactusFile CactusFile => _cactusFile;
     private CodeStore _codeStore;
     public CodeStore CodeStore => _codeStore;
 
@@ -59,15 +60,15 @@ public class CodeGenerator : CodeModelVisitor<int> {
 
     #endregion
 
-    public CodeGenerator(CodeFile file, string outputFile) : base(1, 0) {
+    public CodeGenerator(CactusFile cactusFile, string outputFileName) : base(1, 0) {
         _state = new();
-        _codeFile = file;
+        _cactusFile = cactusFile;
         _codeStore = new();
         Source = _codeStore.Source;
         Header = _codeStore.Header;
 
-        _fileName = Path.GetFileNameWithoutExtension(outputFile);
-        _directory = Path.GetDirectoryName(outputFile) ?? "";
+        _fileName = Path.GetFileNameWithoutExtension(outputFileName);
+        _directory = Path.GetDirectoryName(outputFileName) ?? "";
         _outDirectory = $"{_directory}/src";
     }
 
@@ -75,7 +76,7 @@ public class CodeGenerator : CodeModelVisitor<int> {
         InitHeader();
         InitSource();
 
-        VisitCodeFile(_codeFile);
+        VisitCodeFile(_cactusFile);
     }
 
     public void PrintCode() {
@@ -243,13 +244,13 @@ public class CodeGenerator : CodeModelVisitor<int> {
 
     #region Tag visits
 
-    private void VisitFileTags(CodeFile file, Action<Tag> action) {
-        foreach (Tag tag in file.TagContainer.GetTags())
+    private void VisitFileTags(CactusFile cactusFile, Action<Tag> action) {
+        foreach (Tag tag in cactusFile.TagContainer.GetTags())
             action(tag);
     }
 
     private void VisitFunctionTags(ModelFunction func, Action<Tag> action) {
-        VisitFileTags(func.CodeFile, action);
+        VisitFileTags(func.CactusFile, action);
 
         foreach (Tag tag in func.TagContainer.GetTags())
             action(tag);
@@ -273,11 +274,13 @@ public class CodeGenerator : CodeModelVisitor<int> {
         //Generate Header file
         string headerPath = $"{_outDirectory}/{_fileName}.h";
         WriteCodeScopeToFile(headerPath, Header);
+        _cactusFile.HFilesGenerated.Add(headerPath);
 
         //Generate Source file
         string sourcePath = $"{_outDirectory}/{_fileName}.c";
         WriteCodeScopeToFile(sourcePath, Source);
-
+        _cactusFile.CFilesGenerated.Add(sourcePath);
+        
         //CopyCctsStd();
     }
 
@@ -293,7 +296,4 @@ public class CodeGenerator : CodeModelVisitor<int> {
 
     #endregion
 
-    private void CopyCctsStd() {
-        File.Copy(CCTS_STD_DIRECTORY, $"{_outDirectory}/{CCTS_STD_DIRECTORY}", overwrite: true);
-    }
 }

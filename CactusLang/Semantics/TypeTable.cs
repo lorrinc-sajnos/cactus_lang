@@ -1,3 +1,4 @@
+using CactusLang.Model;
 using CactusLang.Model.CodeStructure.Structs;
 using CactusLang.Model.Errors;
 using CactusLang.Model.Types;
@@ -7,12 +8,14 @@ namespace CactusLang.Semantics;
 
 //
 
-public class TypeSystem {
+public class TypeTable {
+    private readonly CactusFile _file;
     private readonly ErrorHandler _errorHandler;
     private readonly OrderedDictionary<string, BaseType> _types;
 
-    public TypeSystem(ErrorHandler errorHandler) {
-        _errorHandler = errorHandler;
+    public TypeTable(CactusFile file) {
+        _file = file;
+        _errorHandler = file.ErrorHandler;
         _types = new();
         AddPrimitives();
     }

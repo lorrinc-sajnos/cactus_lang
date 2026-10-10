@@ -1,3 +1,4 @@
+using CactusLang.Model;
 using CactusLang.Model.CodeStructure.Statements;
 using CactusLang.Model.Symbols;
 using CactusLang.Model.Types;
@@ -7,21 +8,21 @@ namespace CactusLang.Semantics;
 
 public static class SemanticUtil {
     
-    public static FuncId GetIdFromDclCtx(GP.FuncDclHeaderContext ctx, TypeSystem typeSystem) {
+    public static FuncID GetIdFromDclCtx(GP.FuncDclHeaderContext ctx, CactusFile file) {
         string funcName = ctx.funcName().GetText();
         List<BaseType> paramTypes = new();
         foreach(var param in ctx.param()) {
             
-            paramTypes.Add(typeSystem.Get(param.type()) );
+            paramTypes.Add(file.TypeTable.Get(param.type()) );
         }
 
-        return new FuncId(funcName, paramTypes);
+        return new FuncID(funcName, file, paramTypes);
     }
     
     
-    public static List<VariableSymbol> GetVarSymbols(GrammarParser.VarDclContext varCtx, TypeSystem typeSystem) {
+    public static List<VariableSymbol> GetVarSymbols(GrammarParser.VarDclContext varCtx, TypeTable typeTable) {
         List<VariableSymbol> varSymbols = new List<VariableSymbol>();
-        BaseType type = typeSystem.Get(varCtx.type());
+        BaseType type = typeTable.Get(varCtx.type());
         foreach (var varBody in varCtx.varDclBody()) {
             varSymbols.Add(new VariableSymbol(type, varBody.varName().GetText()));
         }
