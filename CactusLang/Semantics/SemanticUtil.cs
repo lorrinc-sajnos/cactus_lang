@@ -8,7 +8,7 @@ namespace CactusLang.Semantics;
 
 public static class SemanticUtil {
     
-    public static FuncID GetIdFromDclCtx(GP.FuncDclHeaderContext ctx, CactusFile file) {
+    public static FuncSignature GetSignatureFromDclCtx(GP.FuncDclHeaderContext ctx, CactusFile file) {
         string funcName = ctx.funcName().GetText();
         List<BaseType> paramTypes = new();
         foreach(var param in ctx.param()) {
@@ -16,7 +16,7 @@ public static class SemanticUtil {
             paramTypes.Add(file.TypeTable.Get(param.type()) );
         }
 
-        return new FuncID(funcName, file, paramTypes);
+        return new FuncSignature(funcName, paramTypes);
     }
     
     

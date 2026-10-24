@@ -1,4 +1,5 @@
 using CactusLang.Model;
+using CactusLang.Model.Symbols;
 using CactusLang.Model.Types;
 using JetBrains.Annotations;
 using Microsoft.VisualStudio.TestTools.UnitTesting;

@@ -27,9 +27,9 @@ public class GrammarTest {
         
         CactusGrove grove = new(path);
         Console.WriteLine($"Testing file: {path}");
-        SemanticFileAnalyzer fileAnalyzer = new SemanticFileAnalyzer(grove.RootFile);
-        fileAnalyzer.AnalyzeFile();
-        fileAnalyzer.ErrorHandler.PrintErrors();
+        SemanticAnalyzer fileAnalyzer = new SemanticAnalyzer(grove);
+        fileAnalyzer.AnalyzeGrove();
+        fileAnalyzer.PrintErrors();
         //AssertNoErrors(analyzer);
         long test = 12345678901;
         Console.WriteLine($"Done!\n\n");

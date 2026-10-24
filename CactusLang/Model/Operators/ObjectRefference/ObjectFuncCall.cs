@@ -15,7 +15,7 @@ public class ObjectFuncCall : UnaryOp {
     public BaseType ReturnType => _function.ReturnType;
 
 
-    public ObjectFuncCall(FileStruct referedStruct, StructFunction structFunc) : base(Side.RIGHT, structFunc.FuncId.ToString()) {
+    public ObjectFuncCall(FileStruct referedStruct, StructFunction structFunc) : base(Side.RIGHT, structFunc.Symbol.GetSignature().ToString()) {
         Struct = referedStruct;
         _function = structFunc;
     }

@@ -2,14 +2,12 @@ using CactusLang.Model.Types;
 
 namespace CactusLang.Model.CodeStructure.Expressions.PrimaryExpressions;
 
-public class ParenthsExp :  PrimaryExpression {
-    private Expression _innerExpression;
+public class ParenthsExp(Expression innerExpression) : PrimaryExpression {
+    public Expression InnerExpression { get; } = innerExpression;
 
-    public ParenthsExp(Expression innerExpression) {
-        _innerExpression = innerExpression;
-    }
-    public Expression InnerExpression => _innerExpression;
-    public override BaseType GetResultType() => _innerExpression.GetResultType();
+    public override BaseType GetResultType() => InnerExpression.GetResultType();
     
-    public override bool IsLValue() => _innerExpression.IsLValue();
+    public override bool IsLValue() => InnerExpression.IsLValue();
+
+    public override string ToString() => $"({InnerExpression})";
 }

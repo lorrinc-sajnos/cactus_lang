@@ -5,6 +5,8 @@ namespace CactusLang.Model.CodeStructure.FileContent;
 public class FileFunction : ModelFunction {
     public FileFunction(FunctionSymbol symbol, CactusFile cactusFile) : base(cactusFile, symbol) {
         CactusFile = cactusFile;
-        _symbol = symbol;
+        base.symbol = symbol;
     }
+
+    public override string CName =>  CactusFile.FileID.CPrefix+Name;
 }

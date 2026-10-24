@@ -11,5 +11,9 @@ public abstract class Expression {
         public Error() { }
         public override BaseType GetResultType() => ErrorType.ERROR;
         public override bool IsLValue() => false;
+        public override string ToString() => "ERR";
     }
+
+    //public new abstract string ToString();
+    
 }

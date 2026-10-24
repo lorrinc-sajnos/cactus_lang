@@ -25,11 +25,8 @@ class Program {
 			
 		
 		CactusLangModel.InitCactusLang();
-
-
 		CactusGrove grove = new(inputFile);
 		
-
 		Transpiler transpilerInst = new(grove);
 		transpilerInst.Compile();
 

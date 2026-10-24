@@ -32,12 +32,16 @@ public class FileScope : Scope {
     }
 
     public void StepOut() {
-        _currentScope = _currentScope.Parent;
+        _currentScope = _currentScope!.Parent;
     }
 
     //public override FunctionSymbol? GetExactFunction(FuncId id) => _fileFunctionStore.GetExactFunction(id);
 
-    public override ModelFunction? GetMatchingFunction(FuncID id) => _cactusFile.Functions.GetMatchingFunction(id);
+    public override ModelFunction? GetMatchingFunction(FuncSignature sign) => _cactusFile.Functions.GetMatchingFunction(sign);
     
     public override int GetScopeDepth() => 0;
+
+    public override VariableSymbol? GetVariable(string id) {
+        return base.GetVariable(id);
+    }
 }

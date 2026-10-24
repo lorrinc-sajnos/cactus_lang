@@ -43,4 +43,6 @@ public abstract class UnaryOp {
 
     public static readonly AddressOperator ADDRESS = new AddressOperator();
     public static readonly DereferenceOperator DEREFERENCE = new DereferenceOperator();
+
+    public override string ToString() => _id;
 }

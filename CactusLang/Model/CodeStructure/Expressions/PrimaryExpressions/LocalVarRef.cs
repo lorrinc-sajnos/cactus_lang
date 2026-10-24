@@ -3,15 +3,14 @@ using CactusLang.Model.Types;
 
 namespace CactusLang.Model.CodeStructure.Expressions.PrimaryExpressions;
 
-public class LocalVarRef : PrimaryExpression {
-    private StructFieldRefSymbol _variable;
-    public StructFieldRefSymbol Variable => _variable;
-    public string  VarName => _variable.Name;
+public class LocalVarRef(StructFieldRefSymbol variable) : PrimaryExpression {
+    public StructFieldRefSymbol Variable { get; } = variable;
 
-    public LocalVarRef(StructFieldRefSymbol variable) {
-        _variable = variable;
-    }
+    public string  VarName => Variable.Name;
+
     public override bool IsLValue() => true;
 
-    public override BaseType GetResultType() => _variable.Type;
+    public override BaseType GetResultType() => Variable.Type;
+
+    public override string ToString() => Variable.Name;
 }

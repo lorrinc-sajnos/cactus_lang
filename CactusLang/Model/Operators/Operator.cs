@@ -48,6 +48,5 @@ public abstract class Operator {
 
     public static readonly AssignmentOperator ASG = new("=");
 
-
-
+    public override string ToString() => _id;
 }

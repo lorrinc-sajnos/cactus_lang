@@ -84,18 +84,6 @@ public partial class GrammarBaseListener : IGrammarListener {
 	/// <param name="context">The parse tree.</param>
 	public virtual void ExitHeaderStatement([NotNull] GrammarParser.HeaderStatementContext context) { }
 	/// <summary>
-	/// Enter a parse tree produced by <see cref="GrammarParser.filepath"/>.
-	/// <para>The default implementation does nothing.</para>
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	public virtual void EnterFilepath([NotNull] GrammarParser.FilepathContext context) { }
-	/// <summary>
-	/// Exit a parse tree produced by <see cref="GrammarParser.filepath"/>.
-	/// <para>The default implementation does nothing.</para>
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	public virtual void ExitFilepath([NotNull] GrammarParser.FilepathContext context) { }
-	/// <summary>
 	/// Enter a parse tree produced by <see cref="GrammarParser.includeFile"/>.
 	/// <para>The default implementation does nothing.</para>
 	/// </summary>
@@ -119,6 +107,18 @@ public partial class GrammarBaseListener : IGrammarListener {
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	public virtual void ExitFileAlias([NotNull] GrammarParser.FileAliasContext context) { }
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="GrammarParser.filepath"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterFilepath([NotNull] GrammarParser.FilepathContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="GrammarParser.filepath"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitFilepath([NotNull] GrammarParser.FilepathContext context) { }
 	/// <summary>
 	/// Enter a parse tree produced by <see cref="GrammarParser.fileStatement"/>.
 	/// <para>The default implementation does nothing.</para>

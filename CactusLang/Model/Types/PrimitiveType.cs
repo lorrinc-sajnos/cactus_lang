@@ -126,4 +126,6 @@ public class PrimitiveType : BaseType {
     #endregion
 
     public HashSet<PrimitiveType> GetSubset() => _subset;
+
+    public override string CName => Name;
 }

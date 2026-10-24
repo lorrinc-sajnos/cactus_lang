@@ -4,9 +4,9 @@ using CactusLang.Tags;
 namespace CactusLang.Model.Symbols;
 
 public class VariableSymbol {
-    public string Name { get; private set; }
-    public string Id { get; private set; }
-    public BaseType Type { get; private set; }
+    public string Name { get; }
+    public string Id { get; }
+    public BaseType Type { get; }
 
     //public VariableSymbol(BaseType type, string name) : this(type, 0, name) { }
 
@@ -20,4 +20,6 @@ public class VariableSymbol {
         Type = type;
         Id = new(name);
     }
+    
+    public string CName => Name;
 }

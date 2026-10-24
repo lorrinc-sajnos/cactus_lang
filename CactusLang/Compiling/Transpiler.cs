@@ -5,6 +5,14 @@ using CactusLang.Semantics;
 namespace CactusLang.Compiling;
 
 public class Transpiler {
+	public enum Result {
+		SUCCESS,
+		FAIL,
+		WARNING
+	}
+	
+	
+	public SemanticAnalyzer SemanticAnalyzer;
 	public string InputFilepath { get; }
 	public string OutputFile { get; }
 
@@ -13,23 +21,24 @@ public class Transpiler {
 	public CodeGenerator? CodeGenerator { get; private set; }
 	public GccInstance? GccInstance { get; private set; }
 	
-	public SemanticFileAnalyzer RootFileAnalyzer { get; private set; }
 
 	public Transpiler(CactusGrove grove) {
 		Grove = grove;
 		InputFilepath = grove.RootFilePath;
 		OutputFile = grove.OutputFilePath;
-	}
-
-	public void SemanticAnalysis() {
-		RootFileAnalyzer = new SemanticFileAnalyzer(Grove.RootFile);
-		
-		RootFileAnalyzer.AnalyzeFile();
+		SemanticAnalyzer = new SemanticAnalyzer(grove);
 	}
 
 	public void GenerateCCode() {
-		foreach(var file in Grove.GetFiles()){
-			var codeGenerator = new CodeGenerator(file, file.SourceFile.Path);
+		var mainCodeGenerator = new CodeGenerator(Grove, Grove.RootFile, Grove.RootFile.SourceFile.Path);
+
+		mainCodeGenerator.GenerateEntryFileCode();
+		mainCodeGenerator.GenerateFiles();
+
+		var other_files = Grove.GetFiles().ToList();
+		other_files.Remove(Grove.RootFile);
+		foreach(var file in other_files){
+			var codeGenerator = new CodeGenerator(Grove, file, file.SourceFile.Path);
 
 			codeGenerator.GenerateCode();
 			codeGenerator.GenerateFiles();
@@ -42,18 +51,31 @@ public class Transpiler {
 		GccInstance.Compile();
 	}
 
-	public void Compile() {
+	public Result Compile() {
 		Console.WriteLine($"-\tBegin parsing file {InputFilepath}");
 
-		SemanticAnalysis();
 
-		RootFileAnalyzer!.ErrorHandler.PrintErrors();
-		if (RootFileAnalyzer!.ErrorHandler.GetErrors().Count > 0) {
-			Console.WriteLine("-\tParsing failed");
-			Console.WriteLine("-\tC code generation terminated");
-
-			return;
+		bool analysisFailed = true;
+		try {
+			SemanticAnalyzer.AnalyzeGrove();
+		} catch (Exception e) {
+			Console.WriteLine("-\tInternal error during parsing:");
+			Console.WriteLine(e.Message);
+			//DEBUG
+			throw;
 		}
+
+		if (SemanticAnalyzer.HasErrors) {
+			SemanticAnalyzer.PrintErrors();
+			Console.WriteLine("-\tParsing failed");
+			analysisFailed = true;
+		}
+
+		if (analysisFailed) {
+			Console.WriteLine("-\tC code generation terminated");
+			return Result.FAIL;
+		}
+		
 
 		Console.WriteLine("-\tParsing finished");
 
@@ -67,9 +89,11 @@ public class Transpiler {
 			Console.WriteLine("-\tGCC ERROR:");
 			Console.WriteLine($"-\t{GccInstance!.ErrorStr}");
 			Console.WriteLine($"-\tGCC Exit Code: {GccInstance!.ExitCode}");
-			return;
+			return Result.FAIL;
 		}
 
 		Console.WriteLine("-\tGCC compilation finished with no errors");
+
+		return Result.SUCCESS;
 	}
 }

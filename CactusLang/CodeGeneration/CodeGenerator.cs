@@ -14,15 +14,17 @@ public class CodeGenerator : CodeModelVisitor<int> {
 
     public const string CCTS_STD_DIRECTORY = "ccts_std.h";
 
+    public const string C_INCLUDE = "#include ";
+
     private State _state;
     public State GenState => _state;
+    private CactusGrove _cactusGrove;
     private CactusFile _cactusFile;
     public CactusFile CactusFile => _cactusFile;
     private CodeStore _codeStore;
     public CodeStore CodeStore => _codeStore;
 
-    private string _directory;
-    private string _fileName;
+    private readonly string _fileName;
     public string FileName => _fileName;
     public string FilePath => $"{_outDirectory}/{_fileName}";
     private string _outDirectory;
@@ -60,22 +62,32 @@ public class CodeGenerator : CodeModelVisitor<int> {
 
     #endregion
 
-    public CodeGenerator(CactusFile cactusFile, string outputFileName) : base(1, 0) {
+    public CodeGenerator(CactusGrove grove, CactusFile cactusFile, string outputFileName) : base(1, 0) {
         _state = new();
         _cactusFile = cactusFile;
+        _cactusGrove = grove;
         _codeStore = new();
         Source = _codeStore.Source;
         Header = _codeStore.Header;
 
         _fileName = Path.GetFileNameWithoutExtension(outputFileName);
-        _directory = Path.GetDirectoryName(outputFileName) ?? "";
-        _outDirectory = $"{_directory}/src";
+        var directory = Path.GetDirectoryName(outputFileName) ?? "";
+        _outDirectory = $"{directory}/src";
     }
 
     public void GenerateCode() {
         InitHeader();
         InitSource();
 
+        VisitCodeFile(_cactusFile);
+    }
+
+    public void GenerateEntryFileCode() {
+        InitHeader();
+        InitSource();
+
+        InitEntryPoint();
+        
         VisitCodeFile(_cactusFile);
     }
 
@@ -92,17 +104,37 @@ public class CodeGenerator : CodeModelVisitor<int> {
         Source.AddLineTop($"#include \"{_fileName}.h\"");
     }
 
+    private void InitEntryPoint() {
+        Source.AddLines($$"""
+                        
+                        
+                        i32 main() {
+                            return {{_cactusGrove.GetEntryPoint().CName}}();
+                        }
+                        
+                        
+                        """.Split('\n').ToList());
+    }
+    
     private void InitHeader() {
         string headerName = $"{_fileName.ToUpper()}_H";
 
         Header.AddLineTop($"#ifndef {headerName}");
         Header.AddLineTop($"#define {headerName}");
-
         Header.AddLineTop($"// :D");
         Header.AddLineTop($"#include \"ccts_std.h\"");
+        AddIncludes();
 
         Header.AddLineBot($"#endif");
     }
+
+    private void AddIncludes() {
+        foreach (CactusFile file in CactusFile.IncludedFiles) {
+            
+            Header.AddLineTop($"#include \"{file.FileID.AsRelPath()}\"");
+        }
+    }
+    
 
     #region FileScopeHeader
 

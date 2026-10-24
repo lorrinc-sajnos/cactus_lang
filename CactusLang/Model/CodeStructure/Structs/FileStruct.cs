@@ -1,3 +1,4 @@
+using CactusLang.Model.Symbols;
 using CactusLang.Model.Types;
 
 namespace CactusLang.Model.CodeStructure.Structs;
@@ -5,7 +6,7 @@ namespace CactusLang.Model.CodeStructure.Structs;
 public class FileStruct {
     public string Name { get; }
 
-    public CactusFile CactusFile { get; }
+    public FileID FileID { get; }
 
     public FieldStore<StructField> Fields { get; }
 
@@ -15,7 +16,7 @@ public class FileStruct {
 
     public FileStruct(string id,  CactusFile cactusFile) {
         Name = id;
-        CactusFile = cactusFile;
+        FileID = cactusFile.FileID;
         Fields = new FieldStore<StructField>();
         Functions = new FunctionStore<StructFunction>();
         StructType = new(this);
@@ -36,5 +37,7 @@ public class FileStruct {
             //TODO
             return false;
         }
+
+        public override string CName => _fileStruct.FileID.CPrefix + _fileStruct.Name;
     }
 }

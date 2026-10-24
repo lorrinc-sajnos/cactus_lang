@@ -13,7 +13,7 @@ public class OperationExpression : Expression {
     public Expression RightExpression { get; }
 
     public override bool IsLValue() => false;
-
+    public override string ToString() => $"{LeftExpression} {Operator} {RightExpression}";
     public OperationExpression(Expression lhs, Operator operation, Expression rhs) {
         LeftExpression = lhs;
         RightExpression = rhs;
@@ -22,4 +22,6 @@ public class OperationExpression : Expression {
     }
 
     public override BaseType GetResultType() => _resultType;
+    
+    
 }

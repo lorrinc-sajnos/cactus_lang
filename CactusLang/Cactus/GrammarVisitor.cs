@@ -56,12 +56,6 @@ public interface IGrammarVisitor<Result> : IParseTreeVisitor<Result> {
 	/// <return>The visitor result.</return>
 	Result VisitHeaderStatement([NotNull] GrammarParser.HeaderStatementContext context);
 	/// <summary>
-	/// Visit a parse tree produced by <see cref="GrammarParser.filepath"/>.
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	/// <return>The visitor result.</return>
-	Result VisitFilepath([NotNull] GrammarParser.FilepathContext context);
-	/// <summary>
 	/// Visit a parse tree produced by <see cref="GrammarParser.includeFile"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
@@ -73,6 +67,12 @@ public interface IGrammarVisitor<Result> : IParseTreeVisitor<Result> {
 	/// <param name="context">The parse tree.</param>
 	/// <return>The visitor result.</return>
 	Result VisitFileAlias([NotNull] GrammarParser.FileAliasContext context);
+	/// <summary>
+	/// Visit a parse tree produced by <see cref="GrammarParser.filepath"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitFilepath([NotNull] GrammarParser.FilepathContext context);
 	/// <summary>
 	/// Visit a parse tree produced by <see cref="GrammarParser.fileStatement"/>.
 	/// </summary>

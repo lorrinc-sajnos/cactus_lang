@@ -9,7 +9,7 @@ namespace CactusLang.Model.Types;
 public class LiteralIntegerType : BaseType {
     private List<BaseType> _canBeUsedAs;
 
-    public BigInteger Value { get; private set; }
+    public BigInteger Value { get; }
     public override string Name => $"Literal Integer ({Value})";
     public override int Size { get; }
 
@@ -21,7 +21,7 @@ public class LiteralIntegerType : BaseType {
 
     public LiteralIntegerType(BigInteger value, string? sign)  {
         Value = value;
-        if (sign != null && sign.Equals("-"))
+        if (sign is "-")
             value *= -1;
         _canBeUsedAs = IntegerParser.GetLiteralTypes(value);
     }
@@ -30,4 +30,6 @@ public class LiteralIntegerType : BaseType {
     protected override bool CanImplicitCastInto(BaseType superiorType) {
         return _canBeUsedAs.Any(possibleType => possibleType.CanBeUsedAs(superiorType));
     }
+
+    public override string CName => throw new ImpossibleException("CodeGenerator should never reach a literal type");
 }

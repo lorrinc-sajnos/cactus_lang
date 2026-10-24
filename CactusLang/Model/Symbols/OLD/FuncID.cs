@@ -1,15 +1,18 @@
+/*
+
+using System.Runtime.CompilerServices;
 using System.Text;
 using CactusLang.Compiling;
 using CactusLang.Model.Types;
 
 namespace CactusLang.Model.Symbols;
 
-public struct FuncID : IEquatable<FuncID> {
+public struct FuncID_OLD : IEquatable<FuncID> {
 	public string Name { get; }
 
 	public List<BaseType> Params { get; }
 
-	public CactusFile CactusFile { get; }
+	public FileID FileID { get; }
 
 	public void AddParam(BaseType param) {
 		Params.Add(param);
@@ -22,7 +25,7 @@ public struct FuncID : IEquatable<FuncID> {
 	public FuncID(string name, CactusFile cactusFile, List<BaseType> parameters) {
 		Name = name;
 		Params = parameters;
-		CactusFile = cactusFile;
+		FileID = cactusFile.FileID;
 	}
 
 
@@ -78,3 +81,5 @@ public struct FuncID : IEquatable<FuncID> {
 		return HashCode.Combine(Params, Name);
 	}
 }
+
+*/

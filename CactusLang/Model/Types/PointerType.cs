@@ -41,4 +41,6 @@ public class PointerType : BaseType {
     public override int GetHashCode() {
         return _pointsTo.GetHashCode();
     }
+
+    public override string CName => PointsTo.CName + "*";
 }

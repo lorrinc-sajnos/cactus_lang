@@ -21,7 +21,7 @@ public class CodeModelVisitor<T> {
         _success = success;
         _fail = failure;
     }
-
+    
 
     private readonly T _success;
     private readonly T _fail;
@@ -234,7 +234,7 @@ public class CodeModelVisitor<T> {
             default:
                 throw new NotImplementedException($"Primary expression {primaryExpression} is not implemented");
             case UnOpPrimaryExpression unOpPrimaryExpression:
-                if(unOpPrimaryExpression.UnaryOperation.OpSide == UnaryOp.Side.LEFT) {
+                if(unOpPrimaryExpression.UnaryOperator.OpSide == UnaryOp.Side.LEFT) {
                     primExpResult = VisitLeftUnOpPrimaryExpression(unOpPrimaryExpression);
                 }
                 else 
@@ -274,16 +274,16 @@ public class CodeModelVisitor<T> {
     protected virtual T VisitLeftUnOpPrimaryExpression(UnOpPrimaryExpression unOpPrimaryExpression) {
         var results = new List<T>();
 
-        results.Add(VisitUnaryOperator(unOpPrimaryExpression.UnaryOperation));
-        results.Add(VisitPrimaryExpression(unOpPrimaryExpression.PrimaryExpression));
+        results.Add(VisitUnaryOperator(unOpPrimaryExpression.UnaryOperator));
+        results.Add(VisitPrimaryExpression(unOpPrimaryExpression.PrimaryExpr));
         
         return GetResult(results);
     }
     protected virtual T VisitRightUnOpPrimaryExpression(UnOpPrimaryExpression unOpPrimaryExpression) {
         var results = new List<T>();
 
-        results.Add(VisitPrimaryExpression(unOpPrimaryExpression.PrimaryExpression));
-        results.Add(VisitUnaryOperator(unOpPrimaryExpression.UnaryOperation));
+        results.Add(VisitPrimaryExpression(unOpPrimaryExpression.PrimaryExpr));
+        results.Add(VisitUnaryOperator(unOpPrimaryExpression.UnaryOperator));
         
         return GetResult(results);
     }

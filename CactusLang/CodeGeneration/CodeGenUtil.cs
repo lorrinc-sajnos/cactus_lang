@@ -1,7 +1,10 @@
+using System.Runtime.InteropServices.JavaScript;
+using CactusLang.Model;
 using CactusLang.Model.CodeStructure;
 using CactusLang.Model.CodeStructure.FileContent;
 using CactusLang.Model.CodeStructure.Statements;
 using CactusLang.Model.CodeStructure.Structs;
+using CactusLang.Model.Symbols;
 using CactusLang.Util;
 
 namespace CactusLang.CodeGeneration;
@@ -13,22 +16,25 @@ public static class CodeGenUtil {
     public const string STRUCT_ACC_FUNC_HEADER_FORMAT = "{0}_acc__{1}";
     public const string PARAM_SEP = ", ";
 
+    
     #endregion
 
-    public static string GetStructRefFuncName(StructFunction func) => $"{func.Parent.Name.ToLower()}_ref__{func.Name}";
+    
+    
+    public static string GetStructRefFuncName(StructFunction func) => $"{func.Parent.StructType.CName.ToLower()}_ref__{func.CName}";
 
-    public static string GetStructAccFuncName(StructFunction func) => $"{func.Parent.Name.ToLower()}_acc__{func.Name}";
+    public static string GetStructAccFuncName(StructFunction func) => $"{func.Parent.StructType.CName.ToLower()}_acc__{func.CName}";
 
     #region Util
 
     public static string GetStructRefFuncHeader(StructFunction func) {
         string header = "";
 
-        header += func.ReturnType.Name + " ";
+        header += func.ReturnType.CName + " ";
         //In C, no local functions, so file function w/ custom name:
         header += GetStructRefFuncName(func);
         //Introduce the "this" pointer as first variable
-        header += $"({func.Parent.Name}* this" + GetFuncDclParams_NO_OPEN(func);
+        header += $"({func.Parent.StructType.CName}* this" + GetFuncDclParams_NO_OPEN(func);
 
         return header;
     }
@@ -36,11 +42,11 @@ public static class CodeGenUtil {
     public static string GetStructAccFuncHeader(StructFunction func) {
         string header = "";
 
-        header += func.ReturnType.Name + " ";
+        header += func.ReturnType.CName + " ";
         //In C, no local functions, so file function w/ custom name:
         header += GetStructAccFuncName(func);
         //Introduce the "thisVal" as first variable
-        header += $"({func.Parent.Name} thisVal{GetFuncDclParams_NO_OPEN(func)}";
+        header += $"({func.Parent.StructType.CName} thisVal{GetFuncDclParams_NO_OPEN(func)}";
 
         return header;
     }
@@ -48,7 +54,7 @@ public static class CodeGenUtil {
     public static List<string> GetStructAccFuncBody(StructFunction func) {
         List<string> body = new List<string>();
 
-        body.Add($"{func.Parent.Name}* this = &thisVal;");
+        body.Add($"{func.Parent.StructType.CName}* this = &thisVal;");
         body.Add($"return {GetStructRefFuncName(func)}(this{GetFuncCallParams_NO_OPEN(func)};");
 
         return body;
@@ -57,8 +63,8 @@ public static class CodeGenUtil {
     public static string GetFileFunctionHeader(FileFunction func) {
         string header = "";
 
-        header += func.ReturnType.Name + " ";
-        header += func.Name;
+        header += func.ReturnType.CName + " ";
+        header += func.CName;
         header += "(" + GetFuncDclParams_NO_OPEN(func);
         return header;
     }
@@ -73,10 +79,10 @@ public static class CodeGenUtil {
 
             for (int i = 0; i < parameters.Count - 1; i++) {
                 var param = parameters[i];
-                header += $"{param.Type.Name} {param.Name}" + PARAM_SEP;
+                header += $"{param.Type.CName} {param.CName}" + PARAM_SEP;
             }
 
-            header += $"{parameters[^1].Type.Name} {parameters[^1].Name}";
+            header += $"{parameters[^1].Type.CName} {parameters[^1].CName}";
         }
 
         header += ")";
@@ -93,10 +99,10 @@ public static class CodeGenUtil {
 
             for (int i = 0; i < parameters.Count - 1; i++) {
                 var param = parameters[i];
-                header += $"{param.Name}" + PARAM_SEP;
+                header += $"{param.CName}" + PARAM_SEP;
             }
 
-            header += $"{parameters[^1].Name}";
+            header += $"{parameters[^1].CName}";
         }
 
         header += ")";
@@ -105,11 +111,11 @@ public static class CodeGenUtil {
 
     public static string GetVarDclString(VarDclStatement varDclStatement) {
         string result = "";
-        result += $"{varDclStatement.VarType.Name} ";
+        result += $"{varDclStatement.VarType.CName} ";
         var dclBodies = varDclStatement.GetBodies();
         UtilFunc.SeparatedForEach(dclBodies,
             (body) => {
-                result += body.Variable.Name;
+                result += body.Variable.CName;
                 if (body.HasValue) {
                     string varVal = ExpressionCodeFactory.Manufacture(body.Value!);
                     result += $" = {varVal}";
@@ -120,6 +126,11 @@ public static class CodeGenUtil {
         result += ";";
         return result;
     }
+
+    private const string C_INCLUDE = "#include ";
+    
+    
+    
 
     #endregion
 }

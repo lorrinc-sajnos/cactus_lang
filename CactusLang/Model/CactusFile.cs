@@ -9,25 +9,27 @@ using CactusLang.Tags;
 namespace CactusLang.Model;
 
 public class CactusFile {
-    public CactusFile(CactusGrove grove, FileID fileId, SourceFile source) {
+    public CactusFile(CactusGrove grove, SourceFile source) {
         SourceFile = source;
+        FileID = FileID.FromSrcFile(source,grove);
         Filename = source.Path;
         Grove = grove;
         Grove.AddFile(this);
 
-        FileID = fileId;
 
         ErrorHandler = new(this);
         TypeTable = new(this);
     }
 
-    public SourceFile SourceFile;
+    public SourceFile SourceFile { get; }
     public FileID FileID { get; }
     public string Filename { get; }
     public CactusGrove Grove { get; }
     
     public FieldStore<FileField> Fields { get; } = new ();
     public FunctionStore<FileFunction> Functions { get; } = new ();
+
+    public IncludeManager IncludeManager { get; }
     public OrderedDictionary<string, FileStruct> Structs { get; } = new();
 
     public TypeTable TypeTable { get;  }
@@ -38,6 +40,11 @@ public class CactusFile {
     public ErrorHandler ErrorHandler { get; }
     
     public void AddStruct(FileStruct fileStruct) => Structs.Add(fileStruct.Name, fileStruct);
+    public CactusFile AddFile(CactusFile file) {
+        _includedFiles.Add(file.FileID, file);
+        return file;
+    }
+    public CactusFile GetFile(FileID fileID) => _includedFiles[fileID];
 
     public void AddTags(List<Tag> tagList) {
         foreach (var tag in tagList) {

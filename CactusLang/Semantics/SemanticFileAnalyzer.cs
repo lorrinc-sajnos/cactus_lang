@@ -64,7 +64,7 @@ public class SemanticFileAnalyzer : GrammarBaseVisitor<StatusCode> {
         Debug.LogLine($"Start index:\t{ctx.Start.StartIndex}");
         Debug.LogLine($"Stop index:\t{ctx.Stop.StopIndex}");
 
-        RegisterIncludes(ctx);
+        VisitHeaderStatemenets(ctx);
         RegisterStructs(ctx);
         
         //After registering structs, the Type system is completed, can begin registering functions
@@ -77,10 +77,18 @@ public class SemanticFileAnalyzer : GrammarBaseVisitor<StatusCode> {
 
     #region Registering
 
-    private void RegisterIncludes(GP.CodefileContext ctx) {
-        //TODO
-        Debug.LogLine("Begin registering includes");
+    private void VisitHeaderStatemenets(GP.CodefileContext ctx) {
+        foreach (var headerStatement in ctx.headerStatement()) {
+            VisitHeaderStatement(headerStatement);
+        }
+        
+        
     }
+
+    public override StatusCode VisitIncludeFile(GrammarParser.IncludeFileContext context) {
+        return base.VisitIncludeFile(context);
+    }
+
 
     private void RegisterStructs(GP.CodefileContext ctx) {
         var statements = ctx.fileStatement();
@@ -246,7 +254,7 @@ public class SemanticFileAnalyzer : GrammarBaseVisitor<StatusCode> {
     private void ProcessFunctionBody(GP.FuncDclContext ctx) {
         ModelFunction? func =
             CurrentScope.GetMatchingFunction(
-                SemanticUtil.GetIdFromDclCtx(ctx.funcDclHeader(), CactusFile)
+                SemanticUtil.GetSignatureFromDclCtx(ctx.funcDclHeader(), CactusFile)
             );
         
         //Should be always non-null

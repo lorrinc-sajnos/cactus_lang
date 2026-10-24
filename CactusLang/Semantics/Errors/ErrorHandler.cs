@@ -3,6 +3,7 @@ using CactusLang.Compiling.Codefiles;
 using CactusLang.Model;
 using CactusLang.Model.CodeStructure.Expressions;
 using CactusLang.Model.Errors;
+using CactusLang.Model.Symbols;
 using CactusLang.Model.Types;
 
 namespace CactusLang.Semantics.Errors;
@@ -28,21 +29,22 @@ public class ErrorHandler {
     }
 
     public ParserErrorListener ErrorListener { get; private set; }
-    public string Filename { get; private set; }
+    public FileID FileID { get; private set; }
 
-    private readonly List<CompError> _errors;
+    private readonly List<ErrorInstance> _errors;
 
     public ErrorHandler(CactusFile file) {
-        _errors = new List<CompError>();
+        _errors = new List<ErrorInstance>();
         ErrorListener = new(this);
         //_throwOnError =  throwOnError;
-        Filename = file.Filename;
+        FileID = file.FileID;
     }
 
-    private void AddCompError(CompError error) {
-        _errors.Add(error);
+    private void AddCompError(ErrorInstance errorInstance) {
+        
+        _errors.Add(errorInstance);
         if (THROW_ON_ERROR)
-            throw new Exception($"Error added:\n{error.AsPrettyString()}");
+            throw new Exception($"Error added:\n{errorInstance.AsPrettyString()}");
     }
 
     
@@ -62,8 +64,8 @@ public class ErrorHandler {
         ErrorInExpressionFromCompTime(error.CompTime(this, start, end, msgParams));
     public Expression.Error ErrorInExpression(CctsError error, ParserRuleContext ctx, params object[] msgParams) =>
         ErrorInExpressionFromCompTime(error.CompTime(this, ctx, msgParams));
-    private Expression.Error ErrorInExpressionFromCompTime(CompError compError) {
-        AddCompError(compError);
+    private Expression.Error ErrorInExpressionFromCompTime(ErrorInstance errorInstance) {
+        AddCompError(errorInstance);
         return new Expression.Error();
     }
     #endregion
@@ -75,12 +77,12 @@ public class ErrorHandler {
         ErrorInTypeFromCompTime(error.CompTime(this, start, end, msgParams));
     public ErrorType ErrorInType(CctsError error, ParserRuleContext ctx, params object[] msgParams) =>
         ErrorInTypeFromCompTime(error.CompTime(this, ctx, msgParams));
-    private ErrorType ErrorInTypeFromCompTime(CompError compError) {
-        AddCompError(compError);
+    private ErrorType ErrorInTypeFromCompTime(ErrorInstance errorInstance) {
+        AddCompError(errorInstance);
         return ErrorType.ERROR;
     }
 
-    public List<CompError> GetErrors() => _errors;
+    public List<ErrorInstance> GetErrors() => _errors;
     
     public bool HasErrors() => _errors.Count > 0;
     #endregion

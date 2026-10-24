@@ -4,59 +4,71 @@ using CactusLang.Util;
 
 namespace CactusLang.Model;
 
-public class FunctionStore<T> where T : ModelFunction {
-    private readonly OrderedDictionary<FuncID, T> _functions;
+public class FunctionStore<FUNC> where FUNC : ModelFunction {
+    private readonly OrderedDictionary<FunctionSymbol, FUNC> _functions;
     public FunctionStore() {
-        _functions = new OrderedDictionary<FuncID, T>();
+        _functions = new OrderedDictionary<FunctionSymbol, FUNC>();
     }
 
-    public T? GetExactFunction(FuncID id) {
+    public FUNC? GetExactFunction(FunctionSymbol id) {
         if (!_functions.ContainsKey(id)) {
             //throw new Exception($"Function {id} does not exist.");
 
             //:(
+            foreach(var manualSearch in  _functions.Values)
+                if (manualSearch.Symbol.Equals(id)) 
+                    return manualSearch;
+            
+            
+            
+            
             return null;
         }
 
         return _functions[id];
     }
 
-    public bool ContainsExactFunction(FuncID id) => _functions.ContainsKey(id);
-    
-    
-    public T? GetMatchingFunction(FuncID id) {
-        if (ContainsExactFunction(id))
-            return _functions[id];
+    public bool ContainsExactFunction(FuncSignature id) => 
+        _functions.Keys.Any( f=> f.ExactSignatureMatch(id));
 
-        FuncID? guessedId = GetMatchingId(id);
+    public FUNC? GetExactFunction(FuncSignature sign) {
+        var matches = _functions.Keys.Where(f => f.ExactSignatureMatch(sign)
+
+        );
+        var functionSymbols = matches as FunctionSymbol[] ?? matches.ToArray();
+        if (functionSymbols.Count() != 1) return null;
+        return  _functions[functionSymbols.First()];
+    }
+    
+    
+    public FUNC? GetMatchingFunction(FuncSignature id) {
+
+        FunctionSymbol? guessedId = GetMatchingId(id);
 
         if (guessedId == null)
             return null;
 
-        return _functions[guessedId.Value];
+        return _functions[guessedId];
     }
     
-    public bool ContainsMatchingFunction(FuncID id) {
+    public bool ContainsMatchingFunction(FuncSignature id) {
         if (ContainsExactFunction(id)) return true;
 
-        FuncID? guessedId = GetMatchingId(id);
+        FunctionSymbol? guessedId = GetMatchingId(id);
         return guessedId != null;
     }
-    public FuncID? GetMatchingId(FuncID id) {
-        if (_functions.ContainsKey(id))
-            return id;
-
-        //If exact match is not found, check for ones with same name and parameter count
+    public FunctionSymbol? GetMatchingId(FuncSignature signature) {
+        //Check for ones with same name and parameter count
         var matchingFunctions =
             _functions.Keys
-                .Where(f => f.Name.Equals(id.Name) && f.Params.Count == id.Params.Count)
+                .Where(f => f.Name.Equals(signature.Name) && f.Parameters.Count == signature.Params.Count)
                 .ToList();
 
         if (!matchingFunctions.Any())
             return null;
 
         foreach (var possibleFunc in matchingFunctions) {
-            if (id.DoesMatch(possibleFunc))
+            if (possibleFunc.DoesMatchSignature(signature))
                 return possibleFunc;
         }
 
@@ -64,8 +76,8 @@ public class FunctionStore<T> where T : ModelFunction {
         return null;
     }
 
-    public bool AddFunction(T variable) {
-        if (_functions.ContainsKey(variable.FuncId)) {
+    public bool AddFunction(FUNC variable) {
+        if (_functions.ContainsKey(variable.Symbol)) {
             //throw new Exception($"Function {variable.Name} already exists");
             return false;
         }
@@ -80,9 +92,9 @@ public class FunctionStore<T> where T : ModelFunction {
             return false;
 
 
-        _functions.Add(variable.FuncId, variable);
+        _functions.Add(variable.Symbol, variable);
         return true;
     }
     
-    public List<T> GetFunctions() => _functions.Values.ToList();
+    public List<FUNC> GetFunctions() => _functions.Values.ToList();
 }

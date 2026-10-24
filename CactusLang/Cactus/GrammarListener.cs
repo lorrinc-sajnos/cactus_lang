@@ -71,16 +71,6 @@ public interface IGrammarListener : IParseTreeListener {
 	/// <param name="context">The parse tree.</param>
 	void ExitHeaderStatement([NotNull] GrammarParser.HeaderStatementContext context);
 	/// <summary>
-	/// Enter a parse tree produced by <see cref="GrammarParser.filepath"/>.
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	void EnterFilepath([NotNull] GrammarParser.FilepathContext context);
-	/// <summary>
-	/// Exit a parse tree produced by <see cref="GrammarParser.filepath"/>.
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	void ExitFilepath([NotNull] GrammarParser.FilepathContext context);
-	/// <summary>
 	/// Enter a parse tree produced by <see cref="GrammarParser.includeFile"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
@@ -100,6 +90,16 @@ public interface IGrammarListener : IParseTreeListener {
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	void ExitFileAlias([NotNull] GrammarParser.FileAliasContext context);
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="GrammarParser.filepath"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterFilepath([NotNull] GrammarParser.FilepathContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="GrammarParser.filepath"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitFilepath([NotNull] GrammarParser.FilepathContext context);
 	/// <summary>
 	/// Enter a parse tree produced by <see cref="GrammarParser.fileStatement"/>.
 	/// </summary>

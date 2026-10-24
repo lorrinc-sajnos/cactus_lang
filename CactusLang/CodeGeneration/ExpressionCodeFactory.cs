@@ -53,7 +53,7 @@ public class ExpressionCodeFactory : CodeModelVisitor<string> {
 
 
 	protected override string VisitFuncCallExpression(FuncCallExp funcCall) {
-		string call = funcCall.Function.Name + '(';
+		string call = funcCall.Function.CName + '(';
 
 		var paramExps = funcCall.GetParameters();
 		if (paramExps.Any()) {
@@ -75,7 +75,7 @@ public class ExpressionCodeFactory : CodeModelVisitor<string> {
 
 	protected override string VisitObjectFieldRefExp(ObjectFieldRefExp objectFieldRefExp) {
 		string structPtr = VisitExpression(objectFieldRefExp.Object);
-		string fieldName = objectFieldRefExp.FieldRef.Field.Name;
+		string fieldName = objectFieldRefExp.FieldRef.Field.CName;
 		return $"{structPtr}->{fieldName}";
 	}
 
@@ -93,7 +93,7 @@ public class ExpressionCodeFactory : CodeModelVisitor<string> {
 	}
 
 	protected override string VisitAlloc(Alloc alloc) {
-		return $"malloc(sizeof({alloc.AllocType.Name}))";
+		return $"malloc(sizeof({alloc.AllocType.CName}))";
 	}
 
 	protected override string VisitUnaryOperator(UnaryOp op) {

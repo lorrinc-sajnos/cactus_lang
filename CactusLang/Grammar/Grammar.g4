@@ -32,7 +32,8 @@ fileStatement
 	//| (classDcl)
 	;
 
-type: ID | PTR_ID;
+type: (parentObj OP_REF)* ID | PTR_ID;
+parentObj: ID;
 
 fileVarDcl: varDcl;
 

@@ -1,6 +1,8 @@
 using CactusLang.Compiling.Codefiles;
 using CactusLang.Model;
+using CactusLang.Model.CodeStructure.FileContent;
 using CactusLang.Model.Symbols;
+using CactusLang.Model.Types;
 
 namespace CactusLang;
 
@@ -10,27 +12,29 @@ public class CactusGrove {
 	public string RootFolder { get; }
 	public CactusFile RootFile { get; }
 	public string RootFilePath { get; }
+
+
+	private FunctionSymbol _entryPointSymb;
 	
 	
 	public string SrcOutputFolder { get; }
 	public string OutputFilePath { get; }
 	
-	private Dictionary<FileID, CactusFile> _files;
+	private readonly Dictionary<FileID, CactusFile> _files;
 
 	public CactusGrove(string rootFilePath) {
 		RootFolder = Path.GetDirectoryName(rootFilePath)!;
 		
 		RootFilePath  = rootFilePath;
-		
 		SourceFile srcFile = new(rootFilePath);
-		
+
 		_files = new Dictionary<FileID, CactusFile>();
-		
 		RootFile = new CactusFile(this, srcFile);
 
+		//Default entrypoint: function called main, with 0 args, returning an integer.
+		_entryPointSymb = new FunctionSymbol(PrimitiveType.I32, "main", RootFile);
 		
 		SrcOutputFolder = RootFolder;
-
 		OutputFilePath = DefaultOutputName(rootFilePath);
 	}
 
@@ -39,6 +43,15 @@ public class CactusGrove {
 		return file;
 	}
 
+	public CactusFile AddFileFromID(FileID fileID ) {
+		//Read in file from disk00
+		string absolutePath = RootFilePath+PathFromID( fileID);
+		SourceFile srcFile = new SourceFile(absolutePath);
+		
+		return AddFile(new CactusFile(this, srcFile));
+	}
+	
+	
 	public CactusFile? GetFile(FileID fileId) {
 		if (_files.TryGetValue(fileId, out var file)) 
 			return file;
@@ -51,4 +64,10 @@ public class CactusGrove {
 		string srcDir = Path.GetDirectoryName(inputFile)!;
 		return $"{srcDir}/{Path.GetFileNameWithoutExtension(inputFile)}.out";
 	}
+	
+	public string PathFromID(FileID fileID) { 
+		return string.Join("/", fileID.Folders) +  "/" + fileID.Filename + fileID.Extention ;
+	}
+
+	public FileFunction GetEntryPoint() => RootFile.Functions.GetExactFunction(_entryPointSymb)!;
 }

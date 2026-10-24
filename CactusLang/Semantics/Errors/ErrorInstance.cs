@@ -5,7 +5,7 @@ using CactusLang.Model.Errors;
 
 namespace CactusLang.Semantics.Errors;
 
-public class CompError {
+public class ErrorInstance {
     private ErrorHandler _errorHandler;
     public string Title { get; private set; }
     public string Msg { get; private set; }
@@ -19,7 +19,7 @@ public class CompError {
     public IToken StartToken { get; private set; }
     public IToken EndToken { get; private set; }
 
-    public CompError(CctsError error, ErrorHandler errorHandler, IToken startToken, IToken endToken, params object[] errParams) {
+    public ErrorInstance(CctsError error, ErrorHandler errorHandler, IToken startToken, IToken endToken, params object[] errParams) {
         Error = error;
         _errorHandler = errorHandler;
         try {
@@ -33,10 +33,10 @@ public class CompError {
         StartToken = startToken;
         EndToken = endToken;
 
-        Start = new CodePos(_errorHandler.Filename, startToken.Line, startToken.Column);
+        Start = new CodePos(_errorHandler.FileID, startToken.Line, startToken.Column);
         int endTokenLength = endToken.Text.Length;
 
-        End = new CodePos(_errorHandler.Filename, endToken.Line, endToken.Column + endTokenLength);
+        End = new CodePos(_errorHandler.FileID, endToken.Line, endToken.Column + endTokenLength);
     }
 
     public string AsPrettyString() => $"ERROR: {Start}\t\t[{Code:D4}]  {Title}";

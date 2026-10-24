@@ -134,7 +134,7 @@ public class ExpressionFactory {
 			return _errorHandler.ErrorInExpression(CctsError.BAD_OBJ_REF, ctx, ctx.GetText());
 
 		var funcParams = GetFuncParams(funcCallCtx.funcCall());
-		FuncID instFuncId = GetFuncId(funcCallCtx.funcCall().funcRef().GetText(), funcParams);
+		FuncSignature instFuncId = GetFuncSignature(funcCallCtx.funcCall().funcRef().GetText(), funcParams);
 
 		var structFunc = refObj.Functions.GetMatchingFunction(instFuncId);
 
@@ -204,7 +204,7 @@ public class ExpressionFactory {
 
 	private Expression GetFuncCall(GP.FuncCallContext ctx) {
 		var paramEpxs = GetFuncParams(ctx);
-		FuncID funcId = GetFuncId(ctx.funcRef().GetText(), paramEpxs);
+		FuncSignature funcId = GetFuncSignature(ctx.funcRef().GetText(), paramEpxs);
 
 		ModelFunction? func = _scope.GetMatchingFunction(funcId);
 		if (func == null) {
@@ -344,7 +344,7 @@ public class ExpressionFactory {
 		return paramExps;
 	}
 
-	private FuncID GetFuncId(string funcName, List<Expression> paramExps) {
+	private FuncSignature GetFuncSignature(string funcName, List<Expression> paramExps) {
 		List<BaseType> paramTypes = new List<BaseType>();
 
 		foreach (var exp in paramExps) {
@@ -352,7 +352,7 @@ public class ExpressionFactory {
 		}
 
 
-		return new FuncID(funcName, _file, paramTypes);
+		return new FuncSignature(funcName, paramTypes);
 	}
 
 
@@ -365,24 +365,22 @@ public class ExpressionFactory {
 
 	private FileStruct? GetRefObj(BaseType objType, ReferenceOperatorType refOp) {
 		if (refOp == ReferenceOperatorType.REFERENCE) {
-			if (objType is not PointerType) {
+			if (objType is not PointerType) 
 				return null;
-			}
 
 			var pointer = (PointerType)objType;
 
-			if (pointer.PointsTo is not FileStruct.Type) {
+			if (pointer.PointsTo is not FileStruct.Type pointsToType) 
 				return null;
-			}
-
-			return ((FileStruct.Type)pointer.PointsTo).FileStruct;
+			
+			return pointsToType.FileStruct;
 		}
 
-		if (objType is not FileStruct.Type) {
+		if (objType is not FileStruct.Type type) {
 			return null;
 		}
 
-		return ((FileStruct.Type)objType).FileStruct;
+		return type.FileStruct;
 	}
 
 	#endregion

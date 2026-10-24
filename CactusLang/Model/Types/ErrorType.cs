@@ -1,3 +1,5 @@
+using CactusLang.Util;
+
 namespace CactusLang.Model.Types;
 
 public class ErrorType : BaseType {
@@ -11,4 +13,7 @@ public class ErrorType : BaseType {
     protected override bool CanImplicitCastInto(BaseType other) {
         return false;
     }
+
+    public override string CName =>
+        throw new ImpossibleException("Code Generation should never reach an ErrorException");
 }

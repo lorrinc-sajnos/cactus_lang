@@ -5,7 +5,6 @@ using CactusLang.Util;
 namespace CactusLang.Model.Scopes;
 
 public class Scope {
-    private Scope _parent;
     private List<Scope> _children;
 
     private OrderedDictionary<string, VariableSymbol> _variables;
@@ -13,7 +12,7 @@ public class Scope {
     protected Scope() : this(null) { }
 
     private Scope(Scope parent) {
-        _parent = parent;
+        Parent = parent;
         _children = new();
         _variables = new();
     }
@@ -22,17 +21,17 @@ public class Scope {
 
     public Scope AddChild(Scope child) {
         _children.Add(child);
-        child._parent = this;
+        child.Parent = this;
         return child;
     }
 
-    public Scope Parent => _parent;
+    public Scope Parent { get; private set; }
 
     public virtual VariableSymbol? GetVariable(string id) {
         if (_variables.ContainsKey(id))
             return _variables[id];
-        if (_parent != null)
-            return _parent.GetVariable(id);
+        if (Parent != null)
+            return Parent.GetVariable(id);
         return null;
         //throw new Exception($"Variable {id} does not exist.");
     }
@@ -51,11 +50,11 @@ public class Scope {
         return true;
     }
 
-    public virtual ModelFunction? GetMatchingFunction(FuncID id) {
-        return _parent.GetMatchingFunction(id);
+    public virtual ModelFunction? GetMatchingFunction(FuncSignature signature) {
+        return Parent.GetMatchingFunction(signature);
     }
 
     public virtual int GetScopeDepth() {
-        return _parent.GetScopeDepth() + 1;
+        return Parent.GetScopeDepth() + 1;
     }
 }

@@ -28,13 +28,13 @@ public class CctsError {
         _errors.Add(this);
     }
 
-    public CompError CompTime(ErrorHandler errorHandler, ParserRuleContext ctx, params object[] msgParams) =>
+    public ErrorInstance CompTime(ErrorHandler errorHandler, ParserRuleContext ctx, params object[] msgParams) =>
         new(this, errorHandler, ctx.Start, ctx.Stop, msgParams);
 
-    public CompError CompTime(ErrorHandler errorHandler, IToken token, params object[] msgParams) =>
+    public ErrorInstance CompTime(ErrorHandler errorHandler, IToken token, params object[] msgParams) =>
         new(this, errorHandler, token, token, msgParams);
 
-    public CompError CompTime(ErrorHandler errorHandler, IToken start, IToken end, params object[] msgParams) =>
+    public ErrorInstance CompTime(ErrorHandler errorHandler, IToken start, IToken end, params object[] msgParams) =>
         new(this, errorHandler, start, end, msgParams);
 
     public static readonly CctsError TODO_ERROR = new(0, "Todo Error", "Todo Error ");

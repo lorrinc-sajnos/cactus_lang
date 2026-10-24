@@ -11,8 +11,8 @@ namespace CactusLang.Tests;
 
 public static class CctsAssert {
     
-    public static void NoErrors(SemanticFileAnalyzer fileAnalyzer) =>
-        Assert.IsEmpty(fileAnalyzer.ErrorHandler.GetErrors());
+    public static void NoErrors(SemanticAnalyzer fileAnalyzer) =>
+        Assert.IsFalse(fileAnalyzer.HasErrors);
 
 
     public static void FileNoErrors(string path) {
@@ -20,9 +20,9 @@ public static class CctsAssert {
         
         CactusGrove cactusGrove = new CactusGrove(path);
         Console.WriteLine($"Testing file: {path}");
-        SemanticFileAnalyzer fileAnalyzer = new SemanticFileAnalyzer(cactusGrove.RootFile);
-        fileAnalyzer.AnalyzeFile();
-        fileAnalyzer.ErrorHandler.PrintErrors();
+        SemanticAnalyzer fileAnalyzer = new SemanticAnalyzer(cactusGrove);
+        fileAnalyzer.AnalyzeGrove();
+        fileAnalyzer.PrintErrors();
         NoErrors(fileAnalyzer);
         Console.WriteLine($"Done!\n\n");
     }
@@ -35,7 +35,12 @@ public static class CctsAssert {
         CactusGrove cactusGrove = new CactusGrove(path);
         Transpiler transpiler = new Transpiler(cactusGrove);
         
-        transpiler.Compile();
+        var result = transpiler.Compile();
+        
+        if (result != Transpiler.Result.SUCCESS) {
+            Console.WriteLine("-Compilation failed, test failed... :(");
+            //Assert.Fail();
+        }
         
         Process cctsProgram = new Process();
         cctsProgram.StartInfo.FileName = $"{transpiler.OutputFile}";

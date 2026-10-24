@@ -22,10 +22,10 @@ public class StructFuncScope : Scope {
         }
     }
 
-    public override ModelFunction? GetMatchingFunction(FuncID id) {
-        if (_fileStruct.Functions.ContainsMatchingFunction(id))
-            return _fileStruct.Functions.GetMatchingFunction(id);
+    public override ModelFunction? GetMatchingFunction(FuncSignature signature) {
+        if (_fileStruct.Functions.ContainsMatchingFunction(signature))
+            return _fileStruct.Functions.GetMatchingFunction(signature);
 
-        return base.GetMatchingFunction(id);
+        return base.GetMatchingFunction(signature);
     }
 }
