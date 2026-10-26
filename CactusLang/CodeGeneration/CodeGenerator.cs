@@ -2,8 +2,8 @@ using CactusLang.CodeGeneration.CCodeGenerator;
 using CactusLang.Model;
 using CactusLang.Model.CodeStructure;
 using CactusLang.Model.CodeStructure.FileContent;
+using CactusLang.Model.CodeStructure.MemberHolders.Structs;
 using CactusLang.Model.CodeStructure.Statements;
-using CactusLang.Model.CodeStructure.Structs;
 using CactusLang.Model.Visitors;
 using CactusLang.Tags;
 
@@ -130,7 +130,6 @@ public class CodeGenerator : CodeModelVisitor<int> {
 
     private void AddIncludes() {
         foreach (CactusFile file in CactusFile.IncludedFiles) {
-            
             Header.AddLineTop($"#include \"{file.FileID.AsRelPath()}\"");
         }
     }

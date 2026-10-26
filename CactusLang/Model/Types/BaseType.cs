@@ -7,6 +7,11 @@ public abstract class BaseType {
     public virtual bool IsInteger => false;
     public virtual bool IsNumber => false;
     public virtual bool IsUnsigned => false;
+    
+    /// <summary>
+    /// Defines whether you can instantiate this type, or not
+    /// </summary>
+    public virtual bool IsAbstract => false;
 
     public virtual BaseType GetPointer() {
         return new PointerType(this);

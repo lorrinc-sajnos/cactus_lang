@@ -4,7 +4,7 @@ using CactusLang.Util;
 
 namespace CactusLang.Model;
 
-public class FieldStore<T> where T : ModelField {
+public class FieldStore<T> : IFieldHolder<T> where T : ModelField {
     private readonly OrderedDictionary<string, T> _fields;
 
     public FieldStore() {

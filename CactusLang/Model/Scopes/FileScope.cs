@@ -1,5 +1,5 @@
 using CactusLang.Model.CodeStructure;
-using CactusLang.Model.CodeStructure.Structs;
+using CactusLang.Model.CodeStructure.MemberHolders.Structs;
 using CactusLang.Model.Symbols;
 using CactusLang.Model.Types;
 using CactusLang.Semantics;
@@ -26,7 +26,7 @@ public class FileScope : Scope {
     }
 
     public void StepInStructFunc(FileStruct fileStruct) {
-        StructFuncScope newScope = new StructFuncScope(fileStruct);
+        MemberFuncScope newScope = new MemberFuncScope(fileStruct);
         _currentScope.AddChild(newScope);
         _currentScope = newScope;
     }

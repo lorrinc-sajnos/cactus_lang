@@ -1,24 +1,20 @@
 using CactusLang.Model.CodeStructure;
-using CactusLang.Model.CodeStructure.Structs;
+using CactusLang.Model.CodeStructure.MemberHolders;
+using CactusLang.Model.CodeStructure.MemberHolders.Structs;
 using CactusLang.Model.Operators.Unary;
 using CactusLang.Model.Symbols;
 using CactusLang.Model.Types;
 
 namespace CactusLang.Model.Operators.ObjectRefference;
 
-public class ObjectFuncCall : UnaryOp {
-    public FileStruct Struct { get; }
+public class ObjectFuncCall(IMemberHolder referred, MemberFunction memberFunc)
+    : UnaryOp(Side.RIGHT, memberFunc.Symbol.GetSignature().ToString()) {
+    public IMemberHolder Referred { get; } = referred;
 
-    private StructFunction _function;
-    public StructFunction Function => _function;
+    public MemberFunction Function { get; } = memberFunc;
 
-    public BaseType ReturnType => _function.ReturnType;
+    public BaseType ReturnType => Function.ReturnType;
 
-
-    public ObjectFuncCall(FileStruct referedStruct, StructFunction structFunc) : base(Side.RIGHT, structFunc.Symbol.GetSignature().ToString()) {
-        Struct = referedStruct;
-        _function = structFunc;
-    }
 
     public override BaseType Evaluate(BaseType val) => ReturnType;
 }

@@ -5,7 +5,8 @@ using CactusLang.Model.CodeStructure.Expressions;
 using CactusLang.Model.CodeStructure.Expressions.PrimaryExpressions;
 using CactusLang.Model.CodeStructure.Expressions.PrimaryExpressions.LiteralExpressions;
 using CactusLang.Model.CodeStructure.Expressions.PrimaryExpressions.ObjectReference;
-using CactusLang.Model.CodeStructure.Structs;
+using CactusLang.Model.CodeStructure.MemberHolders;
+using CactusLang.Model.CodeStructure.MemberHolders.Structs;
 using CactusLang.Model.Errors;
 using CactusLang.Model.Operators;
 using CactusLang.Model.Operators.ObjectRefference;
@@ -157,13 +158,13 @@ public class ExpressionFactory {
 		var fieldRefCtx = ctx.objFieldRef();
 		var refOp = GetRefOp(fieldRefCtx.accOp());
 
-		FileStruct? refObj = GetRefObj(expression.GetResultType(), refOp);
+		IMemberHolder? refObj = GetRefObj(expression.GetResultType(), refOp);
 		if (refObj == null)
 			return _errorHandler.ErrorInExpression(CctsError.BAD_OBJ_REF, ctx, ctx.GetText());
 
 
 		string fieldName = fieldRefCtx.fieldRef().GetText();
-		StructField? field = refObj.Fields.GetField(fieldName);
+		MemberField? field = refObj.GetField(fieldName);
 
 		if (field == null) {
 			return _errorHandler.ErrorInExpression(CctsError.ID_NOT_FOUND, fieldRefCtx.fieldRef(), fieldName);
@@ -220,8 +221,8 @@ public class ExpressionFactory {
 		var symbol = _scope.GetVariable(varName);
 
 		if (symbol != null) {
-			if (symbol is StructFieldRefSymbol structFieldRefSymbol)
-				return new LocalVarRef(structFieldRefSymbol);
+			if (symbol is MemberFieldRefSymbol memberFieldRefSymbol)
+				return new LocalVarRef(memberFieldRefSymbol);
 
 			return new VarRef(symbol);
 		}

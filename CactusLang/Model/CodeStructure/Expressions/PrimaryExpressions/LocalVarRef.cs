@@ -3,8 +3,8 @@ using CactusLang.Model.Types;
 
 namespace CactusLang.Model.CodeStructure.Expressions.PrimaryExpressions;
 
-public class LocalVarRef(StructFieldRefSymbol variable) : PrimaryExpression {
-    public StructFieldRefSymbol Variable { get; } = variable;
+public class LocalVarRef(MemberFieldRefSymbol variable) : PrimaryExpression {
+    public MemberFieldRefSymbol Variable { get; } = variable;
 
     public string  VarName => Variable.Name;
 

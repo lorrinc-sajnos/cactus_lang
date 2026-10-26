@@ -2,8 +2,8 @@ using System.Runtime.InteropServices.JavaScript;
 using CactusLang.Model;
 using CactusLang.Model.CodeStructure;
 using CactusLang.Model.CodeStructure.FileContent;
+using CactusLang.Model.CodeStructure.MemberHolders.Structs;
 using CactusLang.Model.CodeStructure.Statements;
-using CactusLang.Model.CodeStructure.Structs;
 using CactusLang.Model.Symbols;
 using CactusLang.Util;
 
@@ -21,9 +21,9 @@ public static class CodeGenUtil {
 
     
     
-    public static string GetStructRefFuncName(StructFunction func) => $"{func.Parent.StructType.CName.ToLower()}_ref__{func.CName}";
+    public static string GetStructRefFuncName(StructFunction func) => $"{func.Parent.MemberType.CName.ToLower()}_ref__{func.CName}";
 
-    public static string GetStructAccFuncName(StructFunction func) => $"{func.Parent.StructType.CName.ToLower()}_acc__{func.CName}";
+    public static string GetStructAccFuncName(StructFunction func) => $"{func.Parent.MemberType.CName.ToLower()}_acc__{func.CName}";
 
     #region Util
 
@@ -34,7 +34,7 @@ public static class CodeGenUtil {
         //In C, no local functions, so file function w/ custom name:
         header += GetStructRefFuncName(func);
         //Introduce the "this" pointer as first variable
-        header += $"({func.Parent.StructType.CName}* this" + GetFuncDclParams_NO_OPEN(func);
+        header += $"({func.Parent.MemberType.CName}* this" + GetFuncDclParams_NO_OPEN(func);
 
         return header;
     }
@@ -46,7 +46,7 @@ public static class CodeGenUtil {
         //In C, no local functions, so file function w/ custom name:
         header += GetStructAccFuncName(func);
         //Introduce the "thisVal" as first variable
-        header += $"({func.Parent.StructType.CName} thisVal{GetFuncDclParams_NO_OPEN(func)}";
+        header += $"({func.Parent.MemberType.CName} thisVal{GetFuncDclParams_NO_OPEN(func)}";
 
         return header;
     }
@@ -54,7 +54,7 @@ public static class CodeGenUtil {
     public static List<string> GetStructAccFuncBody(StructFunction func) {
         List<string> body = new List<string>();
 
-        body.Add($"{func.Parent.StructType.CName}* this = &thisVal;");
+        body.Add($"{func.Parent.MemberType.CName}* this = &thisVal;");
         body.Add($"return {GetStructRefFuncName(func)}(this{GetFuncCallParams_NO_OPEN(func)};");
 
         return body;

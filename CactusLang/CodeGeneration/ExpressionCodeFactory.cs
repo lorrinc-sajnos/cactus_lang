@@ -2,103 +2,116 @@ using CactusLang.Model.CodeStructure.Expressions;
 using CactusLang.Model.CodeStructure.Expressions.PrimaryExpressions;
 using CactusLang.Model.CodeStructure.Expressions.PrimaryExpressions.LiteralExpressions;
 using CactusLang.Model.CodeStructure.Expressions.PrimaryExpressions.ObjectReference;
+using CactusLang.Model.CodeStructure.MemberHolders.Structs;
 using CactusLang.Model.Operators.Unary;
 using CactusLang.Model.Visitors;
 
 namespace CactusLang.CodeGeneration;
 
 public class ExpressionCodeFactory : CodeModelVisitor<string> {
-	private readonly Expression _expression;
-	private readonly CodeGenerator.State _modelState;
+    private readonly Expression _expression;
+    private readonly CodeGenerator.State _modelState;
 
-	public static string Manufacture(Expression expression, CodeGenerator.State state = new()) {
-		ExpressionCodeFactory factory = new(expression, state);
-		return factory.Start();
-	}
+    public static string Manufacture(Expression expression, CodeGenerator.State state = new()) {
+        ExpressionCodeFactory factory = new(expression, state);
+        return factory.Start();
+    }
 
-	public ExpressionCodeFactory(Expression expression, CodeGenerator.State state) : base("", null!) {
-		_modelState = state;
-		_expression = expression;
-	}
+    public ExpressionCodeFactory(Expression expression, CodeGenerator.State state) : base("", null!) {
+        _modelState = state;
+        _expression = expression;
+    }
 
-	public string Start() {
-		return VisitExpression(_expression);
-	}
+    public string Start() {
+        return VisitExpression(_expression);
+    }
 
-	protected override string AggregateResults(params string[] statuses) {
-		string result = "";
-		foreach (var str in statuses) {
-			result += str ?? throw new Exception("Bad implementation in Visitor!!!!");
-		}
+    protected override string AggregateResults(params string[] statuses) {
+        string result = "";
+        foreach (var str in statuses) {
+            result += str ?? throw new Exception("Bad implementation in Visitor!!!!");
+        }
 
-		return result;
-	}
+        return result;
+    }
 
-	protected override string VisitOperationExpression(OperationExpression operationExpression) {
-		var lhExp = operationExpression.LeftExpression;
-		var rhExp = operationExpression.RightExpression;
+    protected override string VisitOperationExpression(OperationExpression operationExpression) {
+        var lhExp = operationExpression.LeftExpression;
+        var rhExp = operationExpression.RightExpression;
 
-		var op = operationExpression.Operator;
+        var op = operationExpression.Operator;
 
-		string lhStr = VisitExpression(lhExp);
-		string rhStr = VisitExpression(rhExp);
+        string lhStr = VisitExpression(lhExp);
+        string rhStr = VisitExpression(rhExp);
 
-		return $"{lhStr} {op.GetId()} {rhStr}";
-	}
-
-
-	#region Primaray expression
-
-	protected override string VisitVarRefExpression(VarRef varRef) => varRef.VarName;
+        return $"{lhStr} {op.GetId()} {rhStr}";
+    }
 
 
-	protected override string VisitFuncCallExpression(FuncCallExp funcCall) {
-		string call = funcCall.Function.CName + '(';
+    #region Primaray expression
 
-		var paramExps = funcCall.GetParameters();
-		if (paramExps.Any()) {
-			for (int i = 0; i < paramExps.Count() - 1; i++)
-				call += VisitExpression(paramExps[i]) + ", ";
+    protected override string VisitVarRefExpression(VarRef varRef) => varRef.VarName;
 
-			call += VisitExpression(paramExps[^1]);
-		}
 
-		return call + ')';
-	}
+    protected override string VisitFuncCallExpression(FuncCallExp funcCall) {
+        string call = funcCall.Function.CName + '(';
 
-	protected override string VisitLocalVarRefExpression(LocalVarRef structFieldRef) =>
-		$"this->{structFieldRef.VarName}";
+        var paramExps = funcCall.GetParameters();
+        if (paramExps.Any()) {
+            for (int i = 0; i < paramExps.Count() - 1; i++)
+                call += VisitExpression(paramExps[i]) + ", ";
 
-	protected override string VisitLiteralExpression(LiteralExpression literalExpression) {
-		return literalExpression.Value;
-	}
+            call += VisitExpression(paramExps[^1]);
+        }
 
-	protected override string VisitObjectFieldRefExp(ObjectFieldRefExp objectFieldRefExp) {
-		string structPtr = VisitExpression(objectFieldRefExp.Object);
-		string fieldName = objectFieldRefExp.FieldRef.Field.CName;
-		return $"{structPtr}->{fieldName}";
-	}
+        return call + ')';
+    }
 
-	protected override string VisitObjectFuncCallExp(ObjectFuncCallExp objectFuncCallExp) {
-		string structPtr = VisitExpression(objectFuncCallExp.Object);
-		string funcName = CodeGenUtil.GetStructRefFuncName(objectFuncCallExp.FuncCall.Function);
-		string otherParamStr = "";
+    protected override string VisitLocalVarRefExpression(LocalVarRef structFieldRef) =>
+        $"this->{structFieldRef.VarName}";
 
-		foreach (var param in objectFuncCallExp.GetParameters()) {
-			var factory = new ExpressionCodeFactory(param, _modelState);
-			otherParamStr += CodeGenUtil.PARAM_SEP + factory.Start();
-		}
+    protected override string VisitLiteralExpression(LiteralExpression literalExpression) {
+        return literalExpression.Value;
+    }
 
-		return $"{funcName}({structPtr}{otherParamStr})";
-	}
+    protected override string VisitObjectFieldRefExp(ObjectFieldRefExp objectFieldRefExp) {
+        string structPtr = VisitExpression(objectFieldRefExp.Object);
+        string fieldName = objectFieldRefExp.FieldRef.Field.CName;
+        return $"{structPtr}->{fieldName}";
+    }
 
-	protected override string VisitAlloc(Alloc alloc) {
-		return $"malloc(sizeof({alloc.AllocType.CName}))";
-	}
+    protected override string VisitObjectFuncCallExp(ObjectFuncCallExp objectFuncCallExp) {
+        string objPtr = VisitExpression(objectFuncCallExp.Object);
+        string funcName;
 
-	protected override string VisitUnaryOperator(UnaryOp op) {
-		return op.GetId();
-	}
+        switch (objectFuncCallExp.FuncCall.Function) {
+            case StructFunction structFunc: {
+                funcName = CodeGenUtil.GetStructRefFuncName(structFunc);
+                break;
+            }
+            default:
+                var fn = objectFuncCallExp.FuncCall.Function;
+                throw new NotImplementedException($"Reference to type {fn} is not implemented");
+        }
 
-	#endregion
+
+        string otherParamStr = "";
+
+        foreach (var param in objectFuncCallExp.GetParameters()) {
+            var factory = new ExpressionCodeFactory(param, _modelState);
+            otherParamStr += CodeGenUtil.PARAM_SEP + factory.Start();
+        }
+
+        return $"{funcName}({objPtr}{otherParamStr})";
+    }
+
+    protected override string VisitAlloc(Alloc alloc) {
+        return $"malloc(sizeof({alloc.AllocType.CName}))";
+    }
+
+    protected override string VisitUnaryOperator(UnaryOp op) {
+        return op.GetId();
+    }
+
+    #endregion
 }

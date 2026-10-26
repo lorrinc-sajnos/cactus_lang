@@ -1,20 +1,14 @@
 using CactusLang.Model.CodeStructure;
-using CactusLang.Model.CodeStructure.Structs;
+using CactusLang.Model.CodeStructure.MemberHolders;
+using CactusLang.Model.CodeStructure.MemberHolders.Structs;
 using CactusLang.Model.Operators.Unary;
 using CactusLang.Model.Types;
 
 namespace CactusLang.Model.Operators.ObjectRefference;
 
-public class ObjectFieldRef : UnaryOp {
-    public FileStruct Struct { get; }
+public class ObjectFieldRef(IMemberHolder referredStruct, MemberField mField) : UnaryOp(Side.RIGHT, mField.Name) {
+    public IMemberHolder Referred { get; } = referredStruct;
+    public MemberField Field { get; } = mField;
 
-    private StructField _field;
-    public StructField Field => _field;
-
-    public ObjectFieldRef(FileStruct referedStruct, StructField field) : base(Side.RIGHT, field.Name) {
-        Struct = referedStruct;
-        _field = field;
-    }
-
-    public override BaseType Evaluate(BaseType val) => _field.Symbol.Type;
+    public override BaseType Evaluate(BaseType val) => Field.Symbol.Type;
 }

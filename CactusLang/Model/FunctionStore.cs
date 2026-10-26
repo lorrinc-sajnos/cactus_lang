@@ -6,43 +6,39 @@ namespace CactusLang.Model;
 
 public class FunctionStore<FUNC> where FUNC : ModelFunction {
     private readonly OrderedDictionary<FunctionSymbol, FUNC> _functions;
+
     public FunctionStore() {
         _functions = new OrderedDictionary<FunctionSymbol, FUNC>();
     }
-
+    
     public FUNC? GetExactFunction(FunctionSymbol id) {
         if (!_functions.ContainsKey(id)) {
             //throw new Exception($"Function {id} does not exist.");
 
             //:(
-            foreach(var manualSearch in  _functions.Values)
-                if (manualSearch.Symbol.Equals(id)) 
+            foreach (var manualSearch in _functions.Values)
+                if (manualSearch.Symbol.Equals(id))
                     return manualSearch;
-            
-            
-            
-            
+
             return null;
         }
 
         return _functions[id];
     }
 
-    public bool ContainsExactFunction(FuncSignature id) => 
-        _functions.Keys.Any( f=> f.ExactSignatureMatch(id));
+    public bool ContainsExactFunction(FuncSignature id) =>
+        _functions.Keys.Any(f => f.ExactSignatureMatch(id));
 
     public FUNC? GetExactFunction(FuncSignature sign) {
         var matches = _functions.Keys.Where(f => f.ExactSignatureMatch(sign)
-
         );
         var functionSymbols = matches as FunctionSymbol[] ?? matches.ToArray();
         if (functionSymbols.Count() != 1) return null;
-        return  _functions[functionSymbols.First()];
+        return _functions[functionSymbols.First()];
     }
-    
-    
-    public FUNC? GetMatchingFunction(FuncSignature id) {
 
+
+    public FUNC? GetMatchingFunction(FuncSignature id) {
         FunctionSymbol? guessedId = GetMatchingId(id);
 
         if (guessedId == null)
@@ -50,13 +46,14 @@ public class FunctionStore<FUNC> where FUNC : ModelFunction {
 
         return _functions[guessedId];
     }
-    
+
     public bool ContainsMatchingFunction(FuncSignature id) {
         if (ContainsExactFunction(id)) return true;
 
         FunctionSymbol? guessedId = GetMatchingId(id);
         return guessedId != null;
     }
+
     public FunctionSymbol? GetMatchingId(FuncSignature signature) {
         //Check for ones with same name and parameter count
         var matchingFunctions =
@@ -95,6 +92,6 @@ public class FunctionStore<FUNC> where FUNC : ModelFunction {
         _functions.Add(variable.Symbol, variable);
         return true;
     }
-    
+
     public List<FUNC> GetFunctions() => _functions.Values.ToList();
 }

@@ -6,8 +6,8 @@ using CactusLang.Model.CodeStructure.Expressions.PrimaryExpressions;
 using CactusLang.Model.CodeStructure.Expressions.PrimaryExpressions.LiteralExpressions;
 using CactusLang.Model.CodeStructure.Expressions.PrimaryExpressions.ObjectReference;
 using CactusLang.Model.CodeStructure.FileContent;
+using CactusLang.Model.CodeStructure.MemberHolders.Structs;
 using CactusLang.Model.CodeStructure.Statements;
-using CactusLang.Model.CodeStructure.Structs;
 using CactusLang.Model.Operators;
 using CactusLang.Model.Operators.ObjectRefference;
 using CactusLang.Model.Operators.Unary;
@@ -21,7 +21,7 @@ public class CodeModelVisitor<T> {
         _success = success;
         _fail = failure;
     }
-    
+
 
     private readonly T _success;
     private readonly T _fail;
@@ -120,7 +120,7 @@ public class CodeModelVisitor<T> {
     protected virtual T VisitFileFunction(FileFunction fileFunction) {
         return VisitCodeBlock(fileFunction.CodeBody);
     }
-    
+
     protected virtual T VisitCodeBlock(CodeBlock codeBlock) {
         var results = new List<T>();
         foreach (var statement in codeBlock.Statements) {
@@ -148,13 +148,13 @@ public class CodeModelVisitor<T> {
 
             case ReturnStatement returnStatement:
                 return VisitReturnStatement(returnStatement);
-            
+
             case FreeStatement freeStatement:
                 return VisitFreeStatement(freeStatement);
-            
+
             case RawCCodeStatement rawCCodeStatement:
                 return VisitRawCCodeStatement(rawCCodeStatement);
-            
+
             case ForLoop forLoop:
                 return VisitForLoop(forLoop);
 
@@ -187,10 +187,11 @@ public class CodeModelVisitor<T> {
         return VisitExpression(expressionStatement.Expression);
     }
 
-    
+
     protected virtual T VisitFreeStatement(FreeStatement freeStatement) {
         return VisitExpression(freeStatement.Expression);
     }
+
     protected virtual T VisitRawCCodeStatement(RawCCodeStatement rawCCodeStatement) {
         return _success;
     }
@@ -200,10 +201,11 @@ public class CodeModelVisitor<T> {
         results.Add(VisitVarDclStatement(forLoop.LoopDcl));
         results.Add(VisitExpression(forLoop.Condition));
         results.Add(VisitExpression(forLoop.EndStatement));
-        
+
         results.Add(VisitCodeBlock(forLoop.CodeBlock));
         return GetResult(results);
     }
+
     #endregion
 
     #region Expressions
@@ -234,13 +236,14 @@ public class CodeModelVisitor<T> {
             default:
                 throw new NotImplementedException($"Primary expression {primaryExpression} is not implemented");
             case UnOpPrimaryExpression unOpPrimaryExpression:
-                if(unOpPrimaryExpression.UnaryOperator.OpSide == UnaryOp.Side.LEFT) {
+                if (unOpPrimaryExpression.UnaryOperator.OpSide == UnaryOp.Side.LEFT) {
                     primExpResult = VisitLeftUnOpPrimaryExpression(unOpPrimaryExpression);
                 }
-                else 
+                else
                     primExpResult = VisitRightUnOpPrimaryExpression(unOpPrimaryExpression);
+
                 break;
-            
+
             case FuncCallExp funcCall:
                 primExpResult = VisitFuncCallExpression(funcCall);
                 break;
@@ -271,20 +274,22 @@ public class CodeModelVisitor<T> {
     }
 
     #region PrimaryExpression
+
     protected virtual T VisitLeftUnOpPrimaryExpression(UnOpPrimaryExpression unOpPrimaryExpression) {
         var results = new List<T>();
 
         results.Add(VisitUnaryOperator(unOpPrimaryExpression.UnaryOperator));
         results.Add(VisitPrimaryExpression(unOpPrimaryExpression.PrimaryExpr));
-        
+
         return GetResult(results);
     }
+
     protected virtual T VisitRightUnOpPrimaryExpression(UnOpPrimaryExpression unOpPrimaryExpression) {
         var results = new List<T>();
 
         results.Add(VisitPrimaryExpression(unOpPrimaryExpression.PrimaryExpr));
         results.Add(VisitUnaryOperator(unOpPrimaryExpression.UnaryOperator));
-        
+
         return GetResult(results);
     }
 
@@ -323,23 +328,26 @@ public class CodeModelVisitor<T> {
         }
     }
 
+    #region Object visiting
+
     protected virtual T VisitObjectFieldRefExp(ObjectFieldRefExp objectFieldRefExp) {
         return VisitPrimaryExpression(objectFieldRefExp.Object);
     }
 
+    //protected virtual T VisitStructFieldRefExp()
+
     protected virtual T VisitObjectFuncCallExp(ObjectFuncCallExp objectFuncCallExp) {
         var results = new List<T>();
         results.Add(VisitPrimaryExpression(objectFuncCallExp.Object));
-        
-        foreach (Expression exp in objectFuncCallExp.GetParameters()) {
-            results.Add(VisitExpression(exp));
-        }
+        results.AddRange(objectFuncCallExp.GetParameters().Select(VisitExpression));
 
         return GetResult(results);
     }
 
+    #endregion
+
     protected virtual T VisitAlloc(Alloc alloc) {
-        return  _success;
+        return _success;
     }
 
     #region Literal Expression
@@ -355,7 +363,7 @@ public class CodeModelVisitor<T> {
     }
 
     protected virtual T VisitStrLiteralExpression(StringLiteral strLiteral) {
-        return  _success;
+        return _success;
     }
 
     #endregion

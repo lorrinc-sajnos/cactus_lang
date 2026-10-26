@@ -66,7 +66,7 @@ public class CactusGrove {
 	}
 	
 	public string PathFromID(FileID fileID) { 
-		return string.Join("/", fileID.Folders) +  "/" + fileID.Filename + fileID.Extention ;
+		return string.Join("/", fileID.Folders) +  "/" + fileID.Filename + fileID.Extension ;
 	}
 
 	public FileFunction GetEntryPoint() => RootFile.Functions.GetExactFunction(_entryPointSymb)!;

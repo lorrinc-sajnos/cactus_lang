@@ -2,10 +2,8 @@ using CactusLang.Model.CodeStructure;
 
 namespace CactusLang.Model;
 
-public interface IFieldHolder {
-    public ModelField GetFieldGeneric(string name);
+public interface IFieldHolder<F> where F: ModelField{
+    public F? GetField(string name);
 
-    public void AddFieldGeneric(ModelField field);
-
-    public List<ModelField> GetFieldsGeneric();
+    public List<F> GetFields();
 }

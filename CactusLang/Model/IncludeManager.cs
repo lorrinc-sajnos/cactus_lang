@@ -12,5 +12,5 @@ public class IncludeManager {
 		throw new NotImplementedException();
 	} 
 	
-	public VariableSymbol Get
+	//public VariableSymbol Get
 }

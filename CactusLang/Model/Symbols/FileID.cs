@@ -2,56 +2,60 @@ using CactusLang.Compiling.Codefiles;
 
 namespace CactusLang.Model.Symbols;
 
-public class FileID {
-	public string Filename { get; }
-	public string[] Folders { get; }
+public class FileID
+{
+    public string Filename { get; }
+    public string[] Folders { get; }
 
-	public string Extention;
+    public string Extension { get; }
 
 
-	internal FileID(string[] folders, string filename) {
-		Filename = Path.GetFileNameWithoutExtension(filename);
-		
-		Extention = Path.GetExtension(filename);
-		if (Extention == "")
-			Extention = ".ccts";			
-		Folders = folders;
-	}
+    internal FileID(string[] folders, string filename)
+    {
+        Filename = Path.GetFileNameWithoutExtension(filename);
 
-	public static FileID FromSrcFile(SourceFile file, CactusGrove grove) {
-		string relPath = Path.GetRelativePath(grove.RootFolder, file.Path);
+        Extension = Path.GetExtension(filename);
+        if (Extension == "")
+            Extension = ".ccts";
+        Folders = folders;
+    }
 
-		string[] parts = relPath.Split('\\', '/');
-		
-		for (int i = 0; i < parts.Length; i++) 
-			parts[i] = parts[i].Trim();
+    public static FileID FromSrcFile(SourceFile file, CactusGrove grove)
+    {
+        string relPath = Path.GetRelativePath(grove.RootFolder, file.Path);
 
-		string filename = Path.GetFileName(parts[^1]);
-		
-		string[] folders = parts[..^1];
-		
-		return new FileID(folders, filename);
-	}
+        string[] parts = relPath.Split('\\', '/');
 
-	public override bool Equals(object? obj) {
-		if (obj is not FileID otherFileId)
-			return base.Equals(obj);
-		
-		if (Filename != otherFileId.Filename)
-			return false;
-		if (Folders.Length != otherFileId.Folders.Length)
-			return false;
-		if  (Extention != otherFileId.Extention)
-			return false;
-		for (int i=0; i<Folders.Length; i++)
-			if (Folders[i] != otherFileId.Folders[i])
-				return false;
-		
-		return true;
-	}
+        for (int i = 0; i < parts.Length; i++)
+            parts[i] = parts[i].Trim();
 
-	public string AsRelPath() => String.Join('/', Folders) + Filename + Extention;
-	public override string ToString() => AsRelPath();
+        string filename = Path.GetFileName(parts[^1]);
 
-	public string CPrefix => String.Join("_$_", Folders) + Filename + "_$$_";
+        string[] folders = parts[..^1];
+
+        return new FileID(folders, filename);
+    }
+
+    public override bool Equals(object? obj)
+    {
+        if (obj is not FileID otherFileId)
+            return base.Equals(obj);
+
+        if (Filename != otherFileId.Filename)
+            return false;
+        if (Folders.Length != otherFileId.Folders.Length)
+            return false;
+        if (Extension != otherFileId.Extension)
+            return false;
+        for (int i = 0; i < Folders.Length; i++)
+            if (Folders[i] != otherFileId.Folders[i])
+                return false;
+
+        return true;
+    }
+
+    public string AsRelPath() => String.Join('/', Folders) + Filename + Extension;
+    public override string ToString() => AsRelPath();
+
+    public string CPrefix => String.Join("_$_", Folders) + Filename + "_$$_";
 }
