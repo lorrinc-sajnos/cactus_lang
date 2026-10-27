@@ -16,6 +16,7 @@ public class Transpiler(CactusGrove grove) {
     public string InputFilepath { get; } = grove.RootFilePath;
     public string OutputFile { get; } = grove.OutputFilePath;
 
+    
     //Transpiler 
     public CactusGrove Grove { get; } = grove;
     public CodeGenerator? CodeGenerator { get; private set; }
