@@ -6,6 +6,7 @@ using CactusLang.Model.CodeStructure.Expressions.PrimaryExpressions;
 using CactusLang.Model.CodeStructure.Expressions.PrimaryExpressions.LiteralExpressions;
 using CactusLang.Model.CodeStructure.Expressions.PrimaryExpressions.ObjectReference;
 using CactusLang.Model.CodeStructure.FileContent;
+using CactusLang.Model.CodeStructure.MemberHolders.IncludedFiles;
 using CactusLang.Model.CodeStructure.MemberHolders.Structs;
 using CactusLang.Model.CodeStructure.Statements;
 using CactusLang.Model.Operators;
@@ -13,6 +14,8 @@ using CactusLang.Model.Operators.ObjectRefference;
 using CactusLang.Model.Operators.Unary;
 using Expression = CactusLang.Model.CodeStructure.Expressions.Expression;
 using ObjectFieldRef = CactusLang.Model.Operators.ObjectRefference.ObjectFieldRef;
+// ReSharper disable VirtualMemberNeverOverridden.Global
+// ReSharper disable UnusedParameter.Global
 
 namespace CactusLang.Model.Visitors;
 
@@ -39,6 +42,8 @@ public class CodeModelVisitor<T> {
 
 
     protected virtual T VisitCodeFile(CactusFile cactusFile) {
+        var incResult = VisitIncludedFiles(cactusFile.IncludeManager.IncludedFiles);
+        
         var strResult = VisitFileStructs(cactusFile.GetStructs());
         var varResult = VisitFileFields(cactusFile.Fields.GetFields());
         var funcResult = VisitFileFunctions(cactusFile.Functions.GetFunctions());
@@ -104,6 +109,25 @@ public class CodeModelVisitor<T> {
 
     #endregion
 
+    #region Included Files
+
+    protected virtual T VisitIncludedFiles(List<IncludedFile> includedFiles) {
+        var results = new List<T>();
+
+        foreach (var includedFile in includedFiles) {
+            var result = VisitIncludedFile(includedFile);
+            results.Add(result);
+        }
+
+        return GetResult(results);
+    }
+
+    protected virtual T VisitIncludedFile(IncludedFile includedFile) {
+        //Nothing to visit (?)
+        return _success;
+    }
+    #endregion
+    
     #region Functions
 
     protected virtual T VisitFileFunctions(List<FileFunction> fileFunctions) {

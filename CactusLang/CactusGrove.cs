@@ -39,7 +39,7 @@ public class CactusGrove {
 	}
 
 	public CactusFile AddFile(CactusFile file) {
-		_files.Add(file.FileID, file);
+		_files.Add(file.ID, file);
 		return file;
 	}
 
@@ -62,7 +62,17 @@ public class CactusGrove {
 	
 	static string DefaultOutputName(string inputFile) {
 		string srcDir = Path.GetDirectoryName(inputFile)!;
-		return $"{srcDir}/{Path.GetFileNameWithoutExtension(inputFile)}.out";
+
+		var os = Environment.OSVersion.Platform;
+		string fileExtention = ".out";
+		
+		if (os == PlatformID.Win32NT) {
+			fileExtention = ".exe";
+		} else if (os == PlatformID.Unix) {
+			fileExtention = ".out";
+		}
+		
+		return $"{srcDir}/{Path.GetFileNameWithoutExtension(inputFile)}{fileExtention}";
 	}
 	
 	public string PathFromID(FileID fileID) { 

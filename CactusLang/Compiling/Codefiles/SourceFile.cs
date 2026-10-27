@@ -7,7 +7,7 @@ public class SourceFile {
     public string Path { get; private set; }
     public string? CodeText { get; private set; }
 
-    //public CactusFile File ;
+    //public CactusFile IncludedFile ;
     
     protected SourceFile(string path, string codeText) {
         Path = path;

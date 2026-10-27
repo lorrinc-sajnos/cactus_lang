@@ -2,6 +2,7 @@ using CactusLang.CodeGeneration.CCodeGenerator;
 using CactusLang.Model;
 using CactusLang.Model.CodeStructure;
 using CactusLang.Model.CodeStructure.FileContent;
+using CactusLang.Model.CodeStructure.MemberHolders.IncludedFiles;
 using CactusLang.Model.CodeStructure.MemberHolders.Structs;
 using CactusLang.Model.CodeStructure.Statements;
 using CactusLang.Model.Visitors;
@@ -18,8 +19,8 @@ public class CodeGenerator : CodeModelVisitor<int> {
 
     private State _state;
     public State GenState => _state;
-    private CactusGrove _cactusGrove;
-    private CactusFile _cactusFile;
+    private readonly CactusGrove _cactusGrove;
+    private readonly CactusFile _cactusFile;
     public CactusFile CactusFile => _cactusFile;
     private CodeStore _codeStore;
     public CodeStore CodeStore => _codeStore;
@@ -123,17 +124,18 @@ public class CodeGenerator : CodeModelVisitor<int> {
         Header.AddLineTop($"#define {headerName}");
         Header.AddLineTop($"// :D");
         Header.AddLineTop($"#include \"ccts_std.h\"");
-        AddIncludes();
 
         Header.AddLineBot($"#endif");
     }
-
-    private void AddIncludes() {
-        foreach (CactusFile file in CactusFile.IncludedFiles) {
-            Header.AddLineTop($"#include \"{file.FileID.AsRelPath()}\"");
-        }
-    }
     
+    #region Preprocessing
+
+    protected override int VisitIncludedFile(IncludedFile includedFile) {
+        Header.AddLineTop($"#include \"{includedFile.IncFile.ID.AsRelPath()}\"");
+        return 1;
+    }
+
+    #endregion
 
     #region FileScopeHeader
 

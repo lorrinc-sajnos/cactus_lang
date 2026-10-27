@@ -37,7 +37,7 @@ public class ErrorHandler {
         _errors = new List<ErrorInstance>();
         ErrorListener = new(this);
         //_throwOnError =  throwOnError;
-        FileID = file.FileID;
+        FileID = file.ID;
     }
 
     private void AddCompError(ErrorInstance errorInstance) {

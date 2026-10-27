@@ -224,7 +224,7 @@ public class SemanticFileAnalyzer : GrammarBaseVisitor<StatusCode> {
 
     private void AnalyzeCodeFile(GP.CodefileContext ctx) {
         foreach (var statement in ctx.fileStatement()) {
-            //File function bodies
+            //IncludedFile function bodies
             if (statement.funcDcl() != null) {
                 var funcDcl = statement.funcDcl();
 

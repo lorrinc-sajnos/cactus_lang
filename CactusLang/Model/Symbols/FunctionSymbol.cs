@@ -10,7 +10,7 @@ public class FunctionSymbol {
 	public OrderedDictionary<string, VariableSymbol> Parameters { get; }
 
 	public FunctionSymbol(BaseType retType, string name, CactusFile owner) {
-		FileID = owner.FileID;
+		FileID = owner.ID;
 		Name = name;
 		ReturnType = retType;
 		Parameters = new();

@@ -12,7 +12,7 @@ public class FileStruct : IMemberHolder {
     
     public FileStruct(string id, CactusFile cactusFile) {
         Name = id;
-        ParentID = cactusFile.FileID;
+        ParentID = cactusFile.ID;
         _type = new(this);
     }
     public class Type : BaseType {

@@ -12,7 +12,8 @@ public class GccInstance {
 		OutputFileName = outputFileName;
 	}
 
-	public const string CCTS_STD_COMP_INCL = "/ccts_lang/cactus_std/ccts_std_comp_incl/";
+	public const string CCTS_STD_COMP_INCL = "../../../../ccts_lang/cactus_std/ccts_std_comp_incl/";
+	//public const string CCTS_STD_COMP_INCL = "/ccts_lang/cactus_std/ccts_std_comp_incl/";
 	
 	
 	public bool HasError { get; private set; }

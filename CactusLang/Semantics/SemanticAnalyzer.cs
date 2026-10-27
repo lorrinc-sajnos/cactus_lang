@@ -40,7 +40,7 @@ public class SemanticAnalyzer(CactusGrove grove) {
 	bool AnalyzeFile(CactusFile file) {
 		var fileAnalyzer = new SemanticFileAnalyzer(this, file);
 		
-		_analyzers.Add(file.FileID, fileAnalyzer);
+		_analyzers.Add(file.ID, fileAnalyzer);
 		try {
 			fileAnalyzer.AnalyzeFile();
 		}

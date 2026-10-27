@@ -39,7 +39,7 @@ public static class CctsAssert {
         
         if (result != Transpiler.Result.SUCCESS) {
             Console.WriteLine("-Compilation failed, test failed... :(");
-            //Assert.Fail();
+            Assert.Fail();
         }
         
         Process cctsProgram = new Process();

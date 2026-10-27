@@ -9,5 +9,5 @@ public class FileFunction : MemberFunction {
         base.symbol = symbol;
     }
 
-    public override string CName =>  CactusFile.FileID.CPrefix+Name;
+    public override string CName =>  CactusFile.ID.CPrefix+Name;
 }

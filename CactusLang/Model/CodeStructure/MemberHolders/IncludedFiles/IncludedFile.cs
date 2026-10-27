@@ -3,11 +3,21 @@ using CactusLang.Model.Types;
 
 namespace CactusLang.Model.CodeStructure.MemberHolders.IncludedFiles;
 
-public class IncludedFile(CactusFile file, CactusFile parentFile) : IMemberHolder {
-    public CactusFile File { get; } = file;
+public class IncludedFile : IMemberHolder {
+    public CactusFile IncFile { get; }
+    public CactusFile ParentFile { get; }
+    public string Alias { get; }
+    public string Name => Alias;
+    public FileID ParentID => ParentFile.ID;
 
-    public string Name => File.Filename;
-    public FileID ParentID => File.FileID;
+    public IncludedFile(CactusFile includedFile, string alias, CactusFile parentFile) {
+        IncFile = includedFile;
+        ParentFile = includedFile;
+        Alias = alias;
+        MemberType = new Type(this);
+    }
+
+    public BaseType MemberType { get; }
 
     public class Type(IncludedFile parent) : BaseType {
         public IncludedFile Parent { get; } = parent;
@@ -23,41 +33,22 @@ public class IncludedFile(CactusFile file, CactusFile parentFile) : IMemberHolde
 
         public override string CName => throw new NotImplementedException();
     }
+    
 
-    public BaseType MemberType => throw new NotImplementedException();
+    public MemberFunction? GetExactFunction(FunctionSymbol id) => IncFile.GetExactFunction(id);
 
+    public bool ContainsExactFunction(FuncSignature id) => IncFile.ContainsExactFunction(id);
 
-    public MemberFunction? GetExactFunction(FunctionSymbol id) => File.Functions.GetExactFunction(id);
+    public MemberFunction? GetExactFunction(FuncSignature sign) => IncFile.GetExactFunction(sign);
 
-    public bool ContainsExactFunction(FuncSignature id) {
-        throw new NotImplementedException();
-    }
+    public MemberFunction? GetMatchingFunction(FuncSignature id) => IncFile.GetMatchingFunction(id);
 
-    public MemberFunction? GetExactFunction(FuncSignature sign) {
-        throw new NotImplementedException();
-    }
+    public bool ContainsMatchingFunction(FuncSignature id) => IncFile.ContainsMatchingFunction(id);
 
-    public MemberFunction? GetMatchingFunction(FuncSignature id) {
-        throw new NotImplementedException();
-    }
+    public FunctionSymbol? GetMatchingId(FuncSignature signature) => IncFile.GetMatchingId(signature);
+    public List<MemberFunction> GetFunctions() => IncFile.GetFunctions();
 
-    public bool ContainsMatchingFunction(FuncSignature id) {
-        throw new NotImplementedException();
-    }
+    public MemberField? GetField(string name) => IncFile.GetField(name);
 
-    public FunctionSymbol? GetMatchingId(FuncSignature signature) {
-        throw new NotImplementedException();
-    }
-
-    public List<MemberFunction> GetFunctions() {
-        throw new NotImplementedException();
-    }
-
-    public MemberField? GetField(string name) {
-        throw new NotImplementedException();
-    }
-
-    public List<MemberField> GetFields() {
-        throw new NotImplementedException();
-    }
+    public List<MemberField> GetFields() => IncFile.GetFields();
 }

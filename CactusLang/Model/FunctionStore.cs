@@ -4,14 +4,10 @@ using CactusLang.Util;
 
 namespace CactusLang.Model;
 
-public class FunctionStore<FUNC> where FUNC : ModelFunction {
-    private readonly OrderedDictionary<FunctionSymbol, FUNC> _functions;
+public class FunctionStore<TFunc> : IFunctionHolder<TFunc> where TFunc : ModelFunction {
+    private readonly OrderedDictionary<FunctionSymbol, TFunc> _functions = new();
 
-    public FunctionStore() {
-        _functions = new OrderedDictionary<FunctionSymbol, FUNC>();
-    }
-    
-    public FUNC? GetExactFunction(FunctionSymbol id) {
+    public TFunc? GetExactFunction(FunctionSymbol id) {
         if (!_functions.ContainsKey(id)) {
             //throw new Exception($"Function {id} does not exist.");
 
@@ -29,7 +25,7 @@ public class FunctionStore<FUNC> where FUNC : ModelFunction {
     public bool ContainsExactFunction(FuncSignature id) =>
         _functions.Keys.Any(f => f.ExactSignatureMatch(id));
 
-    public FUNC? GetExactFunction(FuncSignature sign) {
+    public TFunc? GetExactFunction(FuncSignature sign) {
         var matches = _functions.Keys.Where(f => f.ExactSignatureMatch(sign)
         );
         var functionSymbols = matches as FunctionSymbol[] ?? matches.ToArray();
@@ -38,7 +34,7 @@ public class FunctionStore<FUNC> where FUNC : ModelFunction {
     }
 
 
-    public FUNC? GetMatchingFunction(FuncSignature id) {
+    public TFunc? GetMatchingFunction(FuncSignature id) {
         FunctionSymbol? guessedId = GetMatchingId(id);
 
         if (guessedId == null)
@@ -73,7 +69,7 @@ public class FunctionStore<FUNC> where FUNC : ModelFunction {
         return null;
     }
 
-    public bool AddFunction(FUNC variable) {
+    public bool AddFunction(TFunc variable) {
         if (_functions.ContainsKey(variable.Symbol)) {
             //throw new Exception($"Function {variable.Name} already exists");
             return false;
@@ -93,5 +89,5 @@ public class FunctionStore<FUNC> where FUNC : ModelFunction {
         return true;
     }
 
-    public List<FUNC> GetFunctions() => _functions.Values.ToList();
+    public List<TFunc> GetFunctions() => _functions.Values.ToList();
 }
