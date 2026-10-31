@@ -49,22 +49,22 @@ public class ErrorHandler {
 
     
     public void Error(CctsError error, IToken token, params object[] msgParams) =>
-        ErrorInExpressionFromCompTime(error.CompTime(this, token, msgParams));
+        ErrorFromCompTime(error.CompTime(this, token, msgParams));
     public void Error(CctsError error, IToken start, IToken end, params object[] msgParams) =>
-        ErrorInExpressionFromCompTime(error.CompTime(this, start, end, msgParams));
+        ErrorFromCompTime(error.CompTime(this, start, end, msgParams));
     public void Error(CctsError error, ParserRuleContext ctx, params object[] msgParams) =>
-        ErrorInExpressionFromCompTime(error.CompTime(this, ctx, msgParams));
+        ErrorFromCompTime(error.CompTime(this, ctx, msgParams));
     
     
     
     #region Expression
     public Expression.Error ErrorInExpression(CctsError error, IToken token, params object[] msgParams) =>
-        ErrorInExpressionFromCompTime(error.CompTime(this, token, msgParams));
+        ErrorFromCompTime(error.CompTime(this, token, msgParams));
     public Expression.Error ErrorInExpression(CctsError error, IToken start, IToken end, params object[] msgParams) =>
-        ErrorInExpressionFromCompTime(error.CompTime(this, start, end, msgParams));
+        ErrorFromCompTime(error.CompTime(this, start, end, msgParams));
     public Expression.Error ErrorInExpression(CctsError error, ParserRuleContext ctx, params object[] msgParams) =>
-        ErrorInExpressionFromCompTime(error.CompTime(this, ctx, msgParams));
-    private Expression.Error ErrorInExpressionFromCompTime(ErrorInstance errorInstance) {
+        ErrorFromCompTime(error.CompTime(this, ctx, msgParams));
+    private Expression.Error ErrorFromCompTime(ErrorInstance errorInstance) {
         AddCompError(errorInstance);
         return new Expression.Error();
     }

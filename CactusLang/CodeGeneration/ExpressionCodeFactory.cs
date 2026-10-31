@@ -48,7 +48,7 @@ public class ExpressionCodeFactory : CodeModelVisitor<string> {
     }
 
 
-    #region Primaray expression
+    #region Primary expression
 
     protected override string VisitVarRefExpression(VarRef varRef) => varRef.VarName;
 

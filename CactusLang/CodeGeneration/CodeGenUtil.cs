@@ -121,7 +121,7 @@ public static class CodeGenUtil {
                     result += $" = {varVal}";
                 }
             },
-            () => result += PARAM_SEP
+            (_,_) => result += PARAM_SEP
         );
         result += ";";
         return result;

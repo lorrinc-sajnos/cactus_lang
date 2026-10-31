@@ -20,9 +20,13 @@ public class FileID
         Folders = folders;
     }
 
-    public static FileID FromSrcFile(SourceFile file, CactusGrove grove)
-    {
-        string relPath = Path.GetRelativePath(grove.RootFolder, file.Path);
+    public static FileID FromAbsolutePath(string absPath, CactusGrove grove) {
+
+        string relPath = Path.GetRelativePath(grove.RootFolder, absPath);
+        return FromRelPath(relPath, grove);
+    }
+
+    public static FileID FromRelPath(string relPath, CactusGrove grove) {
 
         string[] parts = relPath.Split('\\', '/');
 

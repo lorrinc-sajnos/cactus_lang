@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using CactusLang.Model;
 
 namespace CactusLang.Compiling;
 

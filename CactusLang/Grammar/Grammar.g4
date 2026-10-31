@@ -166,6 +166,16 @@ opRightUn
     
 opAssignmentLvl
     : OP_ASG
+    | OP_ADD_ASG
+    | OP_NEG_ASG
+    | OP_MUL_ASG
+    | OP_DIV_ASG	
+    | OP_REM_ASG	
+    | OP_AND_ASG	
+    | OP_OR_ASG	
+    | OP_XOR_ASG
+    | OP_LSH_ASG		
+    | OP_RSH_ASG   
     ;
     
 primaryExp
@@ -330,7 +340,19 @@ KYW_KEEP: 'keep';
 
 TAG_PRFX: '@';
 
+//Assignment operators
 OP_ASG: '=';
+
+OP_ADD_ASG: OP_ADD OP_ASG;
+OP_NEG_ASG: OP_SUB OP_ASG;
+OP_MUL_ASG: OP_STAR OP_ASG;
+OP_DIV_ASG: OP_DIV OP_ASG;	
+OP_REM_ASG: OP_REM OP_ASG;	
+OP_AND_ASG: OP_B_AND OP_ASG;	
+OP_OR_ASG:  OP_B_OR	OP_ASG;	
+OP_XOR_ASG: OP_B_XOR OP_ASG;
+OP_LSH_ASG: OP_LSH OP_ASG;		
+OP_RSH_ASG: OP_RSH OP_ASG;
 
 //Unary operators
 UNOP_INC: '++';
@@ -342,7 +364,7 @@ LUNOP_SIZEOF: 'sizeof';
 
 //Binary operators, in (sort of) precedence order
 OP_STAR: '*';
-OP_DIV: '/' | '÷';
+OP_DIV: '/';
 OP_REM: '%';
 
 OP_ADD: '+';

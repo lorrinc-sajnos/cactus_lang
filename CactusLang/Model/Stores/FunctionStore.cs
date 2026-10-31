@@ -1,8 +1,8 @@
 using CactusLang.Model.CodeStructure;
+using CactusLang.Model.Holders;
 using CactusLang.Model.Symbols;
-using CactusLang.Util;
 
-namespace CactusLang.Model;
+namespace CactusLang.Model.Stores;
 
 public class FunctionStore<TFunc> : IFunctionHolder<TFunc> where TFunc : ModelFunction {
     private readonly OrderedDictionary<FunctionSymbol, TFunc> _functions = new();

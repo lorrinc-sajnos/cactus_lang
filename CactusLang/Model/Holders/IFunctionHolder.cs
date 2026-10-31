@@ -1,7 +1,7 @@
 ﻿using CactusLang.Model.CodeStructure;
 using CactusLang.Model.Symbols;
 
-namespace CactusLang.Model;
+namespace CactusLang.Model.Holders;
 
 public interface IFunctionHolder<FUNC> where FUNC : ModelFunction {
     public FUNC? GetExactFunction(FunctionSymbol id);

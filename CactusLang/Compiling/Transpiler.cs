@@ -1,5 +1,6 @@
 using CactusLang.CodeGeneration;
 using CactusLang.Compiling.Codefiles;
+using CactusLang.Model;
 using CactusLang.Semantics;
 
 namespace CactusLang.Compiling;
@@ -29,9 +30,9 @@ public class Transpiler(CactusGrove grove) {
         mainCodeGenerator.GenerateEntryFileCode();
         mainCodeGenerator.GenerateFiles();
 
-        var other_files = Grove.GetFiles().ToList();
-        other_files.Remove(Grove.RootFile);
-        foreach (var file in other_files) {
+        var otherFiles = Grove.GetFiles().ToList();
+        otherFiles.Remove(Grove.RootFile);
+        foreach (var file in otherFiles) {
             var codeGenerator = new CodeGenerator(Grove, file, file.SourceFile.Path);
 
             codeGenerator.GenerateCode();

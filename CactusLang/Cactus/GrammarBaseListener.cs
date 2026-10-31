@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-// Generated from /run/media/lorrinc/Warehouse/projects/cactus_lang/CactusLang/Grammar/Grammar.g4 by ANTLR 4.13.2
+// Generated from C:/KBData/temp/temp_2026_10_21/personal/cactus/CactusLang/Grammar/Grammar.g4 by ANTLR 4.13.2
 
 // Unreachable code detected
 #pragma warning disable 0162
@@ -143,6 +143,18 @@ public partial class GrammarBaseListener : IGrammarListener {
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	public virtual void ExitType([NotNull] GrammarParser.TypeContext context) { }
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="GrammarParser.parentObj"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterParentObj([NotNull] GrammarParser.ParentObjContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="GrammarParser.parentObj"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitParentObj([NotNull] GrammarParser.ParentObjContext context) { }
 	/// <summary>
 	/// Enter a parse tree produced by <see cref="GrammarParser.fileVarDcl"/>.
 	/// <para>The default implementation does nothing.</para>

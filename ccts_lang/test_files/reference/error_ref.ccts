@@ -1,0 +1,28 @@
+struct Foo{
+    i32 bar_a;
+    ch08* st;
+	
+	u64 func(){
+		return 123456;
+	}
+}
+
+i32 main(){
+    Foo foo;
+
+    //Direct access, no field
+    foo:wrong_name = 1234;
+    foo.wrong_ref = 1234;
+	
+	Foo* fooPtr  = alloc Foo;
+	
+	fooPtr.no_func();
+	
+	
+	Nothing.bar_a = 10;
+	
+	i32 test = none:bar_a;
+	
+
+    return 0;
+}

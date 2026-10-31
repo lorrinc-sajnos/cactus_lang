@@ -2,6 +2,7 @@ using CactusLang.Compiling.Codefiles;
 using CactusLang.Model.CodeStructure.FileContent;
 using CactusLang.Model.CodeStructure.MemberHolders;
 using CactusLang.Model.CodeStructure.MemberHolders.Structs;
+using CactusLang.Model.Stores;
 using CactusLang.Model.Symbols;
 using CactusLang.Model.Types;
 using CactusLang.Semantics;
@@ -11,16 +12,21 @@ using CactusLang.Tags;
 namespace CactusLang.Model;
 
 public class CactusFile : IMemberHolder {
-    public CactusFile(CactusGrove grove, SourceFile source) {
+    private CactusFile(CactusGrove grove, SourceFile source) {
         SourceFile = source;
-        ID = FileID.FromSrcFile(source,grove);
+        ID = FileID.FromAbsolutePath(source.Path,grove);
         Filename = source.Path;
         Grove = grove;
-        Grove.AddFile(this);
 
         IncludeManager = new(this);
         ErrorHandler = new(this);
         TypeTable = new(this);
+    }
+
+    public static CactusFile CreateAndAddFile(CactusGrove grove, SourceFile source) {
+        var file = new CactusFile(grove, source);
+        grove.AddFile(file);
+        return file;
     }
 
     public SourceFile SourceFile { get; }

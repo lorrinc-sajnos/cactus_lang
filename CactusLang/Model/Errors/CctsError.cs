@@ -69,6 +69,11 @@ public class CctsError {
     public static readonly CctsError CONDITION_ERROR =
         new(10, "Condition type is {0}, not #bool#", "Condition type should be #bool#, instead of {0}");
     
+    public static readonly CctsError FILE_ERROR =
+        new (101, """Error when trying to include "{0}". """, """A error occured, while trying to include file "{0}" """);
+    public static readonly CctsError FILE_DOENST_EXISTS =
+        new (101, """File "{0}" does not exist""", """File "{0}" does not exist.""");
+    
     public static readonly CctsError SYNTAX_WRONG_TOKEN =
         new(9001, "Syntax error: Unexpected token \"{0}\"", "Token \"{0}\" was unexpected.");
     

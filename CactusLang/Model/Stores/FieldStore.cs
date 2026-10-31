@@ -1,8 +1,7 @@
 using CactusLang.Model.CodeStructure;
-using CactusLang.Model.Symbols;
-using CactusLang.Util;
+using CactusLang.Model.Holders;
 
-namespace CactusLang.Model;
+namespace CactusLang.Model.Stores;
 
 public class FieldStore<T> : IFieldHolder<T> where T : ModelField {
     private readonly OrderedDictionary<string, T> _fields;

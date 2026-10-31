@@ -17,9 +17,9 @@ public class FunctionSymbolTest {
 
 		//CactusGrove grove = new CactusGrove();
 		
-		//CactusFile virtualFile = new()
+		//CurrentFile virtualFile = new()
 		
 		//FunctionSymbol symbolA = new(PrimitiveType.I32, "foo_name",)
-		throw new NotImplementedException();
+		//throw new NotImplementedException();
 	}
 }

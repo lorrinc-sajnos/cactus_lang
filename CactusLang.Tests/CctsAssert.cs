@@ -10,22 +10,25 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace CactusLang.Tests;
 
 public static class CctsAssert {
-    
     public static void NoErrors(SemanticAnalyzer fileAnalyzer) =>
         Assert.IsFalse(fileAnalyzer.HasErrors);
 
 
-    public static void FileNoErrors(string path) {
+    public static void FileNoErrors(string path) => FileErrors(path, false);
+
+
+    public static void FileErrors(string path, bool hasErrors = false) {
         CactusLangModel.InitCactusLang();
-        
+
         CactusGrove cactusGrove = new CactusGrove(path);
         Console.WriteLine($"Testing file: {path}");
         SemanticAnalyzer fileAnalyzer = new SemanticAnalyzer(cactusGrove);
         fileAnalyzer.AnalyzeGrove();
         fileAnalyzer.PrintErrors();
-        NoErrors(fileAnalyzer);
+        Assert.AreEqual(fileAnalyzer.HasErrors, hasErrors);
         Console.WriteLine($"Done!\n\n");
     }
+
 
     public static void AssertTypeCompatibility(BaseType expected, BaseType actual) {
         Assert.IsTrue(actual.CanBeUsedAs(expected));
@@ -34,14 +37,14 @@ public static class CctsAssert {
     public static void CompileRunMatchStdout(string path, string expectedStdout) {
         CactusGrove cactusGrove = new CactusGrove(path);
         Transpiler transpiler = new Transpiler(cactusGrove);
-        
+
         var result = transpiler.Compile();
-        
+
         if (result != Transpiler.Result.SUCCESS) {
             Console.WriteLine("-Compilation failed, test failed... :(");
             Assert.Fail();
         }
-        
+
         Process cctsProgram = new Process();
         cctsProgram.StartInfo.FileName = $"{transpiler.OutputFile}";
 
@@ -54,12 +57,12 @@ public static class CctsAssert {
         cctsProgram.Start();
         cctsProgram.WaitForExit();
         string stdout = cctsProgram.StandardOutput.ReadToEnd();
-        
+
         Console.WriteLine(stdout);
         Console.WriteLine($"-PROGRAM RETURNED WITH: {cctsProgram.ExitCode}");
-        
+
         Assert.AreEqual(expectedStdout, stdout);
     }
-    
+
     //public static void 
 }

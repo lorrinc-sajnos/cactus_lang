@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-// Generated from /run/media/lorrinc/Warehouse/projects/cactus_lang/CactusLang/Grammar/Grammar.g4 by ANTLR 4.13.2
+// Generated from C:/KBData/temp/temp_2026_10_21/personal/cactus/CactusLang/Grammar/Grammar.g4 by ANTLR 4.13.2
 
 // Unreachable code detected
 #pragma warning disable 0162
@@ -120,6 +120,16 @@ public interface IGrammarListener : IParseTreeListener {
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	void ExitType([NotNull] GrammarParser.TypeContext context);
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="GrammarParser.parentObj"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterParentObj([NotNull] GrammarParser.ParentObjContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="GrammarParser.parentObj"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitParentObj([NotNull] GrammarParser.ParentObjContext context);
 	/// <summary>
 	/// Enter a parse tree produced by <see cref="GrammarParser.fileVarDcl"/>.
 	/// </summary>

@@ -1,4 +1,5 @@
 using System.Runtime.CompilerServices;
+using CactusLang.Model.Stores;
 using CactusLang.Model.Symbols;
 using CactusLang.Model.Types;
 

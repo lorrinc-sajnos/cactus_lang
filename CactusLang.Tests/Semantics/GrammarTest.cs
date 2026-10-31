@@ -14,9 +14,14 @@ public class GrammarTest {
 
     [TestMethod]
     public void TestObjectReference() {
-        CctsAssert.FileNoErrors("/ccts_lang/test_files/reference/simple_ref.ccts");
+        CctsAssert.FileNoErrors("../../../../ccts_lang/test_files/reference/simple_ref.ccts");
         //reference
-        CctsAssert.FileNoErrors("/ccts_lang/test_files//reference/nested_ref.ccts");
+        CctsAssert.FileNoErrors("../../../../ccts_lang/test_files/reference/nested_ref.ccts");
+    }
+
+    [TestMethod]
+    public void TestObjectReferenceError() {
+        CctsAssert.FileErrors("../../../../ccts_lang/test_files/reference/error_ref.ccts", true);
     }
 
     [TestMethod]

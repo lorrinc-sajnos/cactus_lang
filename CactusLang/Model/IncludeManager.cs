@@ -12,8 +12,8 @@ public class IncludeManager(CactusFile parentFile) {
 	public IncludedFile? GetIncludedFile(string name) => _includedFiles.GetValueOrDefault(name);
 
 	public List<IncludedFile> IncludedFiles => _includedFiles.Values.ToList();
-	public void AddIncludedFile(string alias, CactusFile file) {
-		var incFile = new IncludedFile(file, alias, _parentFile);
+	public void AddIncludedFile(string alias, CactusFile fileToInclude) {
+		var incFile = new IncludedFile(fileToInclude, alias, _parentFile);
 		_includedFiles.Add(alias, incFile);
 	}
 	//public VariableSymbol Get

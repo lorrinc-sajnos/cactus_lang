@@ -1,4 +1,5 @@
 using System.Numerics;
+using Antlr4.Runtime;
 using CactusLang.Model;
 using CactusLang.Model.CodeStructure;
 using CactusLang.Model.CodeStructure.Expressions;
@@ -27,6 +28,7 @@ public class ExpressionFactory {
 	private readonly TypeTable _typeTable;
 	private readonly Scope _scope;
 	private readonly GrammarParser.ExpressionContext _startExpression;
+
 
 	public ExpressionFactory(CactusFile file, Scope scope,
 		GP.ExpressionContext expNode) {
@@ -77,7 +79,7 @@ public class ExpressionFactory {
 		Expression rightExp) {
 		if (rightExp.GetResultType().CanBeUsedAs(leftExp.GetResultType())) {
 			if (!leftExp.IsLValue())
-				_errorHandler.ErrorInExpression(CctsError.RVALUE_ASG, ctx, ctx.expression()[0].GetText());
+				return _errorHandler.ErrorInExpression(CctsError.RVALUE_ASG, ctx, ctx.expression()[0].GetText());
 
 			return new OperationExpression(leftExp, nodeOperator, rightExp);
 		}
