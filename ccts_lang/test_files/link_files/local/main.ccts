@@ -1,0 +1,6 @@
+include bar.ccts as _;
+
+i32 main(){
+    IO.println_i32(123456);
+    return 0;
+}

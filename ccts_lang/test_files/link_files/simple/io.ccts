@@ -1,1 +1,1 @@
-void println(i32 num) $$C=> printf("%d", num);
+void println_i32(i32 val) $$C=> printf("%d\n", val);

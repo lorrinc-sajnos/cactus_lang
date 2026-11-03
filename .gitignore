@@ -3,3 +3,12 @@ obj/
 /packages/
 riderModule.iml
 /_ReSharper.Caches/
+
+cactus_lang.sln.DotSettings.user
+
+.idea/
+.vscode/
+src/
+*.exe
+*.out
+*.o

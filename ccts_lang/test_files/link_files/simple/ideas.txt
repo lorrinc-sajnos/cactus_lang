@@ -1,0 +1,6 @@
+include simple_file.ccts as _;  //Only simple, realitve paths
+
+
+
+include <D:\Complex\0 - Files\with  Irregular\paths.ccts> as _; //Whe between < ... >, you can use any complex path
+
