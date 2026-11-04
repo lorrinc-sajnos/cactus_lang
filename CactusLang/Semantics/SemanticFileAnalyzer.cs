@@ -5,6 +5,7 @@ using CactusLang.Compiling.Codefiles;
 using CactusLang.Model;
 using CactusLang.Model.CodeStructure;
 using CactusLang.Model.CodeStructure.CodeBlocks;
+using CactusLang.Model.CodeStructure.Expressions;
 using CactusLang.Model.CodeStructure.FileContent;
 using CactusLang.Model.CodeStructure.MemberHolders.Structs;
 using CactusLang.Model.CodeStructure.Statements;
@@ -19,432 +20,472 @@ using GP = GrammarParser;
 namespace CactusLang.Semantics;
 
 public class SemanticFileAnalyzer : GrammarBaseVisitor<StatusCode> {
-    private readonly SemanticAnalyzer _analyzer;
+	private readonly SemanticAnalyzer _analyzer;
 
-    private readonly GrammarParser _parser;
-    private readonly TypeTable _typeTable;
-    private readonly FileScope _fileScope;
-    private readonly TagFactory _tagFactory;
-    public CactusFile CurrentFile { get; }
+	private readonly GrammarParser _parser;
+	private readonly TypeTable _typeTable;
+	private readonly FileScope _fileScope;
+	private readonly TagFactory _tagFactory;
+	public CactusFile CurrentFile { get; }
 
-    public ErrorHandler ErrorHandler { get; }
+	public ErrorHandler ErrorHandler { get; }
 
-    private Scope CurrentScope => _fileScope.CurrentScope;
+	private Scope CurrentScope => _fileScope.CurrentScope;
 
-    private CodeBlock _currentBlock;
+	private CodeBlock _currentBlock;
 
 
-    public SemanticFileAnalyzer(SemanticAnalyzer analyzer, CactusFile file) {
-        _analyzer = analyzer;
-        CurrentFile = file;
+	public SemanticFileAnalyzer(SemanticAnalyzer analyzer, CactusFile file) {
+		_analyzer = analyzer;
+		CurrentFile = file;
 
-        //Antlr
-        var srcFile = file.SourceFile;
-        srcFile.ReadAllCode();
+		//Antlr
+		var srcFile = file.SourceFile;
+		srcFile.ReadAllCode();
 
-        var inputStream = new AntlrInputStream(srcFile.CodeText!);
-        var lexer = new GrammarLexer(inputStream);
-        lexer.RemoveErrorListeners();
-        var tokenStream = new CommonTokenStream(lexer);
-        _parser = new GrammarParser(tokenStream);
+		var inputStream = new AntlrInputStream(srcFile.CodeText!);
+		var lexer = new GrammarLexer(inputStream);
+		lexer.RemoveErrorListeners();
+		var tokenStream = new CommonTokenStream(lexer);
+		_parser = new GrammarParser(tokenStream);
 
-        ErrorHandler = new ErrorHandler(file);
-        //Remove error listeners so it doesn't print it to the log
-        _parser.RemoveErrorListeners();
-        _parser.AddErrorListener(ErrorHandler.ErrorListener);
+		ErrorHandler = CurrentFile.ErrorHandler;
+		//Remove error listeners so it doesn't print it to the log
+		_parser.RemoveErrorListeners();
+		_parser.AddErrorListener(ErrorHandler.ErrorListener);
 
-        _fileScope = new FileScope(CurrentFile, ErrorHandler);
-        _typeTable = new TypeTable(file);
-        _tagFactory = new();
-    }
+		_fileScope = new FileScope(CurrentFile, ErrorHandler);
+		_typeTable = new TypeTable(file);
+		_tagFactory = new();
+	}
 
-    public void AnalyzeFile() {
-        GP.CodefileContext ctx = _parser.codefile();
+	public void AnalyzeFile() {
+		GP.CodefileContext ctx = _parser.codefile();
 
-        Debug.LogLine($"Start index:\t{ctx.Start.StartIndex}");
-        Debug.LogLine($"Stop index:\t{ctx.Stop.StopIndex}");
+		Debug.LogLine($"Start index:\t{ctx.Start.StartIndex}");
+		Debug.LogLine($"Stop index:\t{ctx.Stop.StopIndex}");
 
-        VisitHeaderStatemenets(ctx);
-        RegisterStructs(ctx);
+		VisitHeaderStatemenets(ctx);
+		RegisterStructs(ctx);
 
-        //After registering structs, the Type system is completed, can begin registering functions
-        RegisterFileScope(ctx);
+		//After registering structs, the Type system is completed, can begin registering functions
+		RegisterFileScope(ctx);
 
-        Debug.LogLine("Registration finished.");
-        Debug.LogLine("Beginning analyzation.");
-        AnalyzeCodeFile(ctx);
-    }
+		Debug.LogLine("Registration finished.");
+		Debug.LogLine("Beginning analyzation.");
+		AnalyzeCodeFile(ctx);
+	}
 
-    #region Registering
+	#region Registering
 
-    private void VisitHeaderStatemenets(GP.CodefileContext ctx) {
-        foreach (var headerStatement in ctx.headerStatement()) {
-            VisitHeaderStatement(headerStatement);
-        }
-    }
+	private void VisitHeaderStatemenets(GP.CodefileContext ctx) {
+		foreach (var headerStatement in ctx.headerStatement()) {
+			VisitHeaderStatement(headerStatement);
+		}
+	}
 
-    public override StatusCode VisitIncludeFile(GrammarParser.IncludeFileContext ctx) {
-        CactusGrove grove = _analyzer.Grove;
+	public override StatusCode VisitIncludeFile(GrammarParser.IncludeFileContext ctx) {
+		CactusGrove grove = _analyzer.Grove;
 
-        string path = ctx.filepath().GetText();
-        FileID fileId = FileID.FromRelPath(path, grove);
+		string path = ctx.filepath().GetText();
+		FileID fileId = FileID.FromRelPath(path, grove);
 
-        string alias = ctx.fileAlias().GetText();
+		string alias = ctx.fileAlias().GetText();
 
-        //Add the file
-        try {
-            CactusFile? includedFile = _analyzer.RequestFile(fileId);
+		//Add the file
+		try {
+			CactusFile? includedFile = _analyzer.RequestFile(fileId);
 
-            if (includedFile is null) {
-                ErrorHandler.Error(CctsError.FILE_DOENST_EXISTS, ctx, path);
-                return StatusCode.ERR;
-            }
+			if (includedFile is null) {
+				ErrorHandler.Error(CctsError.FILE_DOENST_EXISTS, ctx, path);
+				return StatusCode.ERR;
+			}
             
-            CurrentFile.IncludeManager.AddIncludedFile(alias, includedFile);
-        }
-        catch (Exception e) {
-            ErrorHandler.Error(CctsError.FILE_ERROR, ctx, path);
-            return StatusCode.ERR;
-        }
-
-        return StatusCode.SUCCESS;
-    }
-
-
-    private void RegisterStructs(GP.CodefileContext ctx) {
-        var statements = ctx.fileStatement();
-        //First create the structs
-        foreach (var statement in statements) {
-            if (statement.structDcl() != null) {
-                var structDcl = statement.structDcl();
-                string structName = structDcl.structName().GetText();
-                FileStruct fileStruct = new FileStruct(structName, CurrentFile);
-                Debug.LogLine($"Struct {structName} declared");
-                CurrentFile.AddStruct(fileStruct);
-                _typeTable.AddStruct(structDcl, fileStruct); //TODO err Already defined?
-            }
-        }
-
-        //Then go over the header in their bodies, so they can cross-reference
-        foreach (var statement in statements) {
-            if (statement.structDcl() != null) {
-                var structDcl = statement.structDcl();
-                FileStruct fileStruct = _typeTable.GetStruct(structDcl);
-                Debug.LogLine($"@Struct  {fileStruct.Name}:");
-
-                var structBody = structDcl.structBody();
-
-                //Instance Functions
-                foreach (var funcDec in structBody.funcDcl()) {
-                    RegisterStructFuncDcl(fileStruct, funcDec);
-                    Debug.LogLine($"\tAdded function: {funcDec.funcDclHeader().GetText()}");
-                }
-
-                //Fields
-                foreach (var fieldDcl in structBody.fieldDcl()) {
-                    RegisterStructFieldDcl(fileStruct, fieldDcl);
-                    Debug.LogLine($"\tAdded field: {fieldDcl.GetText()}");
-                }
-            }
-        }
-    }
-
-    private void RegisterFileScope(GP.CodefileContext ctx) {
-        var globStatement = ctx.fileStatement();
-
-        foreach (var fileStatement in globStatement) {
-            if (fileStatement.funcDcl() != null) {
-                var funcDcl = fileStatement.funcDcl();
-                RegisterFileFuncDcl(funcDcl);
-            }
-            else if (fileStatement.fileVarDcl() != null) {
-                var globVarCtx = fileStatement.fileVarDcl();
-                RegisterFileVarDcl(globVarCtx);
-            }
-            else if (fileStatement.tags() != null) {
-                CurrentFile.AddTags(_tagFactory.CreateTags(fileStatement.tags()));
-            }
-        }
-    }
-
-    private void RegisterFileFuncDcl(GP.FuncDclContext ctx) {
-        var header = ctx.funcDclHeader();
-        string funcName = header.funcName().GetText();
-        BaseType returnType = _typeTable.Get(header.returnType().type());
-        FunctionSymbol funcSymb = new FunctionSymbol(returnType, funcName, CurrentFile);
-
-        foreach (var param in header.param()) {
-            string pName = param.paramName().GetText();
-            BaseType pType = _typeTable.Get(param.type());
-            funcSymb.AddParameter(new VariableSymbol(pType, pName));
-        }
-
-        FileFunction fileFunc = new FileFunction(funcSymb, CurrentFile);
-        var result = CurrentFile.Functions.AddFunction(fileFunc);
-        if (result == false) {
-            ErrorHandler.ErrorInExpression(CctsError.OVERLOAD_DOESNT_MATCH_RET_TYPE, ctx, header.funcName());
-        }
-
-        if (header.tags() != null)
-            fileFunc.TagContainer.AddTags(_tagFactory.CreateTags(header.tags()));
-
-        Debug.LogLine($"Func {funcSymb.Name} declared.");
-    }
-
-    private void RegisterFileVarDcl(GP.FileVarDclContext ctx) {
-        var varCtx = ctx.varDcl();
-
-        var varSymbols = SemanticUtil.GetVarSymbols(varCtx, _typeTable);
-
-        foreach (VariableSymbol symb in varSymbols) {
-            FileField field = new FileField(symb, CurrentFile);
-
-            var result = _fileScope.AddVariable(symb);
-            CurrentFile.Fields.AddField(field);
-
-            if (!result)
-                ErrorHandler.Error(CctsError.ALREADY_DEFINED, ctx);
-
-            Debug.LogLine($"GlobVar Added: {symb.Type.Name}   {symb.Name}");
-        }
-    }
-
-
-    private void RegisterStructFuncDcl(FileStruct fileStruct, GP.FuncDclContext ctx) {
-        var header = ctx.funcDclHeader();
-        string funcName = header.funcName().GetText();
-        BaseType returnType = _typeTable.Get(header.returnType().type());
-        FunctionSymbol funcSymb = new FunctionSymbol(returnType, funcName, CurrentFile);
-
-        foreach (var param in header.param()) {
-            string pName = param.paramName().GetText();
-            BaseType pType = _typeTable.Get(param.type());
-            funcSymb.AddParameter(new VariableSymbol(pType, pName));
-        }
-
-        StructFunction structFunc = new StructFunction(CurrentFile, funcSymb, fileStruct);
-        fileStruct.Functions.AddFunction(structFunc);
-    }
-
-    private void RegisterStructFieldDcl(FileStruct fileStruct, GP.FieldDclContext ctx) {
-        var varCtx = ctx.varDcl();
-
-        List<VariableSymbol> varSymbols = new List<VariableSymbol>();
-        BaseType type = _typeTable.Get(varCtx.type());
-        foreach (var varBody in varCtx.varDclBody()) {
-            varSymbols.Add(new VariableSymbol(type, varBody.varName().GetText()));
-        }
-
-        foreach (VariableSymbol symb in varSymbols) {
-            fileStruct.Fields.AddField(new StructField(symb, fileStruct));
-            Debug.LogLine($"\tAdded: {symb.Type.Name}   {symb.Name}");
-        }
-    }
-
-    #endregion
-
-    private void AnalyzeCodeFile(GP.CodefileContext ctx) {
-        foreach (var statement in ctx.fileStatement()) {
-            //IncludedFile function bodies
-            if (statement.funcDcl() != null) {
-                var funcDcl = statement.funcDcl();
-
-                ProcessFunctionBody(funcDcl);
-            }
-            else //Structs function bodies
-            if (statement.structDcl() != null) {
-                var structDcl = statement.structDcl();
-                FileStruct structType = _typeTable.GetStruct(structDcl);
-                Debug.LogLine($"\n---@Struct {structType.Name} ENTERED");
-
-                //Loop through the functions of the struct
-                var structFuncs = structDcl.structBody().funcDcl();
-                _fileScope.StepInStructFunc(structType);
-
-                foreach (var funcDclCtx in structFuncs) {
-                    ProcessFunctionBody(funcDclCtx);
-                }
-
-                _fileScope.StepOut();
-                Debug.LogLine($"\n---@Struct {structType.Name} EXITED");
-                Debug.LogLine();
-            }
-        }
-    }
-
-    private void ProcessFunctionBody(GP.FuncDclContext ctx) {
-        ModelFunction? func =
-            CurrentScope.GetMatchingFunction(
-                SemanticUtil.GetSignatureFromDclCtx(ctx.funcDclHeader(), CurrentFile)
-            );
-
-        //Should be always non-null
-        if (func is null)
-            return;
-
-        _currentBlock = func.CodeBody;
-
-        Debug.LogLine($"FUNC {ctx.funcDclHeader().GetText()} ENTERED");
-        //_fileScope.StepIn();
-        //Add the parameters to the current scope
-        foreach (var param in func!.Symbol.GetParameters()) {
-            CurrentScope.AddVariable(param); //In theory, scope is empty at this point, thus an error cannot occur.
-        }
-
-        //If function has C code, trust that it will work
-        if (ctx.ppc__C_Code_Body() != null) {
-            _currentBlock.AddStatement(new RawCCodeStatement(_currentBlock, ctx.ppc__C_Code_Body().GetText(), true));
-            return;
-        }
-
-        if (ctx.ppc__C_Func_Map() != null) {
-            _currentBlock.AddStatement(new RawCCodeStatement(_currentBlock,
-                ctx.ppc__C_Func_Map().ppc__C_Func().GetText(), false));
-            return;
-        }
-
-        if (ctx.funcLamdBody() != null) {
-            var factory = CreateFactory(ctx.funcLamdBody().expression());
-            var lamdbaExpr = factory.EvaluateExpression();
-
-            if (func.ReturnType.Equals(PrimitiveType.VOID)) {
-                _currentBlock.AddStatement(new ExpressionStatement(_currentBlock, lamdbaExpr));
-            }
-            else {
-                _currentBlock.AddStatement(new ReturnStatement(_currentBlock, lamdbaExpr));
-            }
-
-            return;
-        }
-
-        //Handle the most common case:
-        var codeBody = ctx.codeBody();
-
-        VisitCodeBody(codeBody);
-
-        //_fileScope.StepOut();
-
-
-        Debug.LogLine($"FUNC {ctx.funcDclHeader().GetText()} EXITED\n");
-    }
-
-    private void FillVarDclStatement(GP.VarDclContext ctx, VarDclStatement varDclStatement) {
-        BaseType dclType = _typeTable.Get(ctx.type());
-
-        foreach (var dclBody in ctx.varDclBody()) {
-            var varSymbol = new VariableSymbol(dclType, dclBody.varName().GetText());
-
-            //Typecheck:
-            if (dclBody.expression() != null) {
-                var asgExprCtx = dclBody.expression();
-                var factory = CreateFactory(asgExprCtx);
-                var asgExpression = factory.EvaluateExpression();
-
-
-                if (!asgExpression.GetResultType().CanBeUsedAs(dclType)) {
-                    ErrorHandler.ErrorInExpression(CctsError.TYPE_MISMATCH, ctx, asgExpression.GetResultType(),
-                        dclType);
-                    //continue;
-                }
-
-                varDclStatement.AddBody(new VarDclStatement.Body(varSymbol, asgExpression));
-            }
-            else {
-                varDclStatement.AddBody(new VarDclStatement.Body(varSymbol));
-            }
-
-            _fileScope.CurrentScope.AddVariable(varSymbol);
-        }
-    }
-
-    public override StatusCode VisitCodeBody(GrammarParser.CodeBodyContext context) {
-        _fileScope.StepIn();
-        Debug.LogLine("Entering code body.");
-        var result = base.VisitCodeBody(context);
-        _fileScope.StepOut();
-        Debug.LogLine("Exiting code body.");
-        return result;
-    }
-
-    #region Statement Handling
-
-    private ExpressionFactory CreateFactory(GP.ExpressionContext node) =>
-        new(CurrentFile, _fileScope.CurrentScope, node);
-
-
-    public override StatusCode VisitStatement(GP.StatementContext ctx) {
-        //Debug.LogLine("statement:"+ctx.GetText());
-        return base.VisitStatement(ctx);
-    }
-
-    public override StatusCode VisitVarDcl(GrammarParser.VarDclContext ctx) {
-        VarDclStatement varDclStatement = new(_currentBlock);
-
-        FillVarDclStatement(ctx, varDclStatement);
-
-        _currentBlock.AddStatement(varDclStatement);
-        return base.VisitVarDcl(ctx);
-    }
-
-    public override StatusCode VisitExpressionStatement(GrammarParser.ExpressionStatementContext ctx) {
-        var factory = CreateFactory(ctx.expression());
-        var expression = factory.EvaluateExpression();
-
-
-        var res = base.VisitExpressionStatement(ctx);
-
-        _currentBlock.AddStatement(new ExpressionStatement(_currentBlock, expression));
-        return res;
-    }
-
-    public override StatusCode VisitFree(GrammarParser.FreeContext ctx) {
-        var factory = CreateFactory(ctx.expression());
-        var expression = factory.EvaluateExpression();
-        if (expression.GetResultType() is not PointerType) {
-            ErrorHandler.ErrorInExpression(CctsError.FREE_ERROR, ctx, ctx.expression().GetText());
-        }
-
-        _currentBlock.AddStatement(new FreeStatement(_currentBlock, expression));
-        return base.VisitFree(ctx);
-    }
-
-
-    public override StatusCode VisitReturnStatement(GrammarParser.ReturnStatementContext ctx) {
-        var factory = CreateFactory(ctx.expression());
-        var expression = factory.EvaluateExpression();
-
-
-        _currentBlock.AddStatement(new ReturnStatement(_currentBlock, expression));
-
-        return base.VisitReturnStatement(ctx);
-    }
-
-    public override StatusCode VisitForLoop(GrammarParser.ForLoopContext ctx) {
-        VarDclStatement loopDcl = new(_currentBlock);
-        _fileScope.StepIn();
-        FillVarDclStatement(ctx.loopDecl().varDcl(), loopDcl);
-
-        var loopCondfactory = CreateFactory(ctx.loopCond().expression());
-        var loopCond = loopCondfactory.EvaluateExpression();
-        if (loopCond.GetResultType() != PrimitiveType.BOOL) {
-            ErrorHandler.ErrorInExpression(CctsError.CONDITION_ERROR, ctx.loopCond(), loopCond.GetResultType());
-        }
-
-        var endExpfactory = CreateFactory(ctx.endExp().expression());
-        var endExp = endExpfactory.EvaluateExpression();
-
-
-        ForLoop forLoop = new(loopDcl, loopCond, endExp, _currentBlock);
-        var storeCurerntBlock = _currentBlock;
-        _currentBlock = forLoop.LoopBody;
-        var result = base.VisitCodeBody(ctx.codeBody());
-
-        _fileScope.StepOut();
-
-        _currentBlock = storeCurerntBlock;
-        _currentBlock.AddStatement(forLoop);
-        return result;
-    }
-
-    #endregion
+			CurrentFile.IncludeManager.AddIncludedFile(alias, includedFile);
+		}
+		catch (Exception e) {
+			ErrorHandler.Error(CctsError.FILE_ERROR, ctx, path);
+			return StatusCode.ERR;
+		}
+
+		return StatusCode.SUCCESS;
+	}
+
+
+	private void RegisterStructs(GP.CodefileContext ctx) {
+		var statements = ctx.fileStatement();
+		//First create the structs
+		foreach (var statement in statements) {
+			if (statement.structDcl() != null) {
+				var structDcl = statement.structDcl();
+				string structName = structDcl.structName().GetText();
+				FileStruct fileStruct = new FileStruct(structName, CurrentFile);
+				Debug.LogLine($"Struct {structName} declared");
+				CurrentFile.AddStruct(fileStruct);
+				_typeTable.AddStruct(structDcl, fileStruct); //TODO err Already defined?
+			}
+		}
+
+		//Then go over the header in their bodies, so they can cross-reference
+		foreach (var statement in statements) {
+			if (statement.structDcl() != null) {
+				var structDcl = statement.structDcl();
+				FileStruct fileStruct = _typeTable.GetStruct(structDcl);
+				Debug.LogLine($"@Struct  {fileStruct.Name}:");
+
+				var structBody = structDcl.structBody();
+
+				//Instance Functions
+				foreach (var funcDec in structBody.funcDcl()) {
+					RegisterStructFuncDcl(fileStruct, funcDec);
+					Debug.LogLine($"\tAdded function: {funcDec.funcDclHeader().GetText()}");
+				}
+
+				//Fields
+				foreach (var fieldDcl in structBody.fieldDcl()) {
+					RegisterStructFieldDcl(fileStruct, fieldDcl);
+					Debug.LogLine($"\tAdded field: {fieldDcl.GetText()}");
+				}
+			}
+		}
+	}
+
+	private void RegisterFileScope(GP.CodefileContext ctx) {
+		var globStatement = ctx.fileStatement();
+
+		foreach (var fileStatement in globStatement) {
+			if (fileStatement.funcDcl() != null) {
+				var funcDcl = fileStatement.funcDcl();
+				RegisterFileFuncDcl(funcDcl);
+			}
+			else if (fileStatement.fileVarDcl() != null) {
+				var globVarCtx = fileStatement.fileVarDcl();
+				RegisterFileVarDcl(globVarCtx);
+			}
+			else if (fileStatement.tags() != null) {
+				CurrentFile.AddTags(_tagFactory.CreateTags(fileStatement.tags()));
+			}
+		}
+	}
+
+	private void RegisterFileFuncDcl(GP.FuncDclContext ctx) {
+		var header = ctx.funcDclHeader();
+		string funcName = header.funcName().GetText();
+		BaseType returnType = _typeTable.Get(header.returnType().type());
+		FunctionSymbol funcSymb = new FunctionSymbol(returnType, funcName, CurrentFile);
+
+		foreach (var param in header.param()) {
+			string pName = param.paramName().GetText();
+			BaseType pType = _typeTable.Get(param.type());
+			funcSymb.AddParameter(new VariableSymbol(pType, pName));
+		}
+
+		FileFunction fileFunc = new FileFunction(funcSymb, CurrentFile);
+		var result = CurrentFile.Functions.AddFunction(fileFunc);
+		if (result == false) {
+			ErrorHandler.ErrorInExpression(CctsError.OVERLOAD_DOESNT_MATCH_RET_TYPE, ctx, header.funcName());
+		}
+
+		if (header.tags() != null)
+			fileFunc.TagContainer.AddTags(_tagFactory.CreateTags(header.tags()));
+
+		Debug.LogLine($"Func {funcSymb.Name} declared.");
+	}
+
+	private void RegisterFileVarDcl(GP.FileVarDclContext ctx) {
+		var varCtx = ctx.varDcl();
+
+		var varSymbols = SemanticUtil.GetVarSymbols(varCtx, _typeTable);
+
+		foreach (VariableSymbol symb in varSymbols) {
+			FileField field = new FileField(symb, CurrentFile);
+
+			var result = _fileScope.AddVariable(symb);
+			CurrentFile.Fields.AddField(field);
+
+			if (!result)
+				ErrorHandler.Error(CctsError.ALREADY_DEFINED, ctx);
+
+			Debug.LogLine($"GlobVar Added: {symb.Type.Name}   {symb.Name}");
+		}
+	}
+
+
+	private void RegisterStructFuncDcl(FileStruct fileStruct, GP.FuncDclContext ctx) {
+		var header = ctx.funcDclHeader();
+		string funcName = header.funcName().GetText();
+		BaseType returnType = _typeTable.Get(header.returnType().type());
+		FunctionSymbol funcSymb = new FunctionSymbol(returnType, funcName, CurrentFile);
+
+		foreach (var param in header.param()) {
+			string pName = param.paramName().GetText();
+			BaseType pType = _typeTable.Get(param.type());
+			funcSymb.AddParameter(new VariableSymbol(pType, pName));
+		}
+
+		StructFunction structFunc = new StructFunction(CurrentFile, funcSymb, fileStruct);
+		fileStruct.Functions.AddFunction(structFunc);
+	}
+
+	private void RegisterStructFieldDcl(FileStruct fileStruct, GP.FieldDclContext ctx) {
+		var varCtx = ctx.varDcl();
+
+		List<VariableSymbol> varSymbols = new List<VariableSymbol>();
+		BaseType type = _typeTable.Get(varCtx.type());
+		foreach (var varBody in varCtx.varDclBody()) {
+			varSymbols.Add(new VariableSymbol(type, varBody.varName().GetText()));
+		}
+
+		foreach (VariableSymbol symb in varSymbols) {
+			fileStruct.Fields.AddField(new StructField(symb, fileStruct));
+			Debug.LogLine($"\tAdded: {symb.Type.Name}   {symb.Name}");
+		}
+	}
+
+	#endregion
+
+	private void AnalyzeCodeFile(GP.CodefileContext ctx) {
+		foreach (var statement in ctx.fileStatement()) {
+			//IncludedFile function bodies
+			if (statement.funcDcl() != null) {
+				var funcDcl = statement.funcDcl();
+
+				ProcessFunctionBody(funcDcl);
+			}
+			else //Structs function bodies
+			if (statement.structDcl() != null) {
+				var structDcl = statement.structDcl();
+				FileStruct structType = _typeTable.GetStruct(structDcl);
+				Debug.LogLine($"\n---@Struct {structType.Name} ENTERED");
+
+				//Loop through the functions of the struct
+				var structFuncs = structDcl.structBody().funcDcl();
+				_fileScope.StepInStructFunc(structType);
+
+				foreach (var funcDclCtx in structFuncs) {
+					ProcessFunctionBody(funcDclCtx);
+				}
+
+				_fileScope.StepOut();
+				Debug.LogLine($"\n---@Struct {structType.Name} EXITED");
+				Debug.LogLine();
+			}
+		}
+	}
+
+	private void ProcessFunctionBody(GP.FuncDclContext ctx) {
+		ModelFunction? func =
+			CurrentScope.GetMatchingFunction(
+				SemanticUtil.GetSignatureFromDclCtx(ctx.funcDclHeader(), CurrentFile)
+			);
+
+		//Should be always non-null
+		if (func is null)
+			return;
+
+		_currentBlock = func.CodeBody;
+
+		Debug.LogLine($"FUNC {ctx.funcDclHeader().GetText()} ENTERED");
+		//_fileScope.StepIn();
+		//Add the parameters to the current scope
+		foreach (var param in func!.Symbol.GetParameters()) {
+			CurrentScope.AddVariable(param); //In theory, scope is empty at this point, thus an error cannot occur.
+		}
+
+		//If function has C code, trust that it will work
+		if (ctx.ppc__C_Code_Body() != null) {
+			_currentBlock.AddStatement(new RawCCodeStatement(_currentBlock, ctx.ppc__C_Code_Body().GetText(), true));
+			return;
+		}
+
+		if (ctx.ppc__C_Func_Map() != null) {
+			_currentBlock.AddStatement(new RawCCodeStatement(_currentBlock,
+				ctx.ppc__C_Func_Map().ppc__C_Func().GetText(), false));
+			return;
+		}
+
+		if (ctx.funcLamdBody() != null) {
+			var exprCtx = ctx.funcLamdBody().expression();
+			var lamdbaExpr = EvaluateExpression(exprCtx);
+
+			if (func.ReturnType.Equals(PrimitiveType.VOID)) {
+				_currentBlock.AddStatement(new ExpressionStatement(_currentBlock, lamdbaExpr));
+			}
+			else {
+				_currentBlock.AddStatement(new ReturnStatement(_currentBlock, lamdbaExpr));
+			}
+
+			return;
+		}
+
+		//Handle the most common case:
+		var codeBody = ctx.codeBody();
+
+		VisitCodeBody(codeBody);
+
+		//_fileScope.StepOut();
+
+
+		Debug.LogLine($"FUNC {ctx.funcDclHeader().GetText()} EXITED\n");
+	}
+
+	private void FillVarDclStatement(GP.VarDclContext ctx, VarDclStatement varDclStatement) {
+		BaseType dclType = _typeTable.Get(ctx.type());
+
+		foreach (var dclBody in ctx.varDclBody()) {
+			var varSymbol = new VariableSymbol(dclType, dclBody.varName().GetText());
+
+			//Typecheck:
+			if (dclBody.expression() != null) {
+				GP.ExpressionContext asgExprCtx = dclBody.expression();
+				var asgExpression = EvaluateExpression(
+					asgExprCtx,
+					whenErrExpr: DEFAULT,
+					otherErrHandling: result => {
+						if (!result.GetResultType().CanBeUsedAs(dclType)) {
+							ErrorHandler.ErrorInExpression(CctsError.TYPE_MISMATCH, ctx, result.GetResultType(),
+								dclType);
+							//continue;
+						}
+					});
+
+
+				varDclStatement.AddBody(new VarDclStatement.Body(varSymbol, asgExpression));
+			}
+			else {
+				varDclStatement.AddBody(new VarDclStatement.Body(varSymbol));
+			}
+
+			_fileScope.CurrentScope.AddVariable(varSymbol);
+		}
+	}
+
+	public override StatusCode VisitCodeBody(GrammarParser.CodeBodyContext context) {
+		_fileScope.StepIn();
+		Debug.LogLine("Entering code body.");
+		var result = base.VisitCodeBody(context);
+		_fileScope.StepOut();
+		Debug.LogLine("Exiting code body.");
+		return result;
+	}
+
+	#region Statement Handling
+
+	private ExpressionFactory CreateFactory(GP.ExpressionContext node) =>
+		new(CurrentFile, _fileScope.CurrentScope, node);
+
+
+	public override StatusCode VisitStatement(GP.StatementContext ctx) {
+		//Debug.LogLine("statement:"+ctx.GetText());
+		return base.VisitStatement(ctx);
+	}
+
+	public override StatusCode VisitVarDcl(GrammarParser.VarDclContext ctx) {
+		VarDclStatement varDclStatement = new(_currentBlock);
+
+		FillVarDclStatement(ctx, varDclStatement);
+
+		_currentBlock.AddStatement(varDclStatement);
+		return base.VisitVarDcl(ctx);
+	}
+
+	public override StatusCode VisitExpressionStatement(GrammarParser.ExpressionStatementContext ctx) {
+		var exprCtx = ctx.expression();
+		var expression = EvaluateExpression(exprCtx);
+
+
+		var res = base.VisitExpressionStatement(ctx);
+
+		_currentBlock.AddStatement(new ExpressionStatement(_currentBlock, expression));
+		return res;
+	}
+
+	public override StatusCode VisitFree(GrammarParser.FreeContext ctx) {
+		var exprCtx = ctx.expression();
+		var expression = EvaluateExpression(exprCtx,
+			whenErrExpr: DEFAULT,
+			otherErrHandling: result => {
+				if (result.GetResultType() is not PointerType) {
+					ErrorHandler.ErrorInExpression(CctsError.FREE_ERROR, ctx, ctx.expression().GetText());
+				}
+			}
+			);
+
+		_currentBlock.AddStatement(new FreeStatement(_currentBlock, expression));
+		return base.VisitFree(ctx);
+	}
+
+
+	public override StatusCode VisitReturnStatement(GrammarParser.ReturnStatementContext ctx) {
+		var exprCtx = ctx.expression();
+		var expression = EvaluateExpression(exprCtx);
+
+
+		_currentBlock.AddStatement(new ReturnStatement(_currentBlock, expression));
+
+		return base.VisitReturnStatement(ctx);
+	}
+
+	public override StatusCode VisitForLoop(GrammarParser.ForLoopContext ctx) {
+		VarDclStatement loopDcl = new(_currentBlock);
+		_fileScope.StepIn();
+		FillVarDclStatement(ctx.loopDecl().varDcl(), loopDcl);
+
+		var loopCondExprCtx = ctx.loopCond().expression();
+		var loopCond = EvaluateExpression(
+			loopCondExprCtx,
+			whenErrExpr: DEFAULT,
+			otherErrHandling: result => {
+				if (result.GetResultType() != PrimitiveType.BOOL) {
+					ErrorHandler.ErrorInExpression(CctsError.CONDITION_ERROR, ctx.loopCond(), result.GetResultType());
+				}
+			});
+
+		var endExprCtx = ctx.endExp().expression();
+		var endExp = EvaluateExpression(endExprCtx);
+
+
+		ForLoop forLoop = new(loopDcl, loopCond, endExp, _currentBlock);
+		var storeCurrentBlock = _currentBlock;
+		_currentBlock = forLoop.LoopBody;
+		var result = base.VisitCodeBody(ctx.codeBody());
+
+		_fileScope.StepOut();
+
+		_currentBlock = storeCurrentBlock;
+		_currentBlock.AddStatement(forLoop);
+		return result;
+	}
+
+	#endregion
+
+	
+	private void DEFAULT(GP.ExpressionContext expCtx) => 
+		ErrorHandler.ErrorInExpression(CctsError.EXPRESSION_ERROR, expCtx);
+	
+	private Expression EvaluateExpression(
+		GP.ExpressionContext expCtx, 
+		Action<GP.ExpressionContext>? whenErrExpr = null, 
+		Action<Expression>? otherErrHandling = null
+	) {
+
+		var a = DEFAULT;
+		var factory = CreateFactory(expCtx);
+		var result = factory.EvaluateExpression();
+		//Handle errors
+		var resultType = result.GetResultType();
+		if (resultType is ErrorType) {
+			if (whenErrExpr is null)
+				DEFAULT(expCtx);
+			else 
+				whenErrExpr(expCtx);
+		}
+
+		if (otherErrHandling is not null) {
+			otherErrHandling(result);
+		}
+		
+		return result;
+	}
+    
 }

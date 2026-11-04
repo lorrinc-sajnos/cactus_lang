@@ -16,5 +16,9 @@
   <ItemGroup>
     <ProjectReference Include="..\CactusLang\CactusLang.csproj" />
   </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Compiling\Codefiles\" />
+  </ItemGroup>
   
 </Project>

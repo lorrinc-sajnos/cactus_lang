@@ -8,8 +8,7 @@ namespace CactusLang.Semantics;
 
 public class SemanticAnalyzer(CactusGrove grove) {
 	public CactusGrove Grove { get; } = grove;
-	public List<ErrorInstance> Errors = new();
-	public bool HasErrors { get; set; } = false;
+	//public bool HasErrors { get; private set; } = false;
 
 	private Dictionary<FileID, SemanticFileAnalyzer> _analyzers = new();
 
@@ -17,25 +16,16 @@ public class SemanticAnalyzer(CactusGrove grove) {
 		//Start at root
 		var rootResult = AnalyzeFile(Grove.RootFile);
 		
+		bool hasErrors = false;
+		
 		foreach (var analyzer in _analyzers.Values) {
 			var fileErrors = analyzer.ErrorHandler.GetErrors();
 			if (fileErrors.Count > 0) {
-				HasErrors = true;
-				Errors.AddRange(fileErrors);
+				hasErrors = true;
 			}
 		}
-
-		if (HasErrors) {
-			PrintErrors();
-		}
-		return HasErrors;
+		return hasErrors;
 	}
-
-	public void PrintErrors() {
-		foreach (var err in  Errors)
-			Console.WriteLine(err.AsPrettyString());
-	}
-	
 
 	bool AnalyzeFile(CactusFile file) {
 		var fileAnalyzer = new SemanticFileAnalyzer(this, file);

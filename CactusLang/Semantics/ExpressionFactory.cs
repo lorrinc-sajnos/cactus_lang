@@ -40,7 +40,10 @@ public class ExpressionFactory {
 	}
 
 	public Expression EvaluateExpression() {
-		return EvaluateExpressionCtx(_startExpression);
+		
+		var result = EvaluateExpressionCtx(_startExpression);
+
+		return result;
 	}
 
 	private Expression EvaluateExpressionCtx(GP.ExpressionContext ctx) {

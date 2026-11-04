@@ -61,13 +61,13 @@ public class Transpiler(CactusGrove grove) {
             throw;
         }
 
-        if (SemanticAnalyzer.HasErrors) {
+        if (Grove.HasErrors()) {
             Console.WriteLine("-\tParsing failed");
             analysisFailed = true;
         }
 
         if (analysisFailed) {
-            SemanticAnalyzer.PrintErrors();
+            Grove.PrintErrors();
             Console.WriteLine("-\tC code generation terminated");
             return Result.FAIL;
         }

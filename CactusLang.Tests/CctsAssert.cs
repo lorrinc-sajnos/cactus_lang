@@ -10,59 +10,65 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace CactusLang.Tests;
 
 public static class CctsAssert {
-    public static void NoErrors(SemanticAnalyzer fileAnalyzer) =>
-        Assert.IsFalse(fileAnalyzer.HasErrors);
 
+	
+	public static void FileNoErrors(VirtualSourceFile vFile) => FileErrors(vFile, false);
+	public static void FileNoErrors(CactusGrove cactusGrove) => FileErrors(cactusGrove, false);
 
-    public static void FileNoErrors(string path) => FileErrors(path, false);
+	public static void FileErrors(VirtualSourceFile vFile, bool hasErrors = true) =>
+		FileErrors(new CactusGrove(vFile), hasErrors);
+	
+	public static void FileErrors(CactusGrove cactusGrove, bool hasErrors = true) {
+		CactusLangModel.InitCactusLang();
 
+		Console.WriteLine($"Testing file: {cactusGrove.RootFilePath}");
+		SemanticAnalyzer fileAnalyzer = new SemanticAnalyzer(cactusGrove);
+		fileAnalyzer.AnalyzeGrove();
+		
+		Assert.AreEqual(cactusGrove.HasErrors(), hasErrors);
+		Console.WriteLine($"Done!\n\n");
+	}
 
-    public static void FileErrors(string path, bool hasErrors = false) {
-        CactusLangModel.InitCactusLang();
+	
 
-        CactusGrove cactusGrove = new CactusGrove(path);
-        Console.WriteLine($"Testing file: {path}");
-        SemanticAnalyzer fileAnalyzer = new SemanticAnalyzer(cactusGrove);
-        fileAnalyzer.AnalyzeGrove();
-        fileAnalyzer.PrintErrors();
-        Assert.AreEqual(fileAnalyzer.HasErrors, hasErrors);
-        Console.WriteLine($"Done!\n\n");
-    }
+	public static void AssertTypeCompatibility(BaseType expected, BaseType actual) {
+		Assert.IsTrue(actual.CanBeUsedAs(expected));
+	}
+    
+	public static void CompileRunMatchStdout(VirtualSourceFile vFile, string expectedStdout) {
+		CactusGrove grove = new(vFile);
+	        
+		CompileRunMatchStdout(grove,expectedStdout);
+	}
 
+	public static void CompileRunMatchStdout(CactusGrove cactusGrove, string expectedStdout) {
+		Transpiler transpiler = new Transpiler(cactusGrove);
 
-    public static void AssertTypeCompatibility(BaseType expected, BaseType actual) {
-        Assert.IsTrue(actual.CanBeUsedAs(expected));
-    }
+		var result = transpiler.Compile();
 
-    public static void CompileRunMatchStdout(string path, string expectedStdout) {
-        CactusGrove cactusGrove = new CactusGrove(path);
-        Transpiler transpiler = new Transpiler(cactusGrove);
+		if (result != Transpiler.Result.SUCCESS) {
+			Console.WriteLine("-Compilation failed, test failed... :(");
+			Assert.Fail();
+		}
 
-        var result = transpiler.Compile();
+		Process cctsProgram = new Process();
+		cctsProgram.StartInfo.FileName = $"{transpiler.OutputFile}";
 
-        if (result != Transpiler.Result.SUCCESS) {
-            Console.WriteLine("-Compilation failed, test failed... :(");
-            Assert.Fail();
-        }
+		// Redirect output so we can read it in C#
+		cctsProgram.StartInfo.RedirectStandardOutput = true;
+		cctsProgram.StartInfo.UseShellExecute = false;
+		cctsProgram.StartInfo.CreateNoWindow = true;
+		Console.WriteLine($"-RUNNING PROGRAM:");
 
-        Process cctsProgram = new Process();
-        cctsProgram.StartInfo.FileName = $"{transpiler.OutputFile}";
+		cctsProgram.Start();
+		cctsProgram.WaitForExit();
+		string stdout = cctsProgram.StandardOutput.ReadToEnd();
 
-        // Redirect output so we can read it in C#
-        cctsProgram.StartInfo.RedirectStandardOutput = true;
-        cctsProgram.StartInfo.UseShellExecute = false;
-        cctsProgram.StartInfo.CreateNoWindow = true;
-        Console.WriteLine($"-RUNNING PROGRAM:");
+		Console.WriteLine(stdout);
+		Console.WriteLine($"-PROGRAM RETURNED WITH: {cctsProgram.ExitCode}");
 
-        cctsProgram.Start();
-        cctsProgram.WaitForExit();
-        string stdout = cctsProgram.StandardOutput.ReadToEnd();
+		Assert.AreEqual(expectedStdout, stdout);
+	}
 
-        Console.WriteLine(stdout);
-        Console.WriteLine($"-PROGRAM RETURNED WITH: {cctsProgram.ExitCode}");
-
-        Assert.AreEqual(expectedStdout, stdout);
-    }
-
-    //public static void 
+	//public static void 
 }

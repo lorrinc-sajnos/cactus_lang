@@ -14,14 +14,21 @@ public class GrammarTest {
 
     [TestMethod]
     public void TestObjectReference() {
-        CctsAssert.FileNoErrors("../../../../ccts_lang/test_files/reference/simple_ref.ccts");
+        CctsAssert.FileNoErrors(new CactusGrove("../../../../ccts_lang/test_files/reference/simple_ref.ccts"));
         //reference
-        CctsAssert.FileNoErrors("../../../../ccts_lang/test_files/reference/nested_ref.ccts");
+        CctsAssert.FileNoErrors(new CactusGrove("../../../../ccts_lang/test_files/reference/nested_ref.ccts"));
     }
 
     [TestMethod]
     public void TestObjectReferenceError() {
-        CctsAssert.FileErrors("../../../../ccts_lang/test_files/reference/error_ref.ccts", true);
+        CctsAssert.FileErrors(
+            new VirtualSourceFile("error_ref.ccts",
+                """
+                i32 main(){
+                    i32 result = non_existent_ref.inner_value;
+                }
+                """)
+            );//"../../../../ccts_lang/test_files/reference/error_ref.ccts", true
     }
 
     [TestMethod]
@@ -34,7 +41,7 @@ public class GrammarTest {
         Console.WriteLine($"Testing file: {path}");
         SemanticAnalyzer fileAnalyzer = new SemanticAnalyzer(grove);
         fileAnalyzer.AnalyzeGrove();
-        fileAnalyzer.PrintErrors();
+        grove.PrintErrors();
         //AssertNoErrors(analyzer);
         long test = 12345678901;
         Console.WriteLine($"Done!\n\n");
