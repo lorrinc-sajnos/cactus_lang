@@ -1,0 +1,6 @@
+
+        var fileResult = _cactusFile.IncludeManager.GetIncludedFile(id);
+        if (fileResult != null) {
+            //return new Member
+            return new
+        }

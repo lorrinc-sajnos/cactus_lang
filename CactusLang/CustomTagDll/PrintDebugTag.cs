@@ -17,13 +17,13 @@ public class PrintDebugTag : Tag {
         _returnC = 0;
     }
 
-    public override void OnReturnStatement(ReturnStatement statement, CodeGenerator generator) {
+    public override void OnReturnStatement(ReturnStatement statement, SourceFileGenerator generator) {
         bool isDebugMode = TagContainer.Global.HasCommonVariable("DEBUG_MODE");
         if (!isDebugMode) return;
 
         ModelFunction func = statement.CodeBlock.Function;
-        
-        string exprStr = ExpressionCodeFactory.Manufacture(statement.Expression, generator.GenState);
+
+        string exprStr = "";//ExpressionCodeFactory.Manufacture(statement.Expression, generator.GenState);
         generator.Source.AddLine(
             $"printf(\"[DEBUG]: function {func.Name} returned with:%i\\n\", ({exprStr}));"
             );

@@ -9,7 +9,7 @@ public class IncludeManager(CactusFile parentFile) {
 	
 	private Dictionary<string, IncludedFile> _includedFiles = new();
 
-	public IncludedFile? GetIncludedFile(string name) => _includedFiles.GetValueOrDefault(name);
+	public IncludedFile? GetIncludedFile(string alias) => _includedFiles.GetValueOrDefault(alias);
 
 	public List<IncludedFile> IncludedFiles => _includedFiles.Values.ToList();
 	public void AddIncludedFile(string alias, CactusFile fileToInclude) {

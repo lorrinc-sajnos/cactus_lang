@@ -42,6 +42,9 @@ public class FileScope : Scope {
     public override int GetScopeDepth() => 0;
 
     public override VariableSymbol? GetVariable(string id) {
-        return base.GetVariable(id);
+        var result = base.GetVariable(id);
+        if (result != null) return result;
+        //If result is null, try to read from file
+        return null;
     }
 }

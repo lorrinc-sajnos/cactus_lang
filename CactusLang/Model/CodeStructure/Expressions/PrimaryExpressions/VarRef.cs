@@ -3,13 +3,10 @@ using CactusLang.Model.Types;
 
 namespace CactusLang.Model.CodeStructure.Expressions.PrimaryExpressions;
 
-public class VarRef :  PrimaryExpression {
-    public VariableSymbol Variable { get; }
+public class VarRef(VariableSymbol variable) : PrimaryExpression {
+    public VariableSymbol Variable { get; } = variable;
     public string  VarName => Variable.Name;
 
-    public VarRef(VariableSymbol variable) {
-        Variable = variable;
-    }
     public override bool IsLValue() => true;
 
     public override BaseType GetResultType() => Variable.Type;

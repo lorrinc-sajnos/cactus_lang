@@ -14,9 +14,9 @@ public class SemanticAnalyzer(CactusGrove grove) {
 
 	public bool AnalyzeGrove() {
 		//Start at root
-		var rootResult = AnalyzeFile(Grove.RootFile);
+		bool rootResult = AnalyzeFile(Grove.RootFile);
 		
-		bool hasErrors = false;
+		bool hasErrors = !rootResult;
 		
 		foreach (var analyzer in _analyzers.Values) {
 			var fileErrors = analyzer.ErrorHandler.GetErrors();
@@ -31,8 +31,9 @@ public class SemanticAnalyzer(CactusGrove grove) {
 		var fileAnalyzer = new SemanticFileAnalyzer(this, file);
 		
 		_analyzers.Add(file.ID, fileAnalyzer);
+		
+		fileAnalyzer.AnalyzeFile();
 		try {
-			fileAnalyzer.AnalyzeFile();
 		}
 		catch (Exception e) {
 			return false;

@@ -1,11 +1,11 @@
-include bar.ccts as _;
+include bar.ccts as BarFile;
 include io.ccts as IO;
 
 i32 main(){
 
     IO.println_i32(123456);
 
-    Bar bar;
+    BarFile.Bar* bar = alloc BarFile.Bar;
 
     bar.bar_val = 0xCAC123;
 

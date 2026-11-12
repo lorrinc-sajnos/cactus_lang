@@ -42,11 +42,11 @@ public static class FloatParser {
         string text = rawText;
         char lastChar = text.ToLower()[^1];
         
-        if(lastChar==PrimitiveType.FLOAT_POSTFIX_SINGLE) {
+        if(lastChar== LiteralIntegerType.FLOAT_POSTFIX_SINGLE) {
             type = FloatType.SINGLE;
             text = rawText.Substring(0, text.Length - 1);
         }
-        else if(lastChar==PrimitiveType.FLOAT_POSTFIX_DOUBLE) {
+        else if(lastChar==LiteralIntegerType.FLOAT_POSTFIX_DOUBLE) {
             type = FloatType.DOUBLE;
             text = rawText.Substring(0, text.Length - 1);
         }

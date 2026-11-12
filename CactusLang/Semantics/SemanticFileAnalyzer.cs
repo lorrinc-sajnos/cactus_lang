@@ -13,13 +13,21 @@ using CactusLang.Model.Errors;
 using CactusLang.Model.Scopes;
 using CactusLang.Model.Symbols;
 using CactusLang.Model.Types;
+using CactusLang.Model.Types.Abstract;
+using CactusLang.Model.Types.PrimitiveTypes;
 using CactusLang.Semantics.Errors;
 using CactusLang.Util;
 using GP = GrammarParser;
 
 namespace CactusLang.Semantics;
 
-public class SemanticFileAnalyzer : GrammarBaseVisitor<StatusCode> {
+public class SemanticFileAnalyzer : GrammarBaseVisitor<SemanticFileAnalyzer.StatusCode> {
+	public enum StatusCode {
+		SUCCESS,
+		WARN,
+		ERR
+	}
+	
 	private readonly SemanticAnalyzer _analyzer;
 
 	private readonly GrammarParser _parser;
@@ -171,12 +179,12 @@ public class SemanticFileAnalyzer : GrammarBaseVisitor<StatusCode> {
 	private void RegisterFileFuncDcl(GP.FuncDclContext ctx) {
 		var header = ctx.funcDclHeader();
 		string funcName = header.funcName().GetText();
-		BaseType returnType = _typeTable.Get(header.returnType().type());
+		BaseType returnType = _typeTable.GetFromCtx(header.returnType().type());
 		FunctionSymbol funcSymb = new FunctionSymbol(returnType, funcName, CurrentFile);
 
 		foreach (var param in header.param()) {
 			string pName = param.paramName().GetText();
-			BaseType pType = _typeTable.Get(param.type());
+			BaseType pType = _typeTable.GetFromCtx(param.type());
 			funcSymb.AddParameter(new VariableSymbol(pType, pName));
 		}
 
@@ -214,12 +222,12 @@ public class SemanticFileAnalyzer : GrammarBaseVisitor<StatusCode> {
 	private void RegisterStructFuncDcl(FileStruct fileStruct, GP.FuncDclContext ctx) {
 		var header = ctx.funcDclHeader();
 		string funcName = header.funcName().GetText();
-		BaseType returnType = _typeTable.Get(header.returnType().type());
+		BaseType returnType = _typeTable.GetFromCtx(header.returnType().type());
 		FunctionSymbol funcSymb = new FunctionSymbol(returnType, funcName, CurrentFile);
 
 		foreach (var param in header.param()) {
 			string pName = param.paramName().GetText();
-			BaseType pType = _typeTable.Get(param.type());
+			BaseType pType = _typeTable.GetFromCtx(param.type());
 			funcSymb.AddParameter(new VariableSymbol(pType, pName));
 		}
 
@@ -228,12 +236,10 @@ public class SemanticFileAnalyzer : GrammarBaseVisitor<StatusCode> {
 	}
 
 	private void RegisterStructFieldDcl(FileStruct fileStruct, GP.FieldDclContext ctx) {
-		var varCtx = ctx.varDcl();
-
 		List<VariableSymbol> varSymbols = new List<VariableSymbol>();
-		BaseType type = _typeTable.Get(varCtx.type());
-		foreach (var varBody in varCtx.varDclBody()) {
-			varSymbols.Add(new VariableSymbol(type, varBody.varName().GetText()));
+		BaseType type = _typeTable.GetFromCtx(ctx.type());
+		foreach (var varName in ctx.varName()) {
+			varSymbols.Add(new VariableSymbol(type, varName.GetText()));
 		}
 
 		foreach (VariableSymbol symb in varSymbols) {
@@ -308,7 +314,7 @@ public class SemanticFileAnalyzer : GrammarBaseVisitor<StatusCode> {
 			var exprCtx = ctx.funcLamdBody().expression();
 			var lamdbaExpr = EvaluateExpression(exprCtx);
 
-			if (func.ReturnType.Equals(PrimitiveType.VOID)) {
+			if (func.ReturnType.Equals(NumberType.VOID)) {
 				_currentBlock.AddStatement(new ExpressionStatement(_currentBlock, lamdbaExpr));
 			}
 			else {
@@ -330,7 +336,7 @@ public class SemanticFileAnalyzer : GrammarBaseVisitor<StatusCode> {
 	}
 
 	private void FillVarDclStatement(GP.VarDclContext ctx, VarDclStatement varDclStatement) {
-		BaseType dclType = _typeTable.Get(ctx.type());
+		BaseType dclType = _typeTable.GetFromCtx(ctx.type());
 
 		foreach (var dclBody in ctx.varDclBody()) {
 			var varSymbol = new VariableSymbol(dclType, dclBody.varName().GetText());
@@ -436,7 +442,7 @@ public class SemanticFileAnalyzer : GrammarBaseVisitor<StatusCode> {
 			loopCondExprCtx,
 			whenErrExpr: DEFAULT,
 			otherErrHandling: result => {
-				if (result.GetResultType() != PrimitiveType.BOOL) {
+				if (result.GetResultType() != NumberType.BOOL) {
 					ErrorHandler.ErrorInExpression(CctsError.CONDITION_ERROR, ctx.loopCond(), result.GetResultType());
 				}
 			});

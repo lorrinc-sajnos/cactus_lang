@@ -58,7 +58,8 @@ public class FileID
         return true;
     }
 
-    public string AsRelPath() => String.Join('/', Folders) + Filename + Extension;
+    public string AsRelPath(char joinChar = '/' ) => String.Join(joinChar, Folders) + Filename;
+    public string AsRelPathWExtention(char joinChar = '/' ) => AsRelPath(joinChar) + Extension;
     public override string ToString() => AsRelPath();
 
     public string CPrefix => String.Join("_$_", Folders) + Filename + "_$$_";

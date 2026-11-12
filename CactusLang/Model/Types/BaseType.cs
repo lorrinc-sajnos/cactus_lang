@@ -17,12 +17,12 @@ public abstract class BaseType {
         return new PointerType(this);
     }
 
-    public bool CanBeUsedAs(BaseType superiorType) {
+    public virtual bool CanBeUsedAs(BaseType superiorType) {
         return Equals(superiorType) || CanImplicitCastInto(superiorType);
     }
 
-    protected abstract bool CanImplicitCastInto(BaseType superiorType);
+    public abstract bool CanImplicitCastInto(BaseType superiorType);
     public override string ToString() => Name;
 
-    public abstract string CName { get; }
+    //public abstract string CName { get; }
 }

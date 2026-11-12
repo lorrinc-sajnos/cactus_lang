@@ -1,0 +1,11 @@
+i32 main() {{
+    {0} A = {1};
+    {2} B = {3};
+
+    {5} result_AB = A {4} B;
+    {5} result_BA = B {4} A;
+    print_num(result);
+    return 0;
+}}
+
+void print_num(i32 num) $$C=> printf("%d\n", num);

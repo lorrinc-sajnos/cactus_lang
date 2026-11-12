@@ -15,4 +15,8 @@
       <Content Include="Grammar\Grammar.g4" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="Model\CodeStructure\MemberHolders\Classes\" />
+    </ItemGroup>
+
 </Project>

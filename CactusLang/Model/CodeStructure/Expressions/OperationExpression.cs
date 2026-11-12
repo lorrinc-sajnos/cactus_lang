@@ -18,7 +18,7 @@ public class OperationExpression : Expression {
         LeftExpression = lhs;
         RightExpression = rhs;
         Operator = operation;
-        _resultType = Operator.Evaluate(LeftExpression.GetResultType(), RightExpression.GetResultType());
+        _resultType = Operator.GetResultType(LeftExpression.GetResultType(), RightExpression.GetResultType());
     }
 
     public override BaseType GetResultType() => _resultType;

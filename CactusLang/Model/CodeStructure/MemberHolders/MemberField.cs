@@ -6,5 +6,5 @@ namespace CactusLang.Model.CodeStructure.MemberHolders;
 public class MemberField(VariableSymbol symbol, IMemberHolder parent) : ModelField(symbol) {
     public IMemberHolder Parent { get; } = parent;
     
-    override public string CName => Parent.MemberType.CName+"_"+Name;
+    //override public string CName => Parent.MemberType.CName+"_"+Name;
 }

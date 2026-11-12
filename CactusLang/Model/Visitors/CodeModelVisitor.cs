@@ -286,11 +286,15 @@ public class CodeModelVisitor<T> {
             case ObjectFieldRefExp objectFieldRefExp:
                 primExpResult = VisitObjectFieldRefExp(objectFieldRefExp);
                 break;
-            case ObjectFuncCallExp objectFuncCallExp:
+            case MethodCallExp objectFuncCallExp:
                 primExpResult = VisitObjectFuncCallExp(objectFuncCallExp);
                 break;
             case Alloc alloc:
                 primExpResult = VisitAlloc(alloc);
+                break;
+            
+            case IncludedFileRef incFileRef:
+                primExpResult = VisitIncludedFileRef(incFileRef);
                 break;
         }
 
@@ -360,10 +364,10 @@ public class CodeModelVisitor<T> {
 
     //protected virtual T VisitStructFieldRefExp()
 
-    protected virtual T VisitObjectFuncCallExp(ObjectFuncCallExp objectFuncCallExp) {
+    protected virtual T VisitObjectFuncCallExp(MethodCallExp methodCallExp) {
         var results = new List<T>();
-        results.Add(VisitPrimaryExpression(objectFuncCallExp.Object));
-        results.AddRange(objectFuncCallExp.GetParameters().Select(VisitExpression));
+        results.Add(VisitPrimaryExpression(methodCallExp.Object));
+        results.AddRange(methodCallExp.GetParameters().Select(VisitExpression));
 
         return GetResult(results);
     }
@@ -371,6 +375,10 @@ public class CodeModelVisitor<T> {
     #endregion
 
     protected virtual T VisitAlloc(Alloc alloc) {
+        return _success;
+    }
+
+    protected virtual T VisitIncludedFileRef(IncludedFileRef includedFileRef) {
         return _success;
     }
 
@@ -455,7 +463,7 @@ public class CodeModelVisitor<T> {
                 return VisitCompOperator(compOperator);
             case IntOperator intOperator:
                 return VisitIntOperator(intOperator);
-            case MathOperator mathOperator:
+            case NumberOperator mathOperator:
                 return VisitMathOperator(mathOperator);
             case AssignmentOperator assignmentOperator:
                 return VisitAssignmentOperator(assignmentOperator);
@@ -477,7 +485,7 @@ public class CodeModelVisitor<T> {
         return _success;
     }
 
-    protected virtual T VisitMathOperator(MathOperator op) {
+    protected virtual T VisitMathOperator(NumberOperator op) {
         //Nothing to visit!
         return _success;
     }

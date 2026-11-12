@@ -2,7 +2,7 @@ using CactusLang.Util;
 using JetBrains.Annotations;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace CactusLang.Tests.Util;
+namespace CactusLang.Tests.UtilTest;
 
 [TestClass]
 [TestSubject(typeof(IntegerParser))]

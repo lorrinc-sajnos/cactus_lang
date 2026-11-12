@@ -1,4 +1,5 @@
 using CactusLang.Model.Types;
+using CactusLang.Model.Types.Abstract;
 
 namespace CactusLang.Model.Operators.Unary;
 

@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-// Generated from C:/KBData/temp/temp_2026_10_21/personal/cactus/CactusLang/Grammar/Grammar.g4 by ANTLR 4.13.2
+// Generated from F:/projects/cactus_lang/CactusLang/Grammar/Grammar.g4 by ANTLR 4.13.2
 
 // Unreachable code detected
 #pragma warning disable 0162
@@ -120,6 +120,16 @@ public interface IGrammarListener : IParseTreeListener {
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	void ExitType([NotNull] GrammarParser.TypeContext context);
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="GrammarParser.root"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterRoot([NotNull] GrammarParser.RootContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="GrammarParser.root"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitRoot([NotNull] GrammarParser.RootContext context);
 	/// <summary>
 	/// Enter a parse tree produced by <see cref="GrammarParser.parentObj"/>.
 	/// </summary>
@@ -281,26 +291,6 @@ public interface IGrammarListener : IParseTreeListener {
 	/// <param name="context">The parse tree.</param>
 	void ExitClassDcl([NotNull] GrammarParser.ClassDclContext context);
 	/// <summary>
-	/// Enter a parse tree produced by <see cref="GrammarParser.parentClass"/>.
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	void EnterParentClass([NotNull] GrammarParser.ParentClassContext context);
-	/// <summary>
-	/// Exit a parse tree produced by <see cref="GrammarParser.parentClass"/>.
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	void ExitParentClass([NotNull] GrammarParser.ParentClassContext context);
-	/// <summary>
-	/// Enter a parse tree produced by <see cref="GrammarParser.interface"/>.
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	void EnterInterface([NotNull] GrammarParser.InterfaceContext context);
-	/// <summary>
-	/// Exit a parse tree produced by <see cref="GrammarParser.interface"/>.
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	void ExitInterface([NotNull] GrammarParser.InterfaceContext context);
-	/// <summary>
 	/// Enter a parse tree produced by <see cref="GrammarParser.interfaces"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
@@ -320,6 +310,46 @@ public interface IGrammarListener : IParseTreeListener {
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	void ExitClassBody([NotNull] GrammarParser.ClassBodyContext context);
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="GrammarParser.interfName"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterInterfName([NotNull] GrammarParser.InterfNameContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="GrammarParser.interfName"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitInterfName([NotNull] GrammarParser.InterfNameContext context);
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="GrammarParser.interfDcl"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterInterfDcl([NotNull] GrammarParser.InterfDclContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="GrammarParser.interfDcl"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitInterfDcl([NotNull] GrammarParser.InterfDclContext context);
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="GrammarParser.interfBody"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterInterfBody([NotNull] GrammarParser.InterfBodyContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="GrammarParser.interfBody"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitInterfBody([NotNull] GrammarParser.InterfBodyContext context);
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="GrammarParser.funcSignature"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterFuncSignature([NotNull] GrammarParser.FuncSignatureContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="GrammarParser.funcSignature"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitFuncSignature([NotNull] GrammarParser.FuncSignatureContext context);
 	/// <summary>
 	/// Enter a parse tree produced by <see cref="GrammarParser.codeBody"/>.
 	/// </summary>

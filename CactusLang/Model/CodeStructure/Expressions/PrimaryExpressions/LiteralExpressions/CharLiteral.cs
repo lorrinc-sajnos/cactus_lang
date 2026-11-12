@@ -1,14 +1,15 @@
 using CactusLang.Model.Types;
+using CactusLang.Model.Types.PrimitiveTypes;
 
 namespace CactusLang.Model.CodeStructure.Expressions.PrimaryExpressions.LiteralExpressions;
 
 public class CharLiteral :  LiteralExpression {
     public char CharValue {get; private set;}
     public override string Value => $"\'{CharValue}\'";
-    PrimitiveType  _type;   //TODO float literal!
-    public PrimitiveType Type => _type;
+    NumberType  _type;   //TODO float literal!
+    public NumberType Type => _type;
 
-    public CharLiteral(PrimitiveType type, string value) {
+    public CharLiteral(NumberType type, string value) {
         CharValue = value[0];
         _type = type;
     }

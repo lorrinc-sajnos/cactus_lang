@@ -15,9 +15,12 @@ using CactusLang.Model.Operators.Unary;
 using CactusLang.Model.Scopes;
 using CactusLang.Model.Symbols;
 using CactusLang.Model.Types;
+using CactusLang.Model.Types.MemberHolderTypes;
+using CactusLang.Model.Types.PrimitiveTypes;
 using CactusLang.Semantics.Errors;
 using CactusLang.Util;
 using GP = GrammarParser;
+using IncludedFileRef = CactusLang.Model.CodeStructure.Expressions.PrimaryExpressions.IncludedFileRef;
 
 namespace CactusLang.Semantics;
 
@@ -133,16 +136,16 @@ public class ExpressionFactory {
 			return new Expression.Error();
 
 		var funcCallCtx = ctx.objFuncCall();
-		var refOp = GetRefOp(funcCallCtx.accOp());
+		AccessType refOp = GetRefOp(funcCallCtx.accOp());
 
-		FileStruct? refObj = GetRefObj(expression.GetResultType(), refOp);
+		IMemberHolder? refObj = GetRefObj(expression.GetResultType(), refOp);
 		if (refObj == null)
 			return _errorHandler.ErrorInExpression(CctsError.BAD_OBJ_REF, ctx, ctx.GetText());
 
 		var funcParams = GetFuncParams(funcCallCtx.funcCall());
 		FuncSignature instFuncId = GetFuncSignature(funcCallCtx.funcCall().funcRef().GetText(), funcParams);
 
-		var structFunc = refObj.Functions.GetMatchingFunction(instFuncId);
+		var structFunc = refObj.GetMatchingFunction(instFuncId);
 
 		if (structFunc == null) {
 			return _errorHandler.ErrorInExpression(CctsError.ID_NOT_FOUND, funcCallCtx.funcCall(),
@@ -150,7 +153,7 @@ public class ExpressionFactory {
 		}
 
 
-		return new ObjectFuncCallExp(primaryExpr, funcParams, new ObjectFuncCall(refObj, structFunc));
+		return new MethodCallExp(primaryExpr, funcParams, new ObjectFuncCall(refObj,structFunc, refOp));
 	}
 
 	//TODO 
@@ -175,11 +178,11 @@ public class ExpressionFactory {
 			return _errorHandler.ErrorInExpression(CctsError.ID_NOT_FOUND, fieldRefCtx.fieldRef(), fieldName);
 		}
 
-		return new ObjectFieldRefExp(primaryExpr, new ObjectFieldRef(refObj, field));
+		return new ObjectFieldRefExp(primaryExpr, new ObjectFieldRef(refObj, field, refOp));
 	}
 
 	private Expression GetPrimaryExp_GetAlloc(GP.AllocContext ctx) {
-		BaseType type = _typeTable.Get(ctx.type());
+		BaseType type = _typeTable.GetFromCtx(ctx.type());
 		return new Alloc(type);
 	}
 
@@ -222,14 +225,20 @@ public class ExpressionFactory {
 
 	//TODO eldönteni: ez most pointer legyen van sima
 	private Expression GetVarRef(GP.VarRefContext varRef) {
-		string varName = varRef.GetText();
-		var symbol = _scope.GetVariable(varName);
+		string id = varRef.GetText();
+		var symbol = _scope.GetVariable(id);
 
 		if (symbol != null) {
 			if (symbol is MemberFieldRefSymbol memberFieldRefSymbol)
 				return new LocalVarRef(memberFieldRefSymbol);
 
 			return new VarRef(symbol);
+		}
+		
+		//Try file refference
+		var incFile = _file.IncludeManager.GetIncludedFile(id);
+		if (incFile != null) {
+			return new IncludedFileRef(incFile);
 		}
 
 		return new Expression.Error();
@@ -252,10 +261,10 @@ public class ExpressionFactory {
 				var result = FloatParser.Parse(floatCtx.GetText());
 
 				if (result.Type == FloatType.SINGLE)
-					return new FloatLiteral(PrimitiveType.F32, sign, floatCtx.GetText());
+					return new FloatLiteral(NumberType.F32, sign, floatCtx.GetText());
 
 				if (result.Type == FloatType.DOUBLE)
-					return new FloatLiteral(PrimitiveType.F64, sign, floatCtx.GetText());
+					return new FloatLiteral(NumberType.F64, sign, floatCtx.GetText());
 
 				return _errorHandler.ErrorInExpression(CctsError.LITERAL_ERROR, literalCtx, literalTxt);
 			}
@@ -280,7 +289,7 @@ public class ExpressionFactory {
 		if (literalCtx.charLiteral() != null) {
 			try {
 				string val = literalCtx.charLiteral().GetText();
-				return new CharLiteral(PrimitiveType.CH08, literalCtx.charLiteral().GetText());
+				return new CharLiteral(NumberType.CH08, literalCtx.charLiteral().GetText());
 			}
 			catch (FormatException) {
 				return _errorHandler.ErrorInExpression(CctsError.LITERAL_ERROR, literalCtx, literalTxt);
@@ -362,31 +371,27 @@ public class ExpressionFactory {
 	}
 
 
-	private ReferenceOperatorType GetRefOp(GP.AccOpContext ctx) {
+	private AccessType GetRefOp(GP.AccOpContext ctx) {
 		string txt = ctx.GetText();
 		if (txt == ".")
-			return ReferenceOperatorType.REFERENCE;
-		return ReferenceOperatorType.ADDRESS;
+			return AccessType.REFERENCE;
+		return AccessType.ACCESS;
 	}
 
-	private FileStruct? GetRefObj(BaseType objType, ReferenceOperatorType refOp) {
-		if (refOp == ReferenceOperatorType.REFERENCE) {
-			if (objType is not PointerType) 
+	private IMemberHolder? GetRefObj(BaseType objType, AccessType refOp) {
+		var from = objType;
+		
+		if (refOp == AccessType.REFERENCE) {
+			if (objType is not PointerType pointer) 
 				return null;
-
-			var pointer = (PointerType)objType;
-
-			if (pointer.PointsTo is not FileStruct.Type pointsToType) 
-				return null;
-			
-			return pointsToType.FileStruct;
+			from =  pointer.PointsTo;
 		}
 
-		if (objType is not FileStruct.Type type) {
+		if (from is not MemberHolderType type) {
 			return null;
 		}
 
-		return type.FileStruct;
+		return type.Parent;
 	}
 
 	#endregion

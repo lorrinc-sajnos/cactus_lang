@@ -7,7 +7,7 @@ using CactusLang.Model.Types;
 
 namespace CactusLang.Model.Operators.ObjectRefference;
 
-public class ObjectFuncCall(IMemberHolder referred, MemberFunction memberFunc)
+public class ObjectFuncCall(IMemberHolder referred, MemberFunction memberFunc, AccessType accType)
     : UnaryOp(Side.RIGHT, memberFunc.Symbol.GetSignature().ToString()) {
     public IMemberHolder Referred { get; } = referred;
 
@@ -17,4 +17,6 @@ public class ObjectFuncCall(IMemberHolder referred, MemberFunction memberFunc)
 
 
     public override BaseType Evaluate(BaseType val) => ReturnType;
+
+    public AccessType Access { get; } = accType;
 }

@@ -2,6 +2,7 @@ using CactusLang.Compiling.Codefiles;
 using CactusLang.Model.CodeStructure.FileContent;
 using CactusLang.Model.Symbols;
 using CactusLang.Model.Types;
+using CactusLang.Model.Types.PrimitiveTypes;
 
 namespace CactusLang.Model;
 
@@ -32,7 +33,7 @@ public class CactusGrove {
 		RootFile = CactusFile.CreateAndAddFile(this, rootFile);
 
 		//Default entrypoint: function called main, with 0 args, returning an integer.
-		_entryPointSymb = new FunctionSymbol(PrimitiveType.I32, "main", RootFile);
+		_entryPointSymb = new FunctionSymbol(NumberType.I32, "main", RootFile);
 
 		SrcOutputFolder = RootFolder;
 		OutputFilePath = DefaultOutputName(rootFile.Path);

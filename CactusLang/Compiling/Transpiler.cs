@@ -20,31 +20,8 @@ public class Transpiler(CactusGrove grove) {
     
     //Transpiler 
     public CactusGrove Grove { get; } = grove;
-    public CodeGenerator? CodeGenerator { get; private set; }
+    public SourceFileGenerator? CodeGenerator { get; private set; }
     public GccInstance? GccInstance { get; private set; }
-
-
-    public void GenerateCCode() {
-        var mainCodeGenerator = new CodeGenerator(Grove, Grove.RootFile, Grove.RootFile.SourceFile.Path);
-
-        mainCodeGenerator.GenerateEntryFileCode();
-        mainCodeGenerator.GenerateFiles();
-
-        var otherFiles = Grove.GetFiles().ToList();
-        otherFiles.Remove(Grove.RootFile);
-        foreach (var file in otherFiles) {
-            var codeGenerator = new CodeGenerator(Grove, file, file.SourceFile.Path);
-
-            codeGenerator.GenerateCode();
-            codeGenerator.GenerateFiles();
-        }
-    }
-
-    public void GccCompilation() {
-        //TEMP
-        GccInstance = new GccInstance(Grove, OutputFile);
-        GccInstance.Compile();
-    }
 
     public Result Compile() {
         Console.WriteLine($"-\tBegin parsing file {InputFilepath}");
@@ -75,11 +52,13 @@ public class Transpiler(CactusGrove grove) {
 
         Console.WriteLine("-\tParsing finished");
 
-        GenerateCCode();
+        GroveGenerator codeGenerator = new(grove);
+        codeGenerator.GenerateSourceFiles();
 
         Console.WriteLine("-\tC code generation finished");
 
-        GccCompilation();
+        GccInstance = new GccInstance(Grove, OutputFile, codeGenerator.CFilesGenerated);
+        GccInstance.Compile();
 
         if (GccInstance!.HasError) {
             Console.WriteLine("-\tGCC ERROR:");

@@ -8,6 +8,4 @@ public abstract class MemberFunction(
     IMemberHolder parent
 ) : ModelFunction(cactusFile, symbol) {
     public IMemberHolder Parent { get; } = parent;
-
-    public override string CName => Name;
 }

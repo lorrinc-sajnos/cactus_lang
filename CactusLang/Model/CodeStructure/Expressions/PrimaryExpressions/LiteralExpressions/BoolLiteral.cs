@@ -1,4 +1,5 @@
 using CactusLang.Model.Types;
+using CactusLang.Model.Types.PrimitiveTypes;
 
 namespace CactusLang.Model.CodeStructure.Expressions.PrimaryExpressions.LiteralExpressions;
 
@@ -14,5 +15,5 @@ public class BoolLiteral :  LiteralExpression {
         else 
             throw new Exception("Invalid boolean literal");
     }
-    public override BaseType GetResultType() => PrimitiveType.BOOL;
+    public override BaseType GetResultType() => NumberType.BOOL;
 }

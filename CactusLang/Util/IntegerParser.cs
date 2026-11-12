@@ -1,5 +1,6 @@
 using System.Numerics;
 using CactusLang.Model.Types;
+using CactusLang.Model.Types.PrimitiveTypes;
 
 namespace CactusLang.Util;
 
@@ -14,11 +15,11 @@ public static class IntegerParser {
             switch (prefix) {
                 default:
                     return BigInteger.Parse(input);
-                case PrimitiveType.INT_PREFIX_HEX:
+                case LiteralIntegerType.INT_PREFIX_HEX:
                     return ParseToBaseTwoPow(input[2..], 4);
-                case PrimitiveType.INT_PREFIX_BIN:
+                case LiteralIntegerType.INT_PREFIX_BIN:
                     return ParseToBaseTwoPow(input[2..], 1);
-                case PrimitiveType.INT_PREFIX_OCT:
+                case LiteralIntegerType.INT_PREFIX_OCT:
                     return ParseToBaseTwoPow(input[2..], 3);
             }
         }
@@ -32,24 +33,24 @@ public static class IntegerParser {
 
         //8-bit
         if (value >= byte.MinValue && value <= byte.MaxValue)
-            types.Add(PrimitiveType.U08);
+            types.Add(NumberType.U08);
         if (value >= sbyte.MinValue && value <= sbyte.MaxValue)
-            types.Add( PrimitiveType.I08);
+            types.Add( NumberType.I08);
         //16-bit
         if (value >= ushort.MinValue && value <= ushort.MaxValue)
-            types.Add(PrimitiveType.U16);
+            types.Add(NumberType.U16);
         if (value >= short.MinValue && value <= short.MaxValue)
-            types.Add( PrimitiveType.I16);
+            types.Add( NumberType.I16);
         //32-bit
         if (value >= uint.MinValue && value <= uint.MaxValue)
-            types.Add( PrimitiveType.U32);
+            types.Add( NumberType.U32);
         if (value >= int.MinValue && value <= int.MaxValue)
-            types.Add( PrimitiveType.I32);
+            types.Add( NumberType.I32);
         //64-bit
         if (value >= ulong.MinValue && value <= ulong.MaxValue)
-            types.Add( PrimitiveType.U64);
+            types.Add( NumberType.U64);
         if (value >= long.MinValue && value <= long.MaxValue)
-            types.Add( PrimitiveType.I64);
+            types.Add( NumberType.I64);
 
         return types;
     }

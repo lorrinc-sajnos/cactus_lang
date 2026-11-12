@@ -13,7 +13,7 @@ public static class SemanticUtil {
         List<BaseType> paramTypes = new();
         foreach(var param in ctx.param()) {
             
-            paramTypes.Add(file.TypeTable.Get(param.type()) );
+            paramTypes.Add(file.TypeTable.GetFromCtx(param.type()) );
         }
 
         return new FuncSignature(funcName, paramTypes);
@@ -22,7 +22,7 @@ public static class SemanticUtil {
     
     public static List<VariableSymbol> GetVarSymbols(GrammarParser.VarDclContext varCtx, TypeTable typeTable) {
         List<VariableSymbol> varSymbols = new List<VariableSymbol>();
-        BaseType type = typeTable.Get(varCtx.type());
+        BaseType type = typeTable.GetFromCtx(varCtx.type());
         foreach (var varBody in varCtx.varDclBody()) {
             varSymbols.Add(new VariableSymbol(type, varBody.varName().GetText()));
         }

@@ -8,5 +8,5 @@ public abstract class ModelField(VariableSymbol symbol) {
     public VariableSymbol Symbol => symbol;
     public BaseType Type => symbol.Type;
     
-    public abstract string CName { get; }
+    //public abstract string CName { get; }
 }

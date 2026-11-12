@@ -1,4 +1,5 @@
 using CactusLang.Model.Types;
+using CactusLang.Model.Types.PrimitiveTypes;
 
 namespace CactusLang.Model.Operators.Unary;
 
@@ -37,7 +38,7 @@ public abstract class UnaryOp {
     public static readonly BaseUnaryOp POST_DCR = new BaseUnaryOp(Side.RIGHT, "--", t => t.IsNumber);
 
     public static readonly BaseUnaryOp BOOL_NOT =
-        new BaseUnaryOp(Side.LEFT, "!", t => t.Kind == PrimitiveType.Type.Bool);
+        new BaseUnaryOp(Side.LEFT, "!", t => t.Kind == NumberType.PrimType.Bool);
 
     public static readonly BaseUnaryOp BIT_NOT = new BaseUnaryOp(Side.LEFT, "^", t => t.IsInteger);
 

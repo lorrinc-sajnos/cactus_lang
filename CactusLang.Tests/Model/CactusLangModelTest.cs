@@ -1,6 +1,7 @@
 using CactusLang.Model;
 using CactusLang.Model.Symbols;
 using CactusLang.Model.Types;
+using CactusLang.Model.Types.PrimitiveTypes;
 using JetBrains.Annotations;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -15,7 +16,7 @@ public class CactusLangModelTest {
         //TODO test more stuff
         CactusLangModel.InitCactusLang();
         
-        var primitives = PrimitiveType.GetPrimitives();
+        var primitives = NumberType.GetPrimitives();
 
         foreach (var primitive in primitives) {
             Assert.IsNotNull(primitive);

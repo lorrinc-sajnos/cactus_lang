@@ -55,13 +55,10 @@ public class CactusFile : IMemberHolder {
         }
         TagContainer.AddTags(tagList);
     }
-    public FileStruct GetStruct(string name) => Structs[name];
+    public FileStruct? GetStruct(string name) => Structs.GetValueOrDefault(name);
     public List<FileStruct> GetStructs() => Structs.Values.ToList();
 
     public bool HasErrors() => ErrorHandler.HasErrors();
-
-    public List<string> CFilesGenerated { get; } = new();
-    public List<string> HFilesGenerated { get; } = new();
 
     public MemberFunction? GetExactFunction(FunctionSymbol id) => Functions.GetExactFunction(id);
 

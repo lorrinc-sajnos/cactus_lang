@@ -2,43 +2,27 @@ using System.Runtime.CompilerServices;
 using CactusLang.Model.Stores;
 using CactusLang.Model.Symbols;
 using CactusLang.Model.Types;
+using CactusLang.Model.Types.MemberHolderTypes;
 
 namespace CactusLang.Model.CodeStructure.MemberHolders.Structs;
 
 public class FileStruct : IMemberHolder {
+    public FileStruct(string id, CactusFile cactusFile) {
+        Name = id;
+        Fields = new();
+        Functions = new();
+        ParentID = cactusFile.ID;
+        StructType = new(this);
+    }
+    
     public string Name { get; }
     public FileID ParentID { get; }
     public FieldStore<StructField> Fields { get; }
     public FunctionStore<StructFunction> Functions { get; }
     
-    public FileStruct(string id, CactusFile cactusFile) {
-        Name = id;
-        ParentID = cactusFile.ID;
-        _type = new(this);
-    }
-    public class Type : BaseType {
-        public Type(FileStruct fileStruct) {
-            FileStruct = fileStruct;
-        }
+    public MemberHolderType StructType { get; }
 
-        public FileStruct FileStruct { get; }
-
-        public override string Name => FileStruct.Name;
-
-        public override int Size => -999; //TODO C generálás alapján kiszámolni...
-
-        protected override bool CanImplicitCastInto(BaseType other) {
-            //TODO
-            return false;
-        }
-
-        public override string CName => FileStruct.ParentID.CPrefix + FileStruct.Name;
-    }
-
-    private readonly Type _type;
-    
-    public Type StructType => _type;
-    public BaseType MemberType => _type;
+    public BaseType MemberType => StructType;
     public MemberFunction? GetExactFunction(FunctionSymbol id) => Functions.GetExactFunction(id);
 
     public bool ContainsExactFunction(FuncSignature id)  =>  Functions.ContainsExactFunction(id);

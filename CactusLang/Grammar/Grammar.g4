@@ -29,10 +29,13 @@ fileStatement
 	| (fileVarDcl EOS)
 	| (funcDcl)
 	| (structDcl)
-	//| (classDcl)
+	//Objects
+	| (interfDcl)
+	| (classDcl)
 	;
 
-type: (parentObj OP_REF)* ID | PTR_ID;
+type: (parentObj OP_REF)* root;
+root : (ID | PTR_ID);
 parentObj: ID;
 
 fileVarDcl: varDcl;
@@ -57,34 +60,50 @@ funcName: ID;
     varName: ID;
 
 //Field/Global variable declaration
-fieldDcl: varDcl;
+fieldDcl: tags? type varName (COMMA varName)*;
 
 //Struct declaration
 structName: ID;
+//Struct declaration
 structDcl:
 	tags? KYW_STRUCT structName BODY_OPN //
 	structBody//
 	BODY_CLS;
 	
-structBody
-    :(
+structBody: (
         funcDcl
         | (fieldDcl EOS)
     )*;
 
-//Class declaration
-
-//Struct declaration
+//Objects
+//Class
 className: ID;
 classDcl:
-	tags? KYW_CLASS className (OP_ACC parentClass)? (KYW_IMPLEMENTS interfaces)? BODY_OPN //
-	classBody//
+	tags? KYW_CLASS className (OP_ACC interfaces)? BODY_OPN //
+	    classBody//
 	BODY_CLS;
-parentClass: ID;
-interface: ID;
-interfaces: interface (COMMA interface)*;
+	
+interfaces: interfName (COMMA interfName)*;
 
-classBody: (funcDcl | (fieldDcl EOS))*;
+classBody: (
+        funcDcl
+        | (fieldDcl EOS)
+    )*;
+
+//Interface
+interfName: ID;
+interfDcl:
+    tags? KYW_INTERF interfName  BODY_OPN
+        interfBody
+    BODY_CLS;
+ 
+
+interfBody: (    
+    (funcSignature EOS)
+    | (fieldDcl EOS)
+)*;
+
+funcSignature: funcDclHeader;
 
 //Code
 codeBody: BODY_OPN (statement)* BODY_CLS;
@@ -309,10 +328,11 @@ ppc__funcCall: ppc__funcRef PARN_OPN funcParamVals? PARN_CLS;
 KYW_INCLUDE: 'include';
 KYW_AS: 'as';
 KYW_UNDERSC: '_';
-
-//Class keywords:
 KYW_STRUCT: 'struct';
+
+//Object oriented keywords:
 KYW_CLASS: 'class';
+KYW_INTERF: 'interf';
 KYW_STATIC: 'static';
 KYW_IMPLEMENTS: 'implements';
 
@@ -320,7 +340,7 @@ KYW_IMPLEMENTS: 'implements';
 KYW_RETURN: 'return';
 KYW_TRUE: 'true';
 KYW_FALSE: 'false';
-KYW_NULL: 'nullptr';
+KYW_NULLPTR: 'nullptr';
 
 //Controll
 KYW_IF: 'if';           

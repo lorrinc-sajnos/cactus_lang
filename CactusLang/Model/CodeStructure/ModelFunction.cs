@@ -25,5 +25,5 @@ public abstract class ModelFunction {
         TagContainer = new();
     }
     
-    public abstract string CName { get; }
+    //public abstract string CName { get; }
 }

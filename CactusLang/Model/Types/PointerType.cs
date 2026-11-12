@@ -1,3 +1,6 @@
+using CactusLang.Model.Types.Abstract;
+using CactusLang.Model.Types.PrimitiveTypes;
+
 namespace CactusLang.Model.Types;
 
 public class PointerType : BaseType {
@@ -10,7 +13,7 @@ public class PointerType : BaseType {
         _pointsTo = pointsTo;
     }
 
-    public override int Size => PrimitiveType.I64.Size;
+    public override int Size => NumberType.I64.Size;
     public override string Name => $"{_pointsTo.Name}*";
 
     public static BaseType CreatePointer(BaseType pointsTo, int level) {
@@ -25,7 +28,7 @@ public class PointerType : BaseType {
         return previous;
     }
 
-    protected override bool CanImplicitCastInto(BaseType other) {
+    public override bool CanImplicitCastInto(BaseType other) {
         //TODO
         return false;
     }
@@ -41,6 +44,4 @@ public class PointerType : BaseType {
     public override int GetHashCode() {
         return _pointsTo.GetHashCode();
     }
-
-    public override string CName => PointsTo.CName + "*";
 }

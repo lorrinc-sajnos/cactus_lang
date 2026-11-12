@@ -3,7 +3,7 @@ using CactusLang.Model.Types;
 
 namespace CactusLang.Model.CodeStructure.Expressions.PrimaryExpressions.ObjectReference;
 
-public class ObjectFuncCallExp : PrimaryExpression {
+public class MethodCallExp : PrimaryExpression {
     public PrimaryExpression Object { get; }
 
     public ObjectFuncCall FuncCall { get; }
@@ -12,7 +12,7 @@ public class ObjectFuncCallExp : PrimaryExpression {
     public List<Expression> GetParameters() => _parameters;
 
     public override bool IsLValue() => true;
-    public ObjectFuncCallExp(PrimaryExpression objExpression, List<Expression> parameters, ObjectFuncCall funcCall) {
+    public MethodCallExp(PrimaryExpression objExpression, List<Expression> parameters, ObjectFuncCall funcCall) {
         FuncCall = funcCall;
         Object = objExpression;
         _parameters = parameters;

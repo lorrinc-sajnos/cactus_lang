@@ -1,4 +1,5 @@
 using CactusLang.Model.Types;
+using CactusLang.Model.Types.PrimitiveTypes;
 
 namespace CactusLang.Model;
 
@@ -8,7 +9,7 @@ public static class CactusLangModel {
     public static void InitCactusLang() {
         if (InitComplete) return;
         
-        PrimitiveType.InitPrimitives();
+        NumberType.InitPrimitives();
         InitComplete =  true;
     }
 }
