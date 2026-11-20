@@ -1,0 +1,9 @@
+struct Foo{
+	i32 field;
+	
+	void method(i32 m_param){
+		field += m_param;
+	}
+	
+	bool method2() => 
+}

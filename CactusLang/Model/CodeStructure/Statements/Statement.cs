@@ -8,8 +8,8 @@ public abstract class Statement {
 
     public TagContainer TagContainer { get; private set; }
 
-    public Statement(CodeBlock parent) {
-        CodeBlock = parent;
+    public Statement(CodeBlock parentBlock) {
+        CodeBlock = parentBlock;
         TagContainer = new TagContainer();
     }
 }

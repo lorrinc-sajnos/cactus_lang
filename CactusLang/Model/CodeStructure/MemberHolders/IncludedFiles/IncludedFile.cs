@@ -28,24 +28,24 @@ public class IncludedFile : IMemberHolder {
 
         public override bool CanImplicitCastInto(BaseType superiorType) => false;
     }
-    
+
 
     public MemberFunction? GetExactFunction(FunctionSymbol id) => CactusFile.GetExactFunction(id);
 
-    public bool ContainsExactFunction(FuncSignature id) => CactusFile.ContainsExactFunction(id);
+    public bool ContainsExactFunction(FuncCandidate id) => CactusFile.ContainsExactFunction(id);
 
-    public MemberFunction? GetExactFunction(FuncSignature sign) => CactusFile.GetExactFunction(sign);
+    public MemberFunction? GetExactFunction(FuncCandidate sign) => CactusFile.GetExactFunction(sign);
 
-    public MemberFunction? GetMatchingFunction(FuncSignature id) => CactusFile.GetMatchingFunction(id);
+    public MemberFunction? GetMatchingFunction(FuncCandidate id) => CactusFile.GetMatchingFunction(id);
 
-    public bool ContainsMatchingFunction(FuncSignature id) => CactusFile.ContainsMatchingFunction(id);
+    public bool ContainsMatchingFunction(FuncCandidate id) => CactusFile.ContainsMatchingFunction(id);
 
-    public FunctionSymbol? GetMatchingId(FuncSignature signature) => CactusFile.GetMatchingId(signature);
+    public FunctionSymbol? GetMatchingId(FuncCandidate signature) => CactusFile.GetMatchingId(signature);
     public List<MemberFunction> GetFunctions() => CactusFile.GetFunctions();
 
     public MemberField? GetField(string name) => CactusFile.GetField(name);
 
     public List<MemberField> GetFields() => CactusFile.GetFields();
 
-    public IMemberHolder? GetMemberHolder(string name) => CactusFile.GetStruct(name);
+    public IMemberHolder? GetMemberHolder(string name) => CactusFile.DeclStructStore.GetStruct(name);
 }

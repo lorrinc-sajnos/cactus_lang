@@ -22,15 +22,15 @@ public class FunctionSymbol {
 
 	public List<VariableSymbol> GetParameters() => Parameters.Values.ToList();
 
-	public FuncSignature GetSignature() => new FuncSignature(Name, Parameters.Values.Select(v => v.Type).ToList());
+	public FuncSignature GetSignature() => new(Name, Parameters.Values.ToList(), ReturnType);
 
 
-	public bool ExactSignatureMatch(FuncSignature signature) {
+	public bool ExactSignatureMatch(FuncCandidate signature) {
 		var thisSign = GetSignature();
-		return thisSign.Equals(signature);
+		return thisSign.ExactMatch(signature);
 	}
 	
-	public bool DoesMatchSignature(FuncSignature filter) {
+	public bool DoesMatchCandidate(FuncCandidate filter) {
 		if (Name != filter.Name) return false;
 		if (Parameters.Count != filter.Params.Count) return false;
 

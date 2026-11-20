@@ -68,6 +68,12 @@ public interface IGrammarVisitor<Result> : IParseTreeVisitor<Result> {
 	/// <return>The visitor result.</return>
 	Result VisitFileAlias([NotNull] GrammarParser.FileAliasContext context);
 	/// <summary>
+	/// Visit a parse tree produced by <see cref="GrammarParser.groveId"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitGroveId([NotNull] GrammarParser.GroveIdContext context);
+	/// <summary>
 	/// Visit a parse tree produced by <see cref="GrammarParser.filepath"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
@@ -350,11 +356,11 @@ public interface IGrammarVisitor<Result> : IParseTreeVisitor<Result> {
 	/// <return>The visitor result.</return>
 	Result VisitAlloc([NotNull] GrammarParser.AllocContext context);
 	/// <summary>
-	/// Visit a parse tree produced by <see cref="GrammarParser.free"/>.
+	/// Visit a parse tree produced by <see cref="GrammarParser.freeStatement"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	/// <return>The visitor result.</return>
-	Result VisitFree([NotNull] GrammarParser.FreeContext context);
+	Result VisitFreeStatement([NotNull] GrammarParser.FreeStatementContext context);
 	/// <summary>
 	/// Visit a parse tree produced by <see cref="GrammarParser.explicitCast"/>.
 	/// </summary>
@@ -464,6 +470,12 @@ public interface IGrammarVisitor<Result> : IParseTreeVisitor<Result> {
 	/// <return>The visitor result.</return>
 	Result VisitVarRef([NotNull] GrammarParser.VarRefContext context);
 	/// <summary>
+	/// Visit a parse tree produced by <see cref="GrammarParser.ifCond"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitIfCond([NotNull] GrammarParser.IfCondContext context);
+	/// <summary>
 	/// Visit a parse tree produced by <see cref="GrammarParser.ifStatement"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
@@ -482,18 +494,6 @@ public interface IGrammarVisitor<Result> : IParseTreeVisitor<Result> {
 	/// <return>The visitor result.</return>
 	Result VisitReturnStatement([NotNull] GrammarParser.ReturnStatementContext context);
 	/// <summary>
-	/// Visit a parse tree produced by <see cref="GrammarParser.continueStatement"/>.
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	/// <return>The visitor result.</return>
-	Result VisitContinueStatement([NotNull] GrammarParser.ContinueStatementContext context);
-	/// <summary>
-	/// Visit a parse tree produced by <see cref="GrammarParser.breakStatement"/>.
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	/// <return>The visitor result.</return>
-	Result VisitBreakStatement([NotNull] GrammarParser.BreakStatementContext context);
-	/// <summary>
 	/// Visit a parse tree produced by <see cref="GrammarParser.loopDecl"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
@@ -511,6 +511,18 @@ public interface IGrammarVisitor<Result> : IParseTreeVisitor<Result> {
 	/// <param name="context">The parse tree.</param>
 	/// <return>The visitor result.</return>
 	Result VisitEndExp([NotNull] GrammarParser.EndExpContext context);
+	/// <summary>
+	/// Visit a parse tree produced by <see cref="GrammarParser.continueStatement"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitContinueStatement([NotNull] GrammarParser.ContinueStatementContext context);
+	/// <summary>
+	/// Visit a parse tree produced by <see cref="GrammarParser.breakStatement"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitBreakStatement([NotNull] GrammarParser.BreakStatementContext context);
 	/// <summary>
 	/// Visit a parse tree produced by <see cref="GrammarParser.forLoop"/>.
 	/// </summary>

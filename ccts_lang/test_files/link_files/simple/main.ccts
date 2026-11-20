@@ -1,7 +1,6 @@
 include io.ccts as IO;
 
 i32 main(){
-
     IO.print_i32(123456);
 
     return 0;

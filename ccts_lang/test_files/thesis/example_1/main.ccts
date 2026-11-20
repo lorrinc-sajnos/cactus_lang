@@ -1,0 +1,22 @@
+include std:io as io;
+
+void main(){
+    i32 num = 123;
+    f64 float_num = 1.234;
+    
+    f64 result = float_num*num;
+    
+    ch08* string = "I am a string!";
+    io.print_ln(string);	
+	
+	bool logic = num > 0;
+	
+	if(logic) {
+		io.print_ln("Number is positive!");
+	} else if (num == 0){
+		io.print_ln("The number is 0!");
+	} else {
+		io.print_ln("Number is negative!");
+	}
+}
+

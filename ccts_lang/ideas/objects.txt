@@ -1,0 +1,66 @@
+struct Car : IHaveDoor {
+	str manuf;
+	
+	interf
+	u16 year;
+	
+	u16 age;
+	Person* owner;
+	
+	constr(str manuf_, i32 m_year, i32 age){
+		manuf = manuf_;
+		year = (u16)m_year;
+		u16 age = DATE.today().year-m_year;
+	}
+	
+	interf
+	str get_manuf() => manuf;
+	
+	interf
+	u08 get_door_c() => 5;
+	
+	interf
+	destr{
+		
+	}
+}
+
+interf I_Car {
+	u16 year;
+	str get_manuf();
+	u08 get_door_c();
+	
+}
+
+interf IHaveDoor{
+	i08 get_door_c();
+}
+
+
+struct Suzuki : I_Car {
+	i32 number;	
+	Car inner_car;
+	
+	//str get_manuf() from inner_car;
+	
+	interf
+	str get_manuf() => inner_car.get_manuf();
+	
+	//Errors:
+	//No function: get_door_c() -> u08
+	//No function: destr
+}
+
+
+
+
+void main() {
+	Car# car = new Car("Suzuki", 1999);
+
+	printf(car#type); //Car
+	printf(car#id); //0x00F1C3D4;
+	
+	Car# car_obj = new Car("Tesla", 2019);
+
+
+}

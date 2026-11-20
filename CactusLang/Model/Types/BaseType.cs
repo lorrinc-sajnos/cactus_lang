@@ -1,6 +1,8 @@
+using CactusLang.Util;
+
 namespace CactusLang.Model.Types;
 
-public abstract class BaseType {
+public abstract class BaseType : IHaveName {
     public abstract string Name { get; }
     public abstract int Size { get; }
 

@@ -4,11 +4,7 @@ using CactusLang.Model.Holders;
 namespace CactusLang.Model.Stores;
 
 public class FieldStore<T> : IFieldHolder<T> where T : ModelField {
-    private readonly OrderedDictionary<string, T> _fields;
-
-    public FieldStore() {
-        _fields = new OrderedDictionary<string, T>();
-    }
+    private readonly OrderedDictionary<string, T> _fields = new();
 
     public T? GetField(string name) => _fields.ContainsKey(name) ? _fields[name] : null;
 

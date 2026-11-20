@@ -1,0 +1,7 @@
+
+	def_constr(str maunf_, u16 m_year);
+	
+	str manuf #= manuf_;
+	u16 year #= m_year;
+	u16 age #= DATE.today().year-m_year;
+		

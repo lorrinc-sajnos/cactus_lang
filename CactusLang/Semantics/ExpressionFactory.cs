@@ -33,12 +33,12 @@ public class ExpressionFactory {
 	private readonly GrammarParser.ExpressionContext _startExpression;
 
 
-	public ExpressionFactory(CactusFile file, Scope scope,
+	public ExpressionFactory(CactusFile cactusFile, SemanticFileAnalyzer analyzer, Scope scope,
 		GP.ExpressionContext expNode) {
-		_errorHandler = file.ErrorHandler;
-		_typeTable = file.TypeTable;
-		_file = file;
+		_errorHandler = analyzer.ErrorHandler;
+		_typeTable = analyzer.TypeTable;
 		_scope = scope;
+		_file = cactusFile;
 		_startExpression = expNode;
 	}
 
@@ -143,9 +143,9 @@ public class ExpressionFactory {
 			return _errorHandler.ErrorInExpression(CctsError.BAD_OBJ_REF, ctx, ctx.GetText());
 
 		var funcParams = GetFuncParams(funcCallCtx.funcCall());
-		FuncSignature instFuncId = GetFuncSignature(funcCallCtx.funcCall().funcRef().GetText(), funcParams);
+		var instFuncCand = GetFuncCandidate(funcCallCtx.funcCall().funcRef().GetText(), funcParams);
 
-		var structFunc = refObj.GetMatchingFunction(instFuncId);
+		var structFunc = refObj.GetMatchingFunction(instFuncCand);
 
 		if (structFunc == null) {
 			return _errorHandler.ErrorInExpression(CctsError.ID_NOT_FOUND, funcCallCtx.funcCall(),
@@ -213,11 +213,11 @@ public class ExpressionFactory {
 
 	private Expression GetFuncCall(GP.FuncCallContext ctx) {
 		var paramEpxs = GetFuncParams(ctx);
-		FuncSignature funcId = GetFuncSignature(ctx.funcRef().GetText(), paramEpxs);
+		FuncCandidate funcCand = GetFuncCandidate(ctx.funcRef().GetText(), paramEpxs);
 
-		ModelFunction? func = _scope.GetMatchingFunction(funcId);
+		ModelFunction? func = _scope.GetMatchingFunction(funcCand);
 		if (func == null) {
-			return _errorHandler.ErrorInExpression(CctsError.ID_NOT_FOUND, ctx, funcId.ToString());
+			return _errorHandler.ErrorInExpression(CctsError.ID_NOT_FOUND, ctx, funcCand.ToString());
 		}
 
 		return new FuncCallExp(func, paramEpxs);
@@ -359,15 +359,14 @@ public class ExpressionFactory {
 		return paramExps;
 	}
 
-	private FuncSignature GetFuncSignature(string funcName, List<Expression> paramExps) {
+	private FuncCandidate GetFuncCandidate(string funcName, List<Expression> paramExps, BaseType? returnType=null) {
 		List<BaseType> paramTypes = new List<BaseType>();
 
 		foreach (var exp in paramExps) {
 			paramTypes.Add(exp.GetResultType());
 		}
 
-
-		return new FuncSignature(funcName, paramTypes);
+		return new FuncCandidate(funcName, paramTypes);
 	}
 
 

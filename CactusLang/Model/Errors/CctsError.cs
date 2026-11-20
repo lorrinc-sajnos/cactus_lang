@@ -75,6 +75,8 @@ public class CctsError {
         new (102, """File "{0}" does not exist""", """File "{0}" does not exist.""");
     public static readonly CctsError FILE_DOENST_EXISTS =
         new (103, """File "{0}" is not declared""", """File "{0}" is not included in this file.""");
+    public static readonly CctsError GROVE_DOENST_EXISTS =
+        new (103, """Grove "{0}" is not declared""", """Grove "{0}" is not included in this file.""");
     
     
     public static readonly CctsError EXPRESSION_ERROR =

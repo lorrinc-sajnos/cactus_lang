@@ -19,6 +19,16 @@ typedef uint64_t    u64;
 typedef char        ch08;
 
 
+//Object
+typedef uint64_t    t_oid; //Object ID
+
+typedef struct {
+    t_oid TYPE_ID;
+    void* INSTANCE;
+} OBJECT;
+
+
+
 
 
 #endif

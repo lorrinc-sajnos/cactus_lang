@@ -1,0 +1,3 @@
+struct Bar {
+    i32 bar_val;
+}

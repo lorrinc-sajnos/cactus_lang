@@ -2,9 +2,8 @@
 
 namespace CactusLang.Model.CodeStructure.MemberHolders.Structs;
 
-public class StructFunction(CactusFile file, FunctionSymbol symbol, FileStruct parent)
+public class StructFunction(CactusFile file, FunctionSymbol symbol, CactusStruct parent)
     : MemberFunction(file, symbol, parent) {
-    private readonly FileStruct _parent = parent;
-    public new IMemberHolder Parent => _parent;
-    public FileStruct FileStruct => _parent;
+    //public new IMemberHolder Parent => _parent;
+    public CactusStruct CactusStruct { get; } = parent;
 }

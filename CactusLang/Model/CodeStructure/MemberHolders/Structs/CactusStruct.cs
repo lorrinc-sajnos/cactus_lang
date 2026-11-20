@@ -6,8 +6,8 @@ using CactusLang.Model.Types.MemberHolderTypes;
 
 namespace CactusLang.Model.CodeStructure.MemberHolders.Structs;
 
-public class FileStruct : IMemberHolder {
-    public FileStruct(string id, CactusFile cactusFile) {
+public class CactusStruct : IMemberHolder {
+    public CactusStruct(string id, CactusFile cactusFile) {
         Name = id;
         Fields = new();
         Functions = new();
@@ -25,16 +25,15 @@ public class FileStruct : IMemberHolder {
     public BaseType MemberType => StructType;
     public MemberFunction? GetExactFunction(FunctionSymbol id) => Functions.GetExactFunction(id);
 
-    public bool ContainsExactFunction(FuncSignature id)  =>  Functions.ContainsExactFunction(id);
+    public bool ContainsExactFunction(FuncCandidate id)  =>  Functions.ContainsExactFunction(id);
 
-    public MemberFunction? GetExactFunction(FuncSignature sign) => Functions.GetExactFunction(sign);
-    public MemberFunction? GetMatchingFunction(FuncSignature id) =>  Functions.GetMatchingFunction(id);
+    public MemberFunction? GetExactFunction(FuncCandidate sign) => Functions.GetExactFunction(sign);
+    public MemberFunction? GetMatchingFunction(FuncCandidate id) =>  Functions.GetMatchingFunction(id);
 
-    public bool ContainsMatchingFunction(FuncSignature id) => Functions.ContainsMatchingFunction(id);   
+    public bool ContainsMatchingFunction(FuncCandidate id) => Functions.ContainsMatchingFunction(id);   
 
-    public FunctionSymbol? GetMatchingId(FuncSignature signature) =>  Functions.GetMatchingId(signature);
-
-
+    public FunctionSymbol? GetMatchingId(FuncCandidate signature) =>  Functions.GetMatchingId(signature);
+    
     public List<MemberFunction> GetFunctions() => Functions.GetFunctions().ConvertAll(MemberFunction (f) => f);
 
     public MemberField? GetField(string name) => Fields.GetField(name);

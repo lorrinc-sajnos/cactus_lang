@@ -19,6 +19,7 @@
 
   <ItemGroup>
     <Folder Include="Compiling\Codefiles\" />
+    <Folder Include="Model\Statements\" />
   </ItemGroup>
   
 </Project>

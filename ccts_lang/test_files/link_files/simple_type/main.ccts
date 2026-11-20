@@ -1,0 +1,10 @@
+include bar.ccts as BarFile;
+
+i32 main(){
+    BarFile.Bar* bar = alloc BarFile.Bar;
+
+    bar.bar_val = 0xCAC123;
+
+    println_i32(bar.bar_val);
+    return 0;
+}

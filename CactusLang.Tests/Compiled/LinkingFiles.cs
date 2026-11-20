@@ -2,7 +2,7 @@ using System;
 using CactusLang.Model;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace CactusLang.Tests.Generation;
+namespace CactusLang.Tests.Compiled;
 
 [TestClass]
 [TestCategory(nameof(LinkingFiles))]
@@ -15,6 +15,14 @@ public class LinkingFiles {
 			new CactusGrove("../../../../ccts_lang/test_files/link_files/simple/main.ccts"),
 			"123456"
 		);
+	[TestMethod]
+	
+	public void TestSimpleType() =>
+		CctsAssert.CompileRunMatchStdout(
+			new CactusGrove("../../../../ccts_lang/test_files/link_files/simple_type/main.ccts"),
+			0xCAC123 + EOL 
+		);
+
 	
 	
 	[TestMethod]

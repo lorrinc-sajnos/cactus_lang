@@ -1,0 +1,3 @@
+struct LList<T> {
+	LList<T> next*;
+}

@@ -10,7 +10,7 @@ public class MemberFuncScope : Scope {
     private readonly IMemberHolder _mHolder;
     private VariableSymbol _thisPtr;
 
-    public MemberFuncScope(FileStruct mHolder) {
+    public MemberFuncScope(CactusStruct mHolder) {
         _mHolder = mHolder;
         _thisPtr = new VariableSymbol(_mHolder.MemberType.GetPointer(), "this");
 
@@ -23,7 +23,7 @@ public class MemberFuncScope : Scope {
         }
     }
 
-    public override ModelFunction? GetMatchingFunction(FuncSignature signature) {
+    public override ModelFunction? GetMatchingFunction(FuncCandidate signature) {
         if (_mHolder.ContainsMatchingFunction(signature))
             return _mHolder.GetMatchingFunction(signature);
 

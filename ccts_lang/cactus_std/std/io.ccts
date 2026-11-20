@@ -1,0 +1,11 @@
+void print(ch08* str) $$C=> printf("%s", str);
+void print_ln(ch08* str) $$C=> printf("%s\n", str);
+
+void print(str txt) => print(txt:ptr);
+void print_ln(str txt) => print_ln(txt:ptr);
+
+void print(str* txt) => print(txt.ptr);
+void print_ln(str* txt) => print_ln(txt.ptr);
+
+void print(i32 num) $$C=> printf("%d", str);
+void print_ln(i32 num) $$C=> printf("%d", str);

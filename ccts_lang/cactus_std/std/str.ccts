@@ -1,0 +1,6 @@
+struct str {
+    ch08* ptr;
+    u32 len;
+
+    u32 get_len() => len;
+}

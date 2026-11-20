@@ -9,6 +9,7 @@ using CactusLang.Model.CodeStructure.FileContent;
 using CactusLang.Model.CodeStructure.MemberHolders.IncludedFiles;
 using CactusLang.Model.CodeStructure.MemberHolders.Structs;
 using CactusLang.Model.CodeStructure.Statements;
+using CactusLang.Model.CodeStructure.Statements.ControlFlow;
 using CactusLang.Model.Operators;
 using CactusLang.Model.Operators.ObjectRefference;
 using CactusLang.Model.Operators.Unary;
@@ -44,7 +45,7 @@ public class CodeModelVisitor<T> {
     protected virtual T VisitCodeFile(CactusFile cactusFile) {
         var incResult = VisitIncludedFiles(cactusFile.IncludeManager.IncludedFiles);
         
-        var strResult = VisitFileStructs(cactusFile.GetStructs());
+        var strResult = VisitFileStructs(cactusFile.DeclStructStore.GetStructs());
         var varResult = VisitFileFields(cactusFile.Fields.GetFields());
         var funcResult = VisitFileFunctions(cactusFile.Functions.GetFunctions());
 
@@ -53,7 +54,7 @@ public class CodeModelVisitor<T> {
 
     #region Structs
 
-    protected virtual T VisitFileStructs(List<FileStruct> fileStructs) {
+    protected virtual T VisitFileStructs(List<CactusStruct> fileStructs) {
         var results = new List<T>();
 
         foreach (var fileStruct in fileStructs) {
@@ -64,15 +65,15 @@ public class CodeModelVisitor<T> {
         return GetResult(results);
     }
 
-    protected virtual T VisitFileStruct(FileStruct fileStruct) {
+    protected virtual T VisitFileStruct(CactusStruct cactusStruct) {
         var results = new List<T>();
 
-        foreach (var field in fileStruct.Fields.GetFields()) {
+        foreach (var field in cactusStruct.Fields.GetFields()) {
             var result = VisitStructField(field);
             results.Add(result);
         }
 
-        foreach (var func in fileStruct.Functions.GetFunctions()) {
+        foreach (var func in cactusStruct.Functions.GetFunctions()) {
             var result = VisitStructFunction(func);
             results.Add(result);
         }
@@ -179,10 +180,16 @@ public class CodeModelVisitor<T> {
             case RawCCodeStatement rawCCodeStatement:
                 return VisitRawCCodeStatement(rawCCodeStatement);
 
+            //Control Flow
+            case IfStatement ifStatement:
+                return VisitIfStatement(ifStatement);
+            
+            case WhileLoop whileLoop:
+                return VisitWhileLoop(whileLoop);
+            
             case ForLoop forLoop:
                 return VisitForLoop(forLoop);
 
-            //TODO other statements
         }
     }
 
@@ -220,16 +227,59 @@ public class CodeModelVisitor<T> {
         return _success;
     }
 
-    protected virtual T VisitForLoop(ForLoop forLoop) {
-        var results = new List<T>();
-        results.Add(VisitVarDclStatement(forLoop.LoopDcl));
-        results.Add(VisitExpression(forLoop.Condition));
-        results.Add(VisitExpression(forLoop.EndStatement));
+    
+    #region ControlFlow
 
-        results.Add(VisitCodeBlock(forLoop.CodeBlock));
+    protected virtual T VisitIfStatement(IfStatement ifStatement)
+    {
+        var results = new  List<T>
+        {
+            VisitExpression(ifStatement.Condition),
+            VisitCodeBlock(ifStatement.CodeBlock),
+        };
+        if (ifStatement.Else != null)
+            results.Add(VisitElseBranch(ifStatement.Else));
+        
+        
+        return GetResult(results);
+    }
+    protected virtual T VisitElseBranch(ElseBranch elseBranch)
+    {
+        var results = new List<T>();
+        if (elseBranch.Condition != null)
+            results.Add(VisitExpression(elseBranch.Condition));
+        results.Add(VisitCodeBlock(elseBranch.Body));
+        if (elseBranch.Else != null)
+            results.Add(VisitElseBranch(elseBranch.Else));
+        
         return GetResult(results);
     }
 
+    protected virtual T VisitWhileLoop(WhileLoop whileLoop)
+    {
+        var results = new List<T>
+        {
+            VisitExpression(whileLoop.Condition),
+            VisitCodeBlock(whileLoop.CodeBlock)
+        };
+
+        return GetResult(results);
+    }
+    
+    protected virtual T VisitForLoop(ForLoop forLoop) {
+        var results = new List<T>
+        {
+            VisitVarDclStatement(forLoop.LoopDcl),
+            VisitExpression(forLoop.Condition),
+            VisitExpression(forLoop.EndStatement),
+            VisitCodeBlock(forLoop.CodeBlock)
+        };
+
+        return GetResult(results);
+    }
+
+    #endregion
+    
     #endregion
 
     #region Expressions
@@ -304,19 +354,21 @@ public class CodeModelVisitor<T> {
     #region PrimaryExpression
 
     protected virtual T VisitLeftUnOpPrimaryExpression(UnOpPrimaryExpression unOpPrimaryExpression) {
-        var results = new List<T>();
-
-        results.Add(VisitUnaryOperator(unOpPrimaryExpression.UnaryOperator));
-        results.Add(VisitPrimaryExpression(unOpPrimaryExpression.PrimaryExpr));
+        var results = new List<T>
+        {
+            VisitUnaryOperator(unOpPrimaryExpression.UnaryOperator),
+            VisitPrimaryExpression(unOpPrimaryExpression.PrimaryExpr)
+        };
 
         return GetResult(results);
     }
 
     protected virtual T VisitRightUnOpPrimaryExpression(UnOpPrimaryExpression unOpPrimaryExpression) {
-        var results = new List<T>();
-
-        results.Add(VisitPrimaryExpression(unOpPrimaryExpression.PrimaryExpr));
-        results.Add(VisitUnaryOperator(unOpPrimaryExpression.UnaryOperator));
+        var results = new List<T>
+        {
+            VisitPrimaryExpression(unOpPrimaryExpression.PrimaryExpr),
+            VisitUnaryOperator(unOpPrimaryExpression.UnaryOperator)
+        };
 
         return GetResult(results);
     }
@@ -365,8 +417,7 @@ public class CodeModelVisitor<T> {
     //protected virtual T VisitStructFieldRefExp()
 
     protected virtual T VisitObjectFuncCallExp(MethodCallExp methodCallExp) {
-        var results = new List<T>();
-        results.Add(VisitPrimaryExpression(methodCallExp.Object));
+        var results = new List<T> { VisitPrimaryExpression(methodCallExp.Object) };
         results.AddRange(methodCallExp.GetParameters().Select(VisitExpression));
 
         return GetResult(results);

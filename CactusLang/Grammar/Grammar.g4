@@ -18,8 +18,8 @@ headerStatement
     includeFile: KYW_INCLUDE filepath KYW_AS fileAlias; //include <file>;
         fileAlias: ID;
         
-        
-        filepath: ID (OP_DIV ID)* (OP_REF ID)? ;
+        groveId: ID;
+        filepath: (groveId OP_ACC)? ID (OP_DIV ID)* (OP_REF ID)? ;
     
     
     
@@ -35,7 +35,12 @@ fileStatement
 	;
 
 type: (parentObj OP_REF)* root;
-root : (ID | PTR_ID);
+root: 
+    ( ID 
+    | PTR_ID
+    | OBJ_TYPE_ID
+    | OBJ_TYPE_ID_PTR 
+    );
 parentObj: ID;
 
 fileVarDcl: varDcl;
@@ -112,11 +117,14 @@ statement
     : tags?
     (varDcl EOS
     | expressionStatement EOS
+    | returnStatement EOS
+    | freeStatement EOS
+    //Controll
+    | ifStatement
     | forLoop
+    | whileLoop
     | breakStatement EOS
     | continueStatement EOS
-    | returnStatement EOS
-    | free EOS
     | tags 
     );
 
@@ -173,7 +181,7 @@ opLeftUn
     | LUNOP_L_NOT
     | LUNOP_SIZEOF
     | OP_B_AND //Adress operator
-    | OP_STAR //Dereference operator
+    | OP_DEREF //Dereference operator
     | explicitCast
     ;
 
@@ -207,6 +215,7 @@ primaryExp
     | primaryExp objFieldRef
     //Other primary expressions
     | alloc
+    
     ;
 
     //| ppc__Expression
@@ -232,9 +241,8 @@ fieldRef: varRef;
 
 parenthsExp: PARN_OPN expression PARN_CLS;
 
-alloc: KYW_ALLOC type;
-//alloc: KYW_ALLOC (expression | type);
-free: KYW_FREE expression;
+alloc: KYW_ALLOC (expression | type);
+freeStatement: KYW_FREE expression;
 explicitCast: PARN_OPN type PARN_CLS;
 
 //Function call
@@ -284,17 +292,20 @@ boolLiteral: KYW_TRUE | KYW_FALSE;
 
 varRef: ID;//The name of the variable can be refferenced eg.: car.driver:name
 
-ifStatement: KYW_IF PARN_OPN expression PARN_CLS codeBody elseStatement?;
-elseStatement: KYW_ELSE (ifStatement | codeBody);
+//Controll statements
+ifCond : expression;
 
-returnStatement: KYW_RETURN expression?;
-continueStatement: KYW_CONTINUE;
-breakStatement: KYW_BREAK;
+ifStatement: KYW_IF PARN_OPN ifCond PARN_CLS codeBody elseStatement?;
+elseStatement: KYW_ELSE (KYW_IF PARN_OPN ifCond PARN_CLS)? codeBody elseStatement?;
 
-//FOR loop
+returnStatement: KYW_RETURN | (KYW_RETURN expression);
+
+//Loops loop
 loopDecl : varDcl;
 loopCond : expression;
 endExp: expression;
+continueStatement: KYW_CONTINUE;
+breakStatement: KYW_BREAK;
 
 forLoop: KYW_FOR PARN_OPN loopDecl EOS loopCond EOS endExp PARN_CLS codeBody;
 
@@ -328,9 +339,9 @@ ppc__funcCall: ppc__funcRef PARN_OPN funcParamVals? PARN_CLS;
 KYW_INCLUDE: 'include';
 KYW_AS: 'as';
 KYW_UNDERSC: '_';
-KYW_STRUCT: 'struct';
 
 //Object oriented keywords:
+KYW_STRUCT: 'struct';
 KYW_CLASS: 'class';
 KYW_INTERF: 'interf';
 KYW_STATIC: 'static';
@@ -341,6 +352,7 @@ KYW_RETURN: 'return';
 KYW_TRUE: 'true';
 KYW_FALSE: 'false';
 KYW_NULLPTR: 'nullptr';
+KYW_NULL: 'null';
 
 //Controll
 KYW_IF: 'if';           
@@ -354,6 +366,9 @@ KYW_CONTINUE: 'continue';
 KYW_FREE: 'free';
 KYW_ALLOC: 'alloc';
 KYW_KEEP: 'keep';
+
+
+KYW_OBJ: '#';
 
 //
 
@@ -414,6 +429,8 @@ OP_LAMDA: '=>';
 
 OP_ACC: ':'; //Access operator:     Car car1;           car1:pass_c = 2;
 OP_REF: '.'; //Refference operator: Car* car1 = xyz;    car1.pass_c = 2;
+PTR: OP_STAR;
+OP_DEREF: OP_STAR;
 
 COMMA: ',';
 BODY_OPN: '{';
@@ -423,7 +440,7 @@ PARN_CLS: ')';
 SQPN_OPN: '[';
 SQPN_CLS: ']';
 
-//Literal operators: haló
+//Literal operators: 
 
 
 //Preprocessor magic
@@ -479,7 +496,11 @@ TAG: TAG_PRFX ID;
 
 //ID
 ID: Id_start Id_chars*;
-PTR_ID: ID OP_STAR*; //Force pointer starts to the type
+PTR_ID: ID PTR*; //Force pointer starts to the type
+
+OBJ_TYPE_ID: ID KYW_OBJ; //Object Type 
+OBJ_TYPE_ID_PTR: OBJ_TYPE_ID PTR*;
+
 
 fragment Id_start: ([a-z]|[A-Z]|'_');
 fragment Id_chars: Id_start | Digit;

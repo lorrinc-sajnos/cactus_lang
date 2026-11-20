@@ -1,5 +1,6 @@
 using CactusLang.Compiling.Codefiles;
 using CactusLang.Model.CodeStructure.FileContent;
+using CactusLang.Model.CodeStructure.MemberHolders.Structs;
 using CactusLang.Model.Symbols;
 using CactusLang.Model.Types;
 using CactusLang.Model.Types.PrimitiveTypes;
@@ -7,89 +8,103 @@ using CactusLang.Model.Types.PrimitiveTypes;
 namespace CactusLang.Model;
 
 public class CactusGrove {
-	public bool CompletedAnalysis { get; private set; }
+    public bool CompletedAnalysis { get; private set; }
 
-	public string RootFolder { get; }
-	public CactusFile RootFile { get; }
-	public string RootFilePath { get; }
-
-
-	private FunctionSymbol _entryPointSymb;
+    public string RootFolder { get; }
+    public CactusFile RootFile { get; }
+    public string RootFilePath { get; }
 
 
-	public string SrcOutputFolder { get; }
-	public string OutputFilePath { get; }
-
-	private readonly Dictionary<FileID, CactusFile> _files;
-
-	public CactusGrove(string rootFilePath) : this(new SourceFile(rootFilePath)) { }
-	public CactusGrove(SourceFile rootFile) {
-        
-		RootFilePath = rootFile.Path;
-		RootFolder = Path.GetDirectoryName(RootFilePath)!;
+    private FunctionSymbol _entryPointSymb;
 
 
-		_files = new Dictionary<FileID, CactusFile>();
-		RootFile = CactusFile.CreateAndAddFile(this, rootFile);
+    public string SrcOutputFolder { get; }
+    public string OutputFilePath { get; }
 
-		//Default entrypoint: function called main, with 0 args, returning an integer.
-		_entryPointSymb = new FunctionSymbol(NumberType.I32, "main", RootFile);
+    private readonly Dictionary<FileID, CactusFile> _files;
 
-		SrcOutputFolder = RootFolder;
-		OutputFilePath = DefaultOutputName(rootFile.Path);
-	}
+    public CactusGrove(string rootFilePath) : this(new SourceFile(rootFilePath)) {
+    }
 
-	public CactusFile? AddFile(CactusFile file) {
-		if (_files.ContainsKey(file.ID)) throw new NotImplementedException("File already in dict!!!");
-		_files.Add(file.ID, file);
-		return file;
-	}
-
-	public CactusFile AddFileFromID(FileID fileID) {
-		//Read in file from disk
-		string absolutePath = Path.GetDirectoryName(RootFilePath) + PathFromID(fileID);
-		SourceFile srcFile = new SourceFile(absolutePath);
-		CactusFile file = CactusFile.CreateAndAddFile(this, srcFile);
-		return file;
-	}
+    public CactusGrove(SourceFile rootFile) {
+        RootFilePath = rootFile.Path;
+        RootFolder = Path.GetDirectoryName(RootFilePath)!;
 
 
-	public CactusFile? GetFile(FileID fileId) {
-		if (_files.TryGetValue(fileId, out var file))
-			return file;
-		return null;
-	}
+        _files = new Dictionary<FileID, CactusFile>();
+        RootFile = CactusFile.CreateAndAddFile(this, rootFile);
 
-	public CactusFile[] GetFiles() => [.. _files.Values];
+        //Default entrypoint: function called main, with 0 args, returning an integer.
+        _entryPointSymb = new FunctionSymbol(NumberType.I32, "main", RootFile);
 
-	static string DefaultOutputName(string inputFile) {
-		string srcDir = Path.GetDirectoryName(inputFile)!;
+        SrcOutputFolder = RootFolder;
+        OutputFilePath = DefaultOutputName(rootFile.Path);
+    }
 
-		var os = Environment.OSVersion.Platform;
-		string fileExtention = ".out";
+    public CactusFile? AddFile(CactusFile file) {
+        if (_files.ContainsKey(file.ID)) throw new NotImplementedException("File already in dict!!!");
+        _files.Add(file.ID, file);
+        return file;
+    }
 
-		if (os == PlatformID.Win32NT) {
-			fileExtention = ".exe";
-		}
-		else if (os == PlatformID.Unix) {
-			fileExtention = ".out";
-		}
+    public CactusFile AddFileFromID(FileID fileID) {
+        //Read in file from disk
 
-		return $"{srcDir}/{Path.GetFileNameWithoutExtension(inputFile)}{fileExtention}";
-	}
+        string absolutePath;
+        if (fileID.ForeignRoot == null)
+            absolutePath = Path.GetDirectoryName(RootFilePath) + PathFromID(fileID);
+        else
+            absolutePath = fileID.ForeignRoot + PathFromID(fileID);
 
-	public string PathFromID(FileID fileID) {
-		return string.Join("/", fileID.Folders) + "/" + fileID.Filename + fileID.Extension;
-	}
+        SourceFile srcFile = new SourceFile(absolutePath);
+        CactusFile file = CactusFile.CreateAndAddFile(this, srcFile);
+        return file;
+    }
 
-	public FileFunction GetEntryPoint() => RootFile.Functions.GetExactFunction(_entryPointSymb)!;
+    public List<CactusStruct> GetAllStructs() {
+        List<CactusStruct> structs = [];
+        foreach (var file in _files.Values) {
+            structs.AddRange(file.DeclStructStore.GetStructs());
+        }
+        return structs;
+    }
 
 
+    public CactusFile? GetFile(FileID fileId) {
+        if (_files.TryGetValue(fileId, out var file))
+            return file;
+        return null;
+    }
 
-	public bool HasErrors() => _files.Any(p => p.Value.HasErrors());
+    public CactusFile[] GetFiles() => [.. _files.Values];
 
-	public void PrintErrors() {
-		foreach (var file in _files.Values) 
-			file.ErrorHandler.PrintErrors();
-	}
+    static string DefaultOutputName(string inputFile) {
+        string srcDir = Path.GetDirectoryName(inputFile)!;
+
+        var os = Environment.OSVersion.Platform;
+        string fileExtention = ".out";
+
+        if (os == PlatformID.Win32NT) {
+            fileExtention = ".exe";
+        }
+        else if (os == PlatformID.Unix) {
+            fileExtention = ".out";
+        }
+
+        return $"{srcDir}/{Path.GetFileNameWithoutExtension(inputFile)}{fileExtention}";
+    }
+
+    public string PathFromID(FileID fileID) {
+        return string.Join("/", fileID.Folders) + "/" + fileID.Filename + fileID.Extension;
+    }
+
+    public FileFunction GetEntryPoint() => RootFile.Functions.GetExactFunction(_entryPointSymb)!;
+
+
+    public bool HasErrors() => _files.Any(p => p.Value.HasErrors());
+
+    public void PrintErrors() {
+        foreach (var file in _files.Values)
+            file.ErrorHandler.PrintErrors();
+    }
 }

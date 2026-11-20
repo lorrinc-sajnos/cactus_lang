@@ -11,125 +11,114 @@ using CactusLang.Model.Visitors;
 
 namespace CactusLang.CodeGeneration;
 
-public class ExpressionCodeFactory : CodeModelVisitor<string> {
-	private readonly Expression _expression;
-	private readonly SourceFileGenerator.State _modelState;
-	private readonly NameResolver _resolver;
+public class ExpressionCodeFactory(NameResolver resolver, Expression expression, CactusFileGenerator.State state)
+    : CodeModelVisitor<string>("", null!) {
+    public static string Manufacture(NameResolver resolver, Expression expression,
+        CactusFileGenerator.State state = new()) {
+        ExpressionCodeFactory factory = new(resolver, expression, state);
+        return factory.Manufacture();
+    }
 
-	public static string Manufacture(NameResolver resolver, Expression expression, SourceFileGenerator.State state = new()) {
-		ExpressionCodeFactory factory = new(resolver, expression, state);
-		return factory.Manufacture();
-	}
+    public string Manufacture() {
+        string str = VisitExpression(expression);
+        return str;
+    }
 
-	public ExpressionCodeFactory(NameResolver resolver, Expression expression, SourceFileGenerator.State state) : base("", null!) {
-		_modelState = state;
-		_expression = expression;
-		_resolver = resolver;
-	}
+    protected override string AggregateResults(params string[] statuses) {
+        string result = "";
+        foreach (var str in statuses) {
+            result += str ?? throw new Exception("Bad implementation in Visitor!!!!");
+        }
 
-	public string Manufacture() {
-		string str = VisitExpression(_expression);
-		return str;
-	}
+        return result;
+    }
 
-	protected override string AggregateResults(params string[] statuses) {
-		string result = "";
-		foreach (var str in statuses) {
-			result += str ?? throw new Exception("Bad implementation in Visitor!!!!");
-		}
+    protected override string VisitOperationExpression(OperationExpression operationExpression) {
+        var lhExp = operationExpression.LeftExpression;
+        var rhExp = operationExpression.RightExpression;
 
-		return result;
-	}
+        var op = operationExpression.Operator;
 
-	protected override string VisitOperationExpression(OperationExpression operationExpression) {
-		var lhExp = operationExpression.LeftExpression;
-		var rhExp = operationExpression.RightExpression;
+        string lhStr = VisitExpression(lhExp);
+        string rhStr = VisitExpression(rhExp);
 
-		var op = operationExpression.Operator;
-
-		string lhStr = VisitExpression(lhExp);
-		string rhStr = VisitExpression(rhExp);
-
-		return $"{lhStr} {op.GetId()} {rhStr}";
-	}
+        return $"{lhStr} {op.GetId()} {rhStr}";
+    }
 
 
-	#region Primary expression
+    #region Primary expression
 
-	protected override string VisitVarRefExpression(VarRef varRef) => varRef.VarName;
+    protected override string VisitVarRefExpression(VarRef varRef) => varRef.VarName;
 
 
-	protected override string VisitFuncCallExpression(FuncCallExp funcCall) {
-		string call = _resolver.GetFunc( funcCall.Function ) + '(';
+    protected override string VisitFuncCallExpression(FuncCallExp funcCall) {
+        string call = resolver.GetFunc(funcCall.Function) + '(';
 
-		var paramExps = funcCall.GetParameters();
-		if (paramExps.Any()) {
-			for (int i = 0; i < paramExps.Count() - 1; i++)
-				call += VisitExpression(paramExps[i]) + ", ";
+        var paramExps = funcCall.GetParameters();
+        if (paramExps.Any()) {
+            for (int i = 0; i < paramExps.Count() - 1; i++)
+                call += VisitExpression(paramExps[i]) + ", ";
 
-			call += VisitExpression(paramExps[^1]);
-		}
+            call += VisitExpression(paramExps[^1]);
+        }
 
-		return call + ')';
-	}
+        return call + ')';
+    }
 
-	protected override string VisitLocalVarRefExpression(LocalVarRef structFieldRef) =>
-		$"this->{  _resolver.GetLocalVar( structFieldRef)}";
+    protected override string VisitLocalVarRefExpression(LocalVarRef structFieldRef) =>
+        $"this->{resolver.GetLocalVar(structFieldRef)}";
 
-	protected override string VisitLiteralExpression(LiteralExpression literalExpression) {
-		return literalExpression.Value;
-	}
+    protected override string VisitLiteralExpression(LiteralExpression literalExpression) {
+        return literalExpression.Value;
+    }
 
-	protected override string VisitObjectFieldRefExp(ObjectFieldRefExp objectFieldRefExp) {
-		switch (objectFieldRefExp.Object) {
-			case IncludedFileRef fileRef:
-				return _resolver.GetMemberField(objectFieldRefExp.FieldRef.Field);
-			default:
-				string objPtr = VisitExpression(objectFieldRefExp.Object);
-				string fieldName = _resolver.GetField(objectFieldRefExp.FieldRef.Field);
-				
-				if (objectFieldRefExp.FieldRef.AccessType== AccessType.REFERENCE)
-					return $"{objPtr}->{fieldName}";
-				return $"{objPtr}.{fieldName}";
-		}
-		
-	}
+    protected override string VisitObjectFieldRefExp(ObjectFieldRefExp objectFieldRefExp) {
+        switch (objectFieldRefExp.Object) {
+            case IncludedFileRef fileRef:
+                return resolver.GetMemberField(objectFieldRefExp.FieldRef.Field);
+            default:
+                string objPtr = VisitExpression(objectFieldRefExp.Object);
+                string fieldName = resolver.GetField(objectFieldRefExp.FieldRef.Field);
 
-	protected override string VisitObjectFuncCallExp(MethodCallExp methodCallExp) {
-		string funcName;
-		List<string> funcParams = [];
+                if (objectFieldRefExp.FieldRef.AccessType == AccessType.REFERENCE)
+                    return $"{objPtr}->{fieldName}";
+                return $"{objPtr}.{fieldName}";
+        }
+    }
 
-		switch (methodCallExp.FuncCall.Function) {
-			case StructFunction structFunc: {
-				funcName = _resolver.GetStructRefFunc(structFunc);
-				
-				//If 
-				string objPtr = VisitExpression(methodCallExp.Object);
-				funcParams.Add(objPtr);
-				break;	
-			}
-			//If methodCall just needs a prefix
-			default:
-				var fn = methodCallExp.FuncCall.Function;
-				funcName = _resolver.GetMemberFunction(fn);
-				break;
-		}
+    protected override string VisitObjectFuncCallExp(MethodCallExp methodCallExp) {
+        string funcName;
+        List<string> funcParams = [];
 
-		foreach (var param in methodCallExp.GetParameters()) {
-			var factory = new ExpressionCodeFactory(_resolver,param, _modelState);
-			funcParams.Add( factory.Manufacture());
-		}
-		string joinedParams = string.Join(NameResolver.PARAM_SEP, funcParams);
+        switch (methodCallExp.FuncCall.Function) {
+            case StructFunction structFunc: {
+                funcName = resolver.GetStructRefFunc(structFunc);
 
-		return $"{funcName}({joinedParams})";
-	}
+                //If 
+                string objPtr = VisitExpression(methodCallExp.Object);
+                funcParams.Add(objPtr);
+                break;
+            }
+            //If methodCall just needs a prefix
+            default:
+                var fn = methodCallExp.FuncCall.Function;
+                funcName = resolver.GetMemberFunction(fn);
+                break;
+        }
 
-	protected override string VisitAlloc(Alloc alloc) => $"malloc(sizeof({_resolver.GetBaseType( alloc.AllocType)}))";
+        foreach (var param in methodCallExp.GetParameters()) {
+            var factory = new ExpressionCodeFactory(resolver, param, state);
+            funcParams.Add(factory.Manufacture());
+        }
 
-	protected override string VisitUnaryOperator(UnaryOp op) => op.GetId();
-	
+        string joinedParams = string.Join(NameResolver.PARAM_SEP, funcParams);
 
-    
-    
-	#endregion
+        return $"{funcName}({joinedParams})";
+    }
+
+    protected override string VisitAlloc(Alloc alloc) => $"malloc(sizeof({resolver.GetBaseType(alloc.AllocType)}))";
+
+    protected override string VisitUnaryOperator(UnaryOp op) => op.GetId();
+
+    #endregion
 }

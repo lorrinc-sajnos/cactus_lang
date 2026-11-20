@@ -17,7 +17,7 @@ public class PrintDebugTag : Tag {
         _returnC = 0;
     }
 
-    public override void OnReturnStatement(ReturnStatement statement, SourceFileGenerator generator) {
+    public override void OnReturnStatement(ReturnStatement statement, CactusFileGenerator generator) {
         bool isDebugMode = TagContainer.Global.HasCommonVariable("DEBUG_MODE");
         if (!isDebugMode) return;
 

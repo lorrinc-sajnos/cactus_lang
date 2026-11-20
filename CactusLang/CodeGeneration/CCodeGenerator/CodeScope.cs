@@ -1,18 +1,36 @@
 namespace CactusLang.CodeGeneration.CCodeGenerator;
 
 public class CodeScope : CodeSegment {
+    
+    public enum Location {
+        TOP,
+        MID,
+        BOT
+    }
+    
     private List<CodeSegment> _top;
     private List<CodeSegment> _mid;
     private List<CodeSegment> _bot;
 
+    private Dictionary<Location, List<CodeSegment>> _resolver;
+
     private CodeScope? _parent;
-    public CodeScope() : this(null) { }
+
+    public CodeScope() : this(null) {
+    }
 
     private CodeScope(CodeScope parent) {
         _top = new List<CodeSegment>();
         _mid = new List<CodeSegment>();
         _bot = new List<CodeSegment>();
         _parent = parent;
+        
+        _resolver = new(){
+            [Location.TOP] = _top,
+            [Location.MID] = _mid,
+            [Location.BOT] = _bot
+        };
+        
         if (parent != null) {
             Depth = parent.Depth + 1;
         }
@@ -21,43 +39,65 @@ public class CodeScope : CodeSegment {
         }
     }
 
-    public void AddLineTop(string line) => _top.Add(new CodeLine(line, Depth));
-    public void AddLineT() => _top.Add(new CodeLine("", Depth));
+    private string _currLine = "";
 
-    public void AddLine() => _mid.Add(new CodeLine("", Depth));
-    public void AddLine(string line) => _mid.Add(new CodeLine(line, Depth));
-    public void AddLines(List<string> lines) => lines.ForEach(AddLine);
 
-    public void AddLineBot(string line) => _bot.Add(new CodeLine(line, Depth));
-    public void AddLineBot() => _bot.Add(new CodeLine("", Depth));
+    public void Add(string text) => _currLine += text;
+
+
+    private void AddStr(List<CodeSegment> list, string segment) =>
+        AddSegment(list, new CodeLine(_currLine + segment, Depth));
+    private void AddStr(Location location, string segment)  => AddStr(_resolver[location], segment);
+        
+
+    private void AddSegment(List<CodeSegment> list, CodeSegment segment) {
+        list.Add(segment);
+        _currLine = "";
+    }
+
+    public void AddLineTop(string line) => AddStr(_top, line);
+    public void AddLineTop() => AddStr(_top, "");
+
+
+    public void AddLine() => AddStr(_mid, "");
+    public void AddLine(string line) => AddStr(_mid, line);
+    
+    public void AddLine(Location location, string line) => AddStr(location, line);
+
+
+
+    public void AddLineBot(string line) => AddStr(_bot, line);
+    public void AddLineBot() => AddSegment(_bot, new CodeLine("", Depth));
 
     public CodeScope StepIn() {
         var codeScope = new CodeScope(this);
-        _mid.Add(codeScope);
+        AddSegment(_mid, codeScope);
         return codeScope;
     }
 
-    public CodeScope StepOut() {
-        return _parent!;
-    }
+    public CodeScope StepOut() => _parent!;
 
 
     public CodeScope StepInTop() {
         var codeScope = new CodeScope(this);
-        _top.Add(codeScope);
+        AddSegment(_top, codeScope);
         return codeScope;
     }
 
-    public CodeScope StepOutTop() => StepOut();
+    public CodeScope StepOutTop() {
+        return StepOut();
+    }
 
 
     public CodeScope StepInBot() {
         var codeScope = new CodeScope(this);
-        _bot.Add(codeScope);
+        AddSegment(_bot, codeScope);
         return codeScope;
     }
 
-    public CodeScope StepOutBot() => StepOut();
+    public CodeScope StepOutBot() {
+        return StepOut();
+    }
 
 
     public override void Print() {

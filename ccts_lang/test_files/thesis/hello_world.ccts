@@ -1,0 +1,6 @@
+include std:io as io;
+
+void main(){
+    io.print_ln("Hello, world!");
+}
+

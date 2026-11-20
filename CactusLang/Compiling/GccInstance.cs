@@ -1,15 +1,16 @@
 using System.Diagnostics;
+using CactusLang.CodeGeneration.CCodeGenerator;
 using CactusLang.Model;
 
 namespace CactusLang.Compiling;
 
-public class GccInstance(CactusGrove grove, string outputFileName, List<string> cFiles)
+public class GccInstance(CactusGrove grove, string outputFileName, List<CFile> cFiles)
 {
 	public string OutputFileName { get; } = outputFileName;
 
 	private CactusGrove _grove = grove;
 
-	public const string CCTS_STD_COMP_INCL = "../../../../ccts_lang/cactus_std/ccts_std_comp_incl/";
+	public const string C_STD_FOLDER = "../../../../ccts_lang/cactus_std/c_std/";
 	//public const string CCTS_STD_COMP_INCL = "/ccts_lang/cactus_std/ccts_std_comp_incl/";
 	
 	
@@ -22,13 +23,13 @@ public class GccInstance(CactusGrove grove, string outputFileName, List<string> 
 		string gccCmd = "gcc";
 
 		List<string> args = new();
-		foreach (string filename in cFiles)
-			args.Add($"\"{filename}\"");
+		foreach (var cFile in cFiles)
+			args.Add($"\"{cFile.Filepath}\"");
 		
 		
 		
 		//Include the CCTS STD library
-		args.Add($"-I {CCTS_STD_COMP_INCL}");
+		args.Add($"-I \"{C_STD_FOLDER}\"");
 		
 		//SSTD include
 		var stdIncludeFiles = GetStdIncludeFiles();
@@ -71,8 +72,8 @@ public class GccInstance(CactusGrove grove, string outputFileName, List<string> 
 	}
 
 	private static string[] GetStdIncludeFiles() {
-		var cFiles = Directory.GetFiles(CCTS_STD_COMP_INCL, "*.c");
-		var hFiles = Directory.GetFiles(CCTS_STD_COMP_INCL, "*.h");
+		var cFiles = Directory.GetFiles(C_STD_FOLDER, "*.c");
+		var hFiles = Directory.GetFiles(C_STD_FOLDER, "*.h");
 		
 		return [.. cFiles, .. hFiles];
 	}

@@ -22,10 +22,10 @@ public class FunctionStore<TFunc> : IFunctionHolder<TFunc> where TFunc : ModelFu
         return _functions[id];
     }
 
-    public bool ContainsExactFunction(FuncSignature id) =>
+    public bool ContainsExactFunction(FuncCandidate id) =>
         _functions.Keys.Any(f => f.ExactSignatureMatch(id));
 
-    public TFunc? GetExactFunction(FuncSignature sign) {
+    public TFunc? GetExactFunction(FuncCandidate sign) {
         var matches = _functions.Keys.Where(f => f.ExactSignatureMatch(sign)
         );
         var functionSymbols = matches as FunctionSymbol[] ?? matches.ToArray();
@@ -34,7 +34,7 @@ public class FunctionStore<TFunc> : IFunctionHolder<TFunc> where TFunc : ModelFu
     }
 
 
-    public TFunc? GetMatchingFunction(FuncSignature id) {
+    public TFunc? GetMatchingFunction(FuncCandidate id) {
         FunctionSymbol? guessedId = GetMatchingId(id);
 
         if (guessedId == null)
@@ -43,14 +43,14 @@ public class FunctionStore<TFunc> : IFunctionHolder<TFunc> where TFunc : ModelFu
         return _functions[guessedId];
     }
 
-    public bool ContainsMatchingFunction(FuncSignature id) {
+    public bool ContainsMatchingFunction(FuncCandidate id) {
         if (ContainsExactFunction(id)) return true;
 
         FunctionSymbol? guessedId = GetMatchingId(id);
         return guessedId != null;
     }
 
-    public FunctionSymbol? GetMatchingId(FuncSignature signature) {
+    public FunctionSymbol? GetMatchingId(FuncCandidate signature) {
         //Check for ones with same name and parameter count
         var matchingFunctions =
             _functions.Keys
@@ -61,7 +61,7 @@ public class FunctionStore<TFunc> : IFunctionHolder<TFunc> where TFunc : ModelFu
             return null;
 
         foreach (var possibleFunc in matchingFunctions) {
-            if (possibleFunc.DoesMatchSignature(signature))
+            if (possibleFunc.DoesMatchCandidate(signature))
                 return possibleFunc;
         }
 

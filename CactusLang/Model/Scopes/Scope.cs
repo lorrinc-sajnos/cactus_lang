@@ -50,8 +50,13 @@ public class Scope {
         return true;
     }
 
-    public virtual ModelFunction? GetMatchingFunction(FuncSignature signature) {
-        return Parent.GetMatchingFunction(signature);
+    /// <summary>
+    /// Gets the function that matches the candidate
+    /// </summary>
+    /// <param name="signature"></param>
+    /// <returns></returns>
+    public virtual ModelFunction? GetMatchingFunction(FuncCandidate cand) {
+        return Parent.GetMatchingFunction(cand);
     }
 
     public virtual int GetScopeDepth() {

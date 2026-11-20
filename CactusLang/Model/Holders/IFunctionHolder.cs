@@ -5,14 +5,14 @@ namespace CactusLang.Model.Holders;
 
 public interface IFunctionHolder<FUNC> where FUNC : ModelFunction {
     public FUNC? GetExactFunction(FunctionSymbol id);
-    public bool ContainsExactFunction(FuncSignature id);
+    public bool ContainsExactFunction(FuncCandidate id);
 
-    public FUNC? GetExactFunction(FuncSignature sign);
+    public FUNC? GetExactFunction(FuncCandidate sign);
 
-    public FUNC? GetMatchingFunction(FuncSignature id);
+    public FUNC? GetMatchingFunction(FuncCandidate id);
 
-    public bool ContainsMatchingFunction(FuncSignature id);
-    public FunctionSymbol? GetMatchingId(FuncSignature signature);
+    public bool ContainsMatchingFunction(FuncCandidate id);
+    public FunctionSymbol? GetMatchingId(FuncCandidate signature);
 
     public List<FUNC> GetFunctions();
 }

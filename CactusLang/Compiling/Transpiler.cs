@@ -20,7 +20,7 @@ public class Transpiler(CactusGrove grove) {
     
     //Transpiler 
     public CactusGrove Grove { get; } = grove;
-    public SourceFileGenerator? CodeGenerator { get; private set; }
+    public CactusFileGenerator? CodeGenerator { get; private set; }
     public GccInstance? GccInstance { get; private set; }
 
     public Result Compile() {

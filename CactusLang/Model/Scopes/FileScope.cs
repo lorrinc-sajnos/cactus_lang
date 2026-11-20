@@ -25,8 +25,8 @@ public class FileScope : Scope {
         _currentScope = newScope;
     }
 
-    public void StepInStructFunc(FileStruct fileStruct) {
-        MemberFuncScope newScope = new MemberFuncScope(fileStruct);
+    public void StepInStructFunc(CactusStruct cactusStruct) {
+        MemberFuncScope newScope = new MemberFuncScope(cactusStruct);
         _currentScope.AddChild(newScope);
         _currentScope = newScope;
     }
@@ -37,7 +37,7 @@ public class FileScope : Scope {
 
     //public override FunctionSymbol? GetExactFunction(FuncId id) => _fileFunctionStore.GetExactFunction(id);
 
-    public override ModelFunction? GetMatchingFunction(FuncSignature sign) => _cactusFile.Functions.GetMatchingFunction(sign);
+    public override ModelFunction? GetMatchingFunction(FuncCandidate sign) => _cactusFile.Functions.GetMatchingFunction(sign);
     
     public override int GetScopeDepth() => 0;
 
