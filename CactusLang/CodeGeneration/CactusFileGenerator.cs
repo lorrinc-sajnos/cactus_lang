@@ -1,9 +1,9 @@
 using CactusLang.CodeGeneration.CCodeGenerator;
 using CactusLang.Model;
 using CactusLang.Model.CodeStructure;
+using CactusLang.Model.CodeStructure.Entities.IncludedFiles;
+using CactusLang.Model.CodeStructure.Entities.Structs;
 using CactusLang.Model.CodeStructure.FileContent;
-using CactusLang.Model.CodeStructure.MemberHolders.IncludedFiles;
-using CactusLang.Model.CodeStructure.MemberHolders.Structs;
 using CactusLang.Model.CodeStructure.Statements;
 using CactusLang.Model.CodeStructure.Statements.ControlFlow;
 using CactusLang.Model.Visitors;
@@ -109,7 +109,7 @@ public class CactusFileGenerator : CodeModelVisitor<int> {
     }
 
     private void InitHeader() {
-        string headerGuard = $"{_fileName.ToUpper()}_H";
+        string headerGuard = _resolver.GetFileAsHeaderGuard(_cactusFile);
 
         Header.AddAsMultipleLines(
             CodeScope.Location.TOP,
@@ -169,8 +169,8 @@ public class CactusFileGenerator : CodeModelVisitor<int> {
 
         Header.AddLineTop($"}} {_resolver.GetMemberHolderName(cactusStruct)};");
 
-        foreach (var func in cactusStruct.Functions.GetFunctions())
-            VisitStructFunction(func);
+        foreach (var func in cactusStruct.Methods.GetFunctions())
+            VisitStructMethod(func);
 
         return 1;
     }
@@ -180,29 +180,17 @@ public class CactusFileGenerator : CodeModelVisitor<int> {
         return base.VisitStructField(sF);
     }
 
-    protected override int VisitStructFunction(StructFunction function) {
-        //Generate reference function
-        string refHeader = _resolver.GetStructRefFuncHeader(function);
-        Header.AddLineTop(refHeader + ";");
+    protected override int VisitStructMethod(StructMethod method) {
+        //Generate method
+        string header = _resolver.GetStructMethodHeader(method);
+        Header.AddLine(header + ";");
 
-        Source.AddLine(refHeader + " {");
+        Source.AddLine(header + " {");
         Source.StepIn();
-        var res = base.VisitStructFunction(function);
+        var res = base.VisitStructMethod(method);
         Source.StepOut();
         Source.AddLine("}");
         Source.AddLine("");
-
-        //Generate access function
-        string accHeader = _resolver.GetStructAccFuncHeader(function);
-        Header.AddLineTop(accHeader + ";");
-
-        Source.AddLine(accHeader + " {");
-        Source.StepIn();
-        Source.AddLines(CodeScope.Location.MID, _resolver.GetStructAccFuncBody(function));
-        Source.StepOut();
-        Source.AddLine("}");
-        Source.AddLine("");
-
 
         return res;
     }
@@ -325,7 +313,7 @@ public class CactusFileGenerator : CodeModelVisitor<int> {
             action(tag);
     }
 
-    private void VisitFunctionTags(ModelFunction func, Action<Tag> action) {
+    private void VisitFunctionTags(CactusFunction func, Action<Tag> action) {
         VisitFileTags(func.CactusFile, action);
 
         foreach (Tag tag in func.TagContainer.GetTags())

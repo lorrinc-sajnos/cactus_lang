@@ -5,17 +5,17 @@ using CactusLang.Model.Types;
 
 namespace CactusLang.Model.Symbols;
 
-public readonly struct FuncSignature(string name, List<BaseType> parameters, BaseType retType) {
-    public FuncSignature(string s, List<VariableSymbol> toList, BaseType returnType) :
+public readonly struct FuncSignature(string name, List<CactusType> parameters, CactusType retType) {
+    public FuncSignature(string s, List<VariableSymbol> toList, CactusType returnType) :
         this(s, toList.Select(v => v.Type).ToList(), returnType) {
     }
 
     public string Name { get; } = name;
-    public List<BaseType> Params { get; } = parameters;
-    public BaseType ReturnType { get; } = retType;
+    public List<CactusType> Params { get; } = parameters;
+    public CactusType ReturnType { get; } = retType;
 
 
-    public void AddParam(BaseType param) {
+    public void AddParam(CactusType param) {
         Params.Add(param);
     }
 
@@ -84,8 +84,8 @@ public readonly struct FuncSignature(string name, List<BaseType> parameters, Bas
     }
 }
 
-public readonly struct FuncCandidate(string name, List<BaseType> parameters, BaseType? retType=null) {
+public readonly struct FuncCandidate(string name, List<CactusType> parameters, CactusType? retType=null) {
     public string Name { get; } = name;
-    public List<BaseType> Params { get; } = parameters;
-    public BaseType? ReturnType { get; } = retType;
+    public List<CactusType> Params { get; } = parameters;
+    public CactusType? ReturnType { get; } = retType;
 }

@@ -7,7 +7,7 @@ namespace CactusLang.Model.CodeStructure.Statements;
 public class ReturnStatement : Statement {
     public Expression Expression { get; }
 
-    public BaseType ReturnType => Expression.GetResultType();
+    public CactusType ReturnType => Expression.GetResultType();
 
     public ReturnStatement(CodeBlock codeBlock, Expression expression) : base(codeBlock) {
         Expression = expression;

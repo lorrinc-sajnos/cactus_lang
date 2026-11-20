@@ -3,18 +3,11 @@ using CactusLang.Tags;
 
 namespace CactusLang.Model.Symbols;
 
-public class FunctionSymbol {
-	public FileID FileID { get; }
-	public string Name { get; }
-	public BaseType ReturnType { get; }
-	public OrderedDictionary<string, VariableSymbol> Parameters { get; }
-
-	public FunctionSymbol(BaseType retType, string name, CactusFile owner) {
-		FileID = owner.ID;
-		Name = name;
-		ReturnType = retType;
-		Parameters = new();
-	}
+public class FunctionSymbol(CactusType retType, string name, CactusFile owner) {
+	public FileID FileID { get; } = owner.ID;
+	public string Name { get; } = name;
+	public CactusType ReturnType { get; } = retType;
+	public OrderedDictionary<string, VariableSymbol> Parameters { get; } = new();
 
 	public void AddParameter(VariableSymbol parameter) {
 		Parameters.Add(parameter.Name, parameter);

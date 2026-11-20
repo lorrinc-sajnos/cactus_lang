@@ -3,8 +3,7 @@ using CactusLang.Model.CodeStructure.Expressions;
 using CactusLang.Model.CodeStructure.Expressions.PrimaryExpressions;
 using CactusLang.Model.CodeStructure.Expressions.PrimaryExpressions.LiteralExpressions;
 using CactusLang.Model.CodeStructure.Expressions.PrimaryExpressions.ObjectReference;
-using CactusLang.Model.CodeStructure.MemberHolders;
-using CactusLang.Model.CodeStructure.MemberHolders.Structs;
+using CactusLang.Model.CodeStructure.Entities.Structs;
 using CactusLang.Model.Operators.ObjectRefference;
 using CactusLang.Model.Operators.Unary;
 using CactusLang.Model.Visitors;
@@ -75,10 +74,10 @@ public class ExpressionCodeFactory(NameResolver resolver, Expression expression,
     protected override string VisitObjectFieldRefExp(ObjectFieldRefExp objectFieldRefExp) {
         switch (objectFieldRefExp.Object) {
             case IncludedFileRef fileRef:
-                return resolver.GetMemberField(objectFieldRefExp.FieldRef.Field);
+                return resolver.GetMemberField(objectFieldRefExp.FieldRef.Variable);
             default:
                 string objPtr = VisitExpression(objectFieldRefExp.Object);
-                string fieldName = resolver.GetField(objectFieldRefExp.FieldRef.Field);
+                string fieldName = resolver.GetField(objectFieldRefExp.FieldRef.Variable);
 
                 if (objectFieldRefExp.FieldRef.AccessType == AccessType.REFERENCE)
                     return $"{objPtr}->{fieldName}";
@@ -91,7 +90,7 @@ public class ExpressionCodeFactory(NameResolver resolver, Expression expression,
         List<string> funcParams = [];
 
         switch (methodCallExp.FuncCall.Function) {
-            case StructFunction structFunc: {
+            case StructMethod structFunc: {
                 funcName = resolver.GetStructRefFunc(structFunc);
 
                 //If 

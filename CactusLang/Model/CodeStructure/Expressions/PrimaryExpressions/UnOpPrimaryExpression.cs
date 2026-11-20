@@ -9,7 +9,7 @@ public class UnOpPrimaryExpression(PrimaryExpression expr, UnaryOp op) : Primary
     public UnaryOp UnaryOperator { get; } = op;
 
 
-    public override BaseType GetResultType() => UnaryOperator.Evaluate(PrimaryExpr.GetResultType());
+    public override CactusType GetResultType() => UnaryOperator.Evaluate(PrimaryExpr.GetResultType());
     public override bool IsLValue() => PrimaryExpr.IsLValue();
 
     public override string ToString() {

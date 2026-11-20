@@ -2,12 +2,13 @@ using CactusLang.Model;
 using CactusLang.Model.CodeStructure;
 using CactusLang.Model.CodeStructure.Expressions.PrimaryExpressions;
 using CactusLang.Model.CodeStructure.FileContent;
-using CactusLang.Model.CodeStructure.MemberHolders;
-using CactusLang.Model.CodeStructure.MemberHolders.Structs;
+
+using CactusLang.Model.CodeStructure.Entities;
+using CactusLang.Model.CodeStructure.Entities.Structs;
 using CactusLang.Model.CodeStructure.Statements;
 using CactusLang.Model.Symbols;
 using CactusLang.Model.Types;
-using CactusLang.Model.Types.MemberHolderTypes;
+using CactusLang.Model.Types.EntityTypes;
 using CactusLang.Model.Types.PrimitiveTypes;
 using CactusLang.Util;
 
@@ -26,7 +27,7 @@ public class NameResolver {
 
     public static string Sanitize(string str) =>
         str.Replace('*', 'X')
-            .Replace("#", "OB");
+            .Replace("#", "_OBJ");
 
     #region Constants
 
@@ -45,34 +46,35 @@ public class NameResolver {
     public string GetFileAsHeaderGuard(CactusFile file) => GetFileIdAsHeaderGuard(file.ID);
 
 
-    public static string GetParamPostfix(ModelFunction func) {
+    public static string GetParamPostfix(CactusFunction func) {
         var parameters = func.Symbol.GetParameters();
         if (parameters.Count <= 0) return "";
 
         return "_" + String.Join("_", parameters.Select(p => Sanitize(p.Type.Name)));
     }
 
-    public string GetFileFunc(FileFunction func) => GetFile(func.CactusFile) + Sanitize(func.Name) + GetParamPostfix(func);
+    public string GetFileFunc(FileFunction func) =>
+        GetFile(func.CactusFile) + Sanitize(func.Name) + GetParamPostfix(func);
 
-    public string GetFileField(FileField field) => GetFile(field.CactusFile) + field.Name;
-    public string GetMemberField(MemberField field) => GetMemberHolderPrefix(field.Parent) + field.Name;
+    public string GetFileField(FileVariable variable) => GetFile(variable.CactusFile) + variable.Name;
+    
+    public string GetMemberField(CactusField variable) => GetMemberHolderPrefix(variable.Parent) + variable.Name;
+    private string GetStructFunc(StructMethod func) => func.Name + GetParamPostfix(func);
 
-    private string GetStructFunc(StructFunction func) => func.Name + GetParamPostfix(func);
-
-    public string GetStructRefFunc(StructFunction func) =>
+    public string GetStructRefFunc(StructMethod func) =>
         $"{GetBaseType(func.Parent.MemberType)}_ref__{GetStructFunc(func)}";
 
-    public string GetStructAccFunc(StructFunction func) =>
+    public string GetStructAccFunc(StructMethod func) =>
         $"{GetBaseType(func.Parent.MemberType)}_acc__{GetStructFunc(func)}";
 
 
-    public string GetFileRefFunc(IncludedFileRef fileRef, StructFunction func) =>
+    public string GetFileRefFunc(IncludedFileRef fileRef, StructMethod func) =>
         $"{GetFile(fileRef.IncFile.CactusFile)}{GetFunc(func)}";
 
 
-    public string GetBaseType(BaseType type) {
+    public string GetBaseType(CactusType type) {
         switch (type) {
-            case MemberHolderType memType:
+            case EntityType memType:
                 return GetMemberHolderName(memType.Parent);
             case PointerType pointerType:
                 return $"{GetBaseType(pointerType.PointsTo)}*";
@@ -86,7 +88,7 @@ public class NameResolver {
 
     #region Struct
 
-    public string GetStructRefFuncHeader(StructFunction func) {
+    public string GetStructMethodHeader(StructMethod func) {
         string header = "";
 
         header += GetBaseType(func.ReturnType) + " ";
@@ -98,7 +100,7 @@ public class NameResolver {
         return header;
     }
 
-    public string GetStructAccFuncHeader(StructFunction func) {
+    public string GetStructAccFuncHeader(StructMethod func) {
         string header = "";
 
         header += GetBaseType(func.ReturnType) + " ";
@@ -110,7 +112,7 @@ public class NameResolver {
         return header;
     }
 
-    public List<string> GetStructAccFuncBody(StructFunction func) {
+    public List<string> GetStructAccFuncBody(StructMethod func) {
         List<string> body = new List<string>();
 
         body.Add($"{GetBaseType(func.Parent.MemberType)}* this = &thisVal;");
@@ -118,6 +120,12 @@ public class NameResolver {
 
         return body;
     }
+
+    public string GetStructCID(CactusStruct cctsStruct) {
+        return "";
+
+    }
+    
 
     public string GetFileFunctionHeader(FileFunction func) {
         string header = "";
@@ -128,12 +136,12 @@ public class NameResolver {
         return header;
     }
 
-    public string GetFuncDclParams_NO_OPEN(ModelFunction func) {
+    public string GetFuncDclParams_NO_OPEN(CactusFunction func) {
         string header = "";
         var parameters = func.Symbol.GetParameters();
         if (parameters.Count > 0) {
             //Strunc functions first param is the struct itself
-            if (func is StructFunction)
+            if (func is StructMethod)
                 header += PARAM_SEP;
 
             for (int i = 0; i < parameters.Count - 1; i++) {
@@ -148,12 +156,12 @@ public class NameResolver {
         return header;
     }
 
-    public string GetFuncCallParams_NO_OPEN(ModelFunction func) {
+    public string GetFuncCallParams_NO_OPEN(CactusFunction func) {
         string header = "";
         var parameters = func.Symbol.GetParameters();
         if (parameters.Count > 0) {
             //Strunc functions first param is the struct itself
-            if (func is StructFunction)
+            if (func is StructMethod)
                 header += PARAM_SEP;
 
             for (int i = 0; i < parameters.Count - 1; i++) {
@@ -171,24 +179,25 @@ public class NameResolver {
     #endregion
 
 
-    #region Functions
+    #region Methods
 
-    public string GetFunc(ModelFunction mFunc) {
+    public string GetFunc(CactusFunction mFunc) {
         switch (mFunc) {
             case FileFunction fileFunc:
                 return GetFileFunc(fileFunc);
-            case MemberFunction memFunc:
+            case CactusMethod memFunc:
                 return GetMemberFunction(memFunc);
             default:
                 return mFunc.Name;
         }
     }
 
-    public string GetMemberFunction(MemberFunction mFunc) => GetPrefix(mFunc.Parent) + Sanitize(mFunc.Name) + GetParamPostfix(mFunc);
+    public string GetMemberFunction(CactusMethod mFunc) =>
+        GetPrefix(mFunc.Parent) + Sanitize(mFunc.Name) + GetParamPostfix(mFunc);
 
-    public string GetMemberHolderName(IMemberHolder memHolder) => GetFileID(memHolder.ParentID) + GetPrefix(memHolder);
+    public string GetMemberHolderName(IEntity memHolder) => GetFileID(memHolder.ParentID) + GetPrefix(memHolder);
 
-    public string GetPrefix(IMemberHolder holder) {
+    public string GetPrefix(IEntity holder) {
         switch (holder) {
             case CactusFile file:
                 return GetFile(file);
@@ -197,11 +206,11 @@ public class NameResolver {
         }
     }
 
-    public string GetMemberHolderPrefix(IMemberHolder holder) => $"M{holder.Name}_";
+    public string GetMemberHolderPrefix(IEntity holder) => $"M{holder.Name}_";
 
     #endregion
 
     public string GetLocalVar(LocalVarRef structFieldRef) => structFieldRef.VarName;
 
-    public string GetField(MemberField fieldRefField) => fieldRefField.Name;
+    public string GetField(CactusField variableRefVariable) => variableRefVariable.Name;
 }

@@ -7,7 +7,7 @@ namespace CactusLang.Model.Operators;
 public class CompOperator : Operator {
     public CompOperator(string format, OperatorLvl level) : base(format, level) { }
 
-    public override BaseType GetResultType(BaseType lhs, BaseType rhs) {
+    public override CactusType GetResultType(CactusType lhs, CactusType rhs) {
         if(!lhs.IsNumber  || !rhs.IsNumber){
             if (lhs.Equals(rhs))
                 return NumberType.BOOL;

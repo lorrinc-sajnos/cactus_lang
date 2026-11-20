@@ -11,7 +11,7 @@ public class ErrorInstance {
     public string Msg { get; private set; }
     
     public int Code => Error.Code;
-    public CctsError Error { get;  }
+    public CactusError Error { get;  }
 
     public CodePos Start { get; private set; }
     public CodePos End { get; private set; }
@@ -19,7 +19,7 @@ public class ErrorInstance {
     public IToken StartToken { get; private set; }
     public IToken EndToken { get; private set; }
 
-    public ErrorInstance(CctsError error, ErrorHandler errorHandler, IToken startToken, IToken endToken, params object[] errParams) {
+    public ErrorInstance(CactusError error, ErrorHandler errorHandler, IToken startToken, IToken endToken, params object[] errParams) {
         Error = error;
         _errorHandler = errorHandler;
         try {

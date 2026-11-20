@@ -1,5 +1,5 @@
 using CactusLang.Model.CodeStructure;
-using CactusLang.Model.CodeStructure.MemberHolders.Structs;
+using CactusLang.Model.CodeStructure.Entities.Structs;
 using CactusLang.Model.Symbols;
 using CactusLang.Model.Types;
 using CactusLang.Semantics;
@@ -37,7 +37,7 @@ public class FileScope : Scope {
 
     //public override FunctionSymbol? GetExactFunction(FuncId id) => _fileFunctionStore.GetExactFunction(id);
 
-    public override ModelFunction? GetMatchingFunction(FuncCandidate sign) => _cactusFile.Functions.GetMatchingFunction(sign);
+    public override CactusFunction? GetMatchingFunction(FuncCandidate sign) => _cactusFile.Functions.GetMatchingFunction(sign);
     
     public override int GetScopeDepth() => 0;
 

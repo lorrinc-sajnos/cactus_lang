@@ -1,5 +1,5 @@
 using CactusLang.Model.CodeStructure;
-using CactusLang.Model.CodeStructure.MemberHolders.Structs;
+using CactusLang.Model.CodeStructure.Entities.Structs;
 using CactusLang.Model.Holders;
 
 namespace CactusLang.Model.Stores;

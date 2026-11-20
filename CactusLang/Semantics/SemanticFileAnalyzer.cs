@@ -5,9 +5,9 @@ using CactusLang.Compiling.Codefiles;
 using CactusLang.Model;
 using CactusLang.Model.CodeStructure;
 using CactusLang.Model.CodeStructure.CodeBlocks;
+using CactusLang.Model.CodeStructure.Entities.Structs;
 using CactusLang.Model.CodeStructure.Expressions;
 using CactusLang.Model.CodeStructure.FileContent;
-using CactusLang.Model.CodeStructure.MemberHolders.Structs;
 using CactusLang.Model.CodeStructure.Statements;
 using CactusLang.Model.CodeStructure.Statements.ControlFlow;
 using CactusLang.Model.Errors;
@@ -34,7 +34,7 @@ public class SemanticFileAnalyzer : GrammarBaseVisitor<SemanticFileAnalyzer.Stat
     private readonly SemanticAnalyzer _analyzer;
 
     private readonly GrammarParser _parser;
-    public TypeTable TypeTable { get; }
+    public FileTypeTable FileTypeTable { get; }
 
     private readonly FileScope _fileScope;
     private readonly TagFactory _tagFactory;
@@ -67,7 +67,7 @@ public class SemanticFileAnalyzer : GrammarBaseVisitor<SemanticFileAnalyzer.Stat
         _parser.AddErrorListener(ErrorHandler.ErrorListener);
 
         _fileScope = new FileScope(CurrentFile, ErrorHandler);
-        TypeTable = new TypeTable(file);
+        FileTypeTable = new FileTypeTable(file);
         _tagFactory = new();
     }
 
@@ -104,7 +104,7 @@ public class SemanticFileAnalyzer : GrammarBaseVisitor<SemanticFileAnalyzer.Stat
         if (ctx.filepath().groveId() != null) {
             string groveName = ctx.filepath().groveId().GetText();
             if (groveName != "std") {
-                ErrorHandler.Error(CctsError.GROVE_DOENST_EXISTS, ctx, groveName);
+                ErrorHandler.Error(CactusError.GROVE_DOENST_EXISTS, ctx, groveName);
                 return StatusCode.ERR;
             }
 
@@ -126,14 +126,14 @@ public class SemanticFileAnalyzer : GrammarBaseVisitor<SemanticFileAnalyzer.Stat
             CactusFile? includedFile = _analyzer.RequestFile(fileId);
 
             if (includedFile is null) {
-                ErrorHandler.Error(CctsError.FILE_DOENST_EXISTS, ctx, truePath);
+                ErrorHandler.Error(CactusError.FILE_DOENST_EXISTS, ctx, truePath);
                 return StatusCode.ERR;
             }
 
             CurrentFile.IncludeManager.AddIncludedFile(alias, includedFile);
         }
         catch (Exception e) {
-            ErrorHandler.Error(CctsError.FILE_ERROR, ctx, truePath);
+            ErrorHandler.Error(CactusError.FILE_ERROR, ctx, truePath);
             return StatusCode.ERR;
         }
 
@@ -151,11 +151,11 @@ public class SemanticFileAnalyzer : GrammarBaseVisitor<SemanticFileAnalyzer.Stat
                 CactusStruct cactusStruct = new CactusStruct(structName, CurrentFile);
                 Debug.LogLine($"Struct {structName} declared");
 
-                TypeTable.DeclareStruct(cactusStruct);
+                FileTypeTable.DeclareStruct(cactusStruct);
                 bool success = CurrentFile.DeclStructStore.AddStruct(cactusStruct); //TODO err Already defined?
 
                 if (!success) {
-                    ErrorHandler.Error(CctsError.ALREADY_DEFINED, structDcl.structName());
+                    ErrorHandler.Error(CactusError.ALREADY_DEFINED, structDcl.structName());
                     return;
                 }
             }
@@ -165,12 +165,12 @@ public class SemanticFileAnalyzer : GrammarBaseVisitor<SemanticFileAnalyzer.Stat
         foreach (var statement in statements) {
             if (statement.structDcl() != null) {
                 var structDcl = statement.structDcl();
-                CactusStruct? cactusStruct = TypeTable.GetStructFromTokens(structDcl);
+                CactusStruct? cactusStruct = FileTypeTable.GetStructFromTokens(structDcl);
                 Debug.LogLine($"@Struct  {cactusStruct.Name}:");
 
                 var structBody = structDcl.structBody();
 
-                //Instance Functions
+                //Instance Methods
                 foreach (var funcDec in structBody.funcDcl()) {
                     RegisterStructFuncDcl(cactusStruct, funcDec);
                     Debug.LogLine($"\tAdded function: {funcDec.funcDclHeader().GetText()}");
@@ -179,7 +179,7 @@ public class SemanticFileAnalyzer : GrammarBaseVisitor<SemanticFileAnalyzer.Stat
                 //Fields
                 foreach (var fieldDcl in structBody.fieldDcl()) {
                     RegisterStructFieldDcl(cactusStruct, fieldDcl);
-                    Debug.LogLine($"\tAdded field: {fieldDcl.GetText()}");
+                    Debug.LogLine($"\tAdded variable: {fieldDcl.GetText()}");
                 }
             }
         }
@@ -206,19 +206,19 @@ public class SemanticFileAnalyzer : GrammarBaseVisitor<SemanticFileAnalyzer.Stat
     private void RegisterFileFuncDcl(GP.FuncDclContext ctx) {
         var header = ctx.funcDclHeader();
         string funcName = header.funcName().GetText();
-        BaseType returnType = TypeTable.GetFromCtx(header.returnType().type());
+        CactusType returnType = FileTypeTable.GetFromCtx(header.returnType().type());
         FunctionSymbol funcSymb = new FunctionSymbol(returnType, funcName, CurrentFile);
 
         foreach (var param in header.param()) {
             string pName = param.paramName().GetText();
-            BaseType pType = TypeTable.GetFromCtx(param.type());
+            CactusType pType = FileTypeTable.GetFromCtx(param.type());
             funcSymb.AddParameter(new VariableSymbol(pType, pName));
         }
 
         FileFunction fileFunc = new FileFunction(funcSymb, CurrentFile);
         var result = CurrentFile.Functions.AddFunction(fileFunc);
         if (result == false) {
-            ErrorHandler.ErrorInExpression(CctsError.OVERLOAD_DOESNT_MATCH_RET_TYPE, ctx, header.funcName());
+            ErrorHandler.ErrorInExpression(CactusError.OVERLOAD_DOESNT_MATCH_RET_TYPE, ctx, header.funcName());
         }
 
         if (header.tags() != null)
@@ -230,16 +230,16 @@ public class SemanticFileAnalyzer : GrammarBaseVisitor<SemanticFileAnalyzer.Stat
     private void RegisterFileVarDcl(GP.FileVarDclContext ctx) {
         var varCtx = ctx.varDcl();
 
-        var varSymbols = SemanticUtil.GetVarSymbols(varCtx, TypeTable);
+        var varSymbols = SemanticUtil.GetVarSymbols(varCtx, FileTypeTable);
 
         foreach (VariableSymbol symb in varSymbols) {
-            FileField field = new FileField(symb, CurrentFile);
+            FileVariable variable = new FileVariable(symb, CurrentFile);
 
             var result = _fileScope.AddVariable(symb);
-            CurrentFile.Fields.AddField(field);
+            CurrentFile.Fields.AddField(variable);
 
             if (!result)
-                ErrorHandler.Error(CctsError.ALREADY_DEFINED, ctx);
+                ErrorHandler.Error(CactusError.ALREADY_DEFINED, ctx);
 
             Debug.LogLine($"GlobVar Added: {symb.Type.Name}   {symb.Name}");
         }
@@ -249,22 +249,22 @@ public class SemanticFileAnalyzer : GrammarBaseVisitor<SemanticFileAnalyzer.Stat
     private void RegisterStructFuncDcl(CactusStruct cactusStruct, GP.FuncDclContext ctx) {
         var header = ctx.funcDclHeader();
         string funcName = header.funcName().GetText();
-        BaseType returnType = TypeTable.GetFromCtx(header.returnType().type());
+        CactusType returnType = FileTypeTable.GetFromCtx(header.returnType().type());
         FunctionSymbol funcSymb = new FunctionSymbol(returnType, funcName, CurrentFile);
 
         foreach (var param in header.param()) {
             string pName = param.paramName().GetText();
-            BaseType pType = TypeTable.GetFromCtx(param.type());
+            CactusType pType = FileTypeTable.GetFromCtx(param.type());
             funcSymb.AddParameter(new VariableSymbol(pType, pName));
         }
 
-        StructFunction structFunc = new StructFunction(CurrentFile, funcSymb, cactusStruct);
-        cactusStruct.Functions.AddFunction(structFunc);
+        StructMethod structFunc = new StructMethod(CurrentFile, funcSymb, cactusStruct);
+        cactusStruct.Methods.AddFunction(structFunc);
     }
 
     private void RegisterStructFieldDcl(CactusStruct cactusStruct, GP.FieldDclContext ctx) {
         List<VariableSymbol> varSymbols = new List<VariableSymbol>();
-        BaseType type = TypeTable.GetFromCtx(ctx.type());
+        CactusType type = FileTypeTable.GetFromCtx(ctx.type());
         foreach (var varName in ctx.varName()) {
             varSymbols.Add(new VariableSymbol(type, varName.GetText()));
         }
@@ -288,7 +288,7 @@ public class SemanticFileAnalyzer : GrammarBaseVisitor<SemanticFileAnalyzer.Stat
             //Structs function bodies
             else if (statement.structDcl() != null) {
                 var structDcl = statement.structDcl();
-                CactusStruct structType = TypeTable.GetStructFromTokens(structDcl);
+                CactusStruct structType = FileTypeTable.GetStructFromTokens(structDcl);
                 Debug.LogLine($"\n---@Struct {structType.Name} ENTERED");
 
                 //Loop through the functions of the struct
@@ -307,9 +307,9 @@ public class SemanticFileAnalyzer : GrammarBaseVisitor<SemanticFileAnalyzer.Stat
     }
 
     private void ProcessFunctionBody(GP.FuncDclContext ctx) {
-        ModelFunction? func =
+        CactusFunction? func =
             CurrentScope.GetMatchingFunction(
-                SemanticUtil.GetSignatureFromDclCtx(ctx.funcDclHeader(), TypeTable)
+                SemanticUtil.GetSignatureFromDclCtx(ctx.funcDclHeader(), FileTypeTable)
             );
 
         //Should be always non-null
@@ -362,7 +362,7 @@ public class SemanticFileAnalyzer : GrammarBaseVisitor<SemanticFileAnalyzer.Stat
     }
 
     private void FillVarDclStatement(GP.VarDclContext ctx, VarDclStatement varDclStatement) {
-        BaseType dclType = TypeTable.GetFromCtx(ctx.type());
+        CactusType dclType = FileTypeTable.GetFromCtx(ctx.type());
 
         foreach (var dclBody in ctx.varDclBody()) {
             var varSymbol = new VariableSymbol(dclType, dclBody.varName().GetText());
@@ -375,7 +375,7 @@ public class SemanticFileAnalyzer : GrammarBaseVisitor<SemanticFileAnalyzer.Stat
                     whenErrExpr: DEFAULT,
                     otherErrHandling: result => {
                         if (!result.GetResultType().CanBeUsedAs(dclType)) {
-                            ErrorHandler.ErrorInExpression(CctsError.TYPE_MISMATCH, ctx, result.GetResultType(),
+                            ErrorHandler.ErrorInExpression(CactusError.TYPE_MISMATCH, ctx, result.GetResultType(),
                                 dclType);
                             //continue;
                         }
@@ -438,7 +438,7 @@ public class SemanticFileAnalyzer : GrammarBaseVisitor<SemanticFileAnalyzer.Stat
             whenErrExpr: DEFAULT,
             otherErrHandling: result => {
                 if (result.GetResultType() is not PointerType) {
-                    ErrorHandler.ErrorInExpression(CctsError.FREE_ERROR, ctx, ctx.expression().GetText());
+                    ErrorHandler.ErrorInExpression(CactusError.FREE_ERROR, ctx, ctx.expression().GetText());
                 }
             }
         );
@@ -467,7 +467,7 @@ public class SemanticFileAnalyzer : GrammarBaseVisitor<SemanticFileAnalyzer.Stat
             whenErrExpr: DEFAULT,
             otherErrHandling: result => {
                 if (result.GetResultType() != NumberType.BOOL) {
-                    ErrorHandler.ErrorInExpression(CctsError.CONDITION_ERROR, ctx.ifCond(), result.GetResultType());
+                    ErrorHandler.ErrorInExpression(CactusError.CONDITION_ERROR, ctx.ifCond(), result.GetResultType());
                 }
             });
 
@@ -495,7 +495,7 @@ public class SemanticFileAnalyzer : GrammarBaseVisitor<SemanticFileAnalyzer.Stat
                 whenErrExpr: DEFAULT,
                 otherErrHandling: result => {
                     if (result.GetResultType() != NumberType.BOOL) {
-                        ErrorHandler.ErrorInExpression(CctsError.CONDITION_ERROR, ctx.ifCond(), result.GetResultType());
+                        ErrorHandler.ErrorInExpression(CactusError.CONDITION_ERROR, ctx.ifCond(), result.GetResultType());
                     }
                 });
         }
@@ -522,7 +522,7 @@ public class SemanticFileAnalyzer : GrammarBaseVisitor<SemanticFileAnalyzer.Stat
             whenErrExpr: DEFAULT,
             otherErrHandling: result => {
                 if (result.GetResultType() != NumberType.BOOL) {
-                    ErrorHandler.ErrorInExpression(CctsError.CONDITION_ERROR, ctx.loopCond(), result.GetResultType());
+                    ErrorHandler.ErrorInExpression(CactusError.CONDITION_ERROR, ctx.loopCond(), result.GetResultType());
                 }
             });
 
@@ -548,7 +548,7 @@ public class SemanticFileAnalyzer : GrammarBaseVisitor<SemanticFileAnalyzer.Stat
             whenErrExpr: DEFAULT,
             otherErrHandling: result => {
                 if (result.GetResultType() != NumberType.BOOL) {
-                    ErrorHandler.ErrorInExpression(CctsError.CONDITION_ERROR, ctx.loopCond(), result.GetResultType());
+                    ErrorHandler.ErrorInExpression(CactusError.CONDITION_ERROR, ctx.loopCond(), result.GetResultType());
                 }
             });
 
@@ -572,7 +572,7 @@ public class SemanticFileAnalyzer : GrammarBaseVisitor<SemanticFileAnalyzer.Stat
 
 
     private void DEFAULT(GP.ExpressionContext expCtx) =>
-        ErrorHandler.ErrorInExpression(CctsError.EXPRESSION_ERROR, expCtx);
+        ErrorHandler.ErrorInExpression(CactusError.EXPRESSION_ERROR, expCtx);
 
     private Expression EvaluateExpression(
         GP.ExpressionContext expCtx,

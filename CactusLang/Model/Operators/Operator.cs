@@ -29,7 +29,7 @@ public abstract class Operator {
     }
     //protected
     
-    public abstract BaseType GetResultType(BaseType lhs, BaseType rhs);
+    public abstract CactusType GetResultType(CactusType lhs, CactusType rhs);
 
     #region Operators
     //Multiplication level

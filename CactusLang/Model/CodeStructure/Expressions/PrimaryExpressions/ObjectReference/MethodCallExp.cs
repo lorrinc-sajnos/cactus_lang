@@ -18,5 +18,5 @@ public class MethodCallExp : PrimaryExpression {
         _parameters = parameters;
     }
 
-    public override BaseType GetResultType() => FuncCall.ReturnType;
+    public override CactusType GetResultType() => FuncCall.ReturnType;
 }

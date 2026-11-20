@@ -3,20 +3,20 @@ using CactusLang.Model.Types.PrimitiveTypes;
 
 namespace CactusLang.Model.Types;
 
-public class PointerType : BaseType {
-    private readonly BaseType _pointsTo;
+public class PointerType : CactusType {
+    private readonly CactusType _pointsTo;
     
-    public BaseType PointsTo => _pointsTo;
+    public CactusType PointsTo => _pointsTo;
     
     
-    internal PointerType(BaseType pointsTo) {
+    internal PointerType(CactusType pointsTo) {
         _pointsTo = pointsTo;
     }
 
     public override int Size => NumberType.I64.Size;
     public override string Name => $"{_pointsTo.Name}*";
 
-    public static BaseType CreatePointer(BaseType pointsTo, int level) {
+    public static CactusType CreatePointer(CactusType pointsTo, int level) {
         if (pointsTo is ErrorType)
             return ErrorType.ERROR;
         
@@ -28,7 +28,7 @@ public class PointerType : BaseType {
         return previous;
     }
 
-    public override bool CanImplicitCastInto(BaseType other) {
+    public override bool CanImplicitCastInto(CactusType other) {
         //TODO
         return false;
     }

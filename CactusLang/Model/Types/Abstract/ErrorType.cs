@@ -2,7 +2,7 @@ using CactusLang.Util;
 
 namespace CactusLang.Model.Types.Abstract;
 
-public class ErrorType : BaseType {
+public class ErrorType : CactusType {
     public override string Name => "error";
     public override int Size => 0;
 
@@ -11,9 +11,9 @@ public class ErrorType : BaseType {
     private ErrorType() { }
     public static readonly ErrorType ERROR = new();
 
-    public override BaseType GetPointer() => ERROR;
+    public override CactusType GetPointer() => ERROR;
 
-    public override bool CanImplicitCastInto(BaseType other) {
+    public override bool CanImplicitCastInto(CactusType other) {
         return false;
     }
 }

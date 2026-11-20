@@ -4,7 +4,7 @@ using CactusLang.Model.Symbols;
 
 namespace CactusLang.Model.Stores;
 
-public class FunctionStore<TFunc> : IFunctionHolder<TFunc> where TFunc : ModelFunction {
+public class FunctionStore<TFunc> : IFunctionHolder<TFunc> where TFunc : CactusFunction {
     private readonly OrderedDictionary<FunctionSymbol, TFunc> _functions = new();
 
     public TFunc? GetExactFunction(FunctionSymbol id) {

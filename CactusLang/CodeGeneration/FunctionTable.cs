@@ -1,4 +1,4 @@
-﻿namespace CactusLang.CodeGeneration.CCodeGenerator;
+﻿namespace CactusLang.CodeGeneration;
 
 public class FunctionTable {
     

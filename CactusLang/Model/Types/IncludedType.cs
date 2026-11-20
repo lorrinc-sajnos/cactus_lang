@@ -1,13 +1,13 @@
-﻿using CactusLang.Model.CodeStructure.MemberHolders.IncludedFiles;
+﻿using CactusLang.Model.CodeStructure.Entities.IncludedFiles;
 
 namespace CactusLang.Model.Types;
 
-public class IncludedType(IncludedFile origin, BaseType type) : BaseType
+public class IncludedType(IncludedFile origin, CactusType type) : CactusType
 {
     public IncludedFile Origin { get; } = origin;
-    public BaseType InnerType { get; } = type;
+    public CactusType InnerType { get; } = type;
     
     public override string Name  => Origin.Name + "." + InnerType.Name;
     public override int Size { get; } = type.Size;
-    public override bool CanImplicitCastInto(BaseType superiorType) => InnerType.CanImplicitCastInto(superiorType);
+    public override bool CanImplicitCastInto(CactusType superiorType) => InnerType.CanImplicitCastInto(superiorType);
 }

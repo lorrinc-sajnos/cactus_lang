@@ -1,9 +1,9 @@
 ﻿using CactusLang.Model.Symbols;
 using CactusLang.Model.Types;
 
-namespace CactusLang.Model.CodeStructure.MemberHolders.IncludedFiles;
+namespace CactusLang.Model.CodeStructure.Entities.IncludedFiles;
 
-public class IncludedFile : IMemberHolder {
+public class IncludedFile : IEntity {
     public CactusFile CactusFile { get; }
     public CactusFile ParentFile { get; }
     public string Alias { get; }
@@ -17,35 +17,35 @@ public class IncludedFile : IMemberHolder {
         MemberType = new Type(this);
     }
 
-    public BaseType MemberType { get; }
+    public CactusType MemberType { get; }
 
-    public class Type(IncludedFile parent) : BaseType {
+    public class Type(IncludedFile parent) : CactusType {
         public IncludedFile Parent { get; } = parent;
         public override string Name => Parent.Name;
 
         public override int Size => throw new NotImplementedException();
         public override bool IsAbstract => true;
 
-        public override bool CanImplicitCastInto(BaseType superiorType) => false;
+        public override bool CanImplicitCastInto(CactusType superiorType) => false;
     }
 
 
-    public MemberFunction? GetExactFunction(FunctionSymbol id) => CactusFile.GetExactFunction(id);
+    public CactusMethod? GetExactFunction(FunctionSymbol id) => CactusFile.GetExactFunction(id);
 
     public bool ContainsExactFunction(FuncCandidate id) => CactusFile.ContainsExactFunction(id);
 
-    public MemberFunction? GetExactFunction(FuncCandidate sign) => CactusFile.GetExactFunction(sign);
+    public CactusMethod? GetExactFunction(FuncCandidate sign) => CactusFile.GetExactFunction(sign);
 
-    public MemberFunction? GetMatchingFunction(FuncCandidate id) => CactusFile.GetMatchingFunction(id);
+    public CactusMethod? GetMatchingFunction(FuncCandidate id) => CactusFile.GetMatchingFunction(id);
 
     public bool ContainsMatchingFunction(FuncCandidate id) => CactusFile.ContainsMatchingFunction(id);
 
     public FunctionSymbol? GetMatchingId(FuncCandidate signature) => CactusFile.GetMatchingId(signature);
-    public List<MemberFunction> GetFunctions() => CactusFile.GetFunctions();
+    public List<CactusMethod> GetFunctions() => CactusFile.GetFunctions();
 
-    public MemberField? GetField(string name) => CactusFile.GetField(name);
+    public CactusField? GetField(string name) => CactusFile.GetField(name);
 
-    public List<MemberField> GetFields() => CactusFile.GetFields();
+    public List<CactusField> GetFields() => CactusFile.GetFields();
 
-    public IMemberHolder? GetMemberHolder(string name) => CactusFile.DeclStructStore.GetStruct(name);
+    public IEntity? GetMemberHolder(string name) => CactusFile.DeclStructStore.GetStruct(name);
 }

@@ -1,4 +1,4 @@
-using CactusLang.Model.CodeStructure.MemberHolders.IncludedFiles;
+using CactusLang.Model.CodeStructure.Entities.IncludedFiles;
 using CactusLang.Model.Symbols;
 using CactusLang.Model.Types;
 using CactusLang.Model.Types.Abstract;
@@ -11,6 +11,6 @@ public class IncludedFileRef(IncludedFile file) : PrimaryExpression {
 	public IncludedFile IncFile { get; } = file;
 	
 	public PointerType Type { get; } = new( new IncFileType(file) );
-	public override BaseType GetResultType() => Type;
+	public override CactusType GetResultType() => Type;
 	public override bool IsLValue() => false;
 }

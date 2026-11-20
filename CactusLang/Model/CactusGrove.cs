@@ -1,6 +1,6 @@
 using CactusLang.Compiling.Codefiles;
+using CactusLang.Model.CodeStructure.Entities.Structs;
 using CactusLang.Model.CodeStructure.FileContent;
-using CactusLang.Model.CodeStructure.MemberHolders.Structs;
 using CactusLang.Model.Symbols;
 using CactusLang.Model.Types;
 using CactusLang.Model.Types.PrimitiveTypes;
@@ -15,7 +15,7 @@ public class CactusGrove {
     public string RootFilePath { get; }
 
 
-    private FunctionSymbol _entryPointSymb;
+    private readonly FunctionSymbol _entryPointSymbol;
 
 
     public string SrcOutputFolder { get; }
@@ -35,7 +35,7 @@ public class CactusGrove {
         RootFile = CactusFile.CreateAndAddFile(this, rootFile);
 
         //Default entrypoint: function called main, with 0 args, returning an integer.
-        _entryPointSymb = new FunctionSymbol(NumberType.I32, "main", RootFile);
+        _entryPointSymbol = new FunctionSymbol(NumberType.I32, "main", RootFile);
 
         SrcOutputFolder = RootFolder;
         OutputFilePath = DefaultOutputName(rootFile.Path);
@@ -98,7 +98,7 @@ public class CactusGrove {
         return string.Join("/", fileID.Folders) + "/" + fileID.Filename + fileID.Extension;
     }
 
-    public FileFunction GetEntryPoint() => RootFile.Functions.GetExactFunction(_entryPointSymb)!;
+    public FileFunction GetEntryPoint() => RootFile.Functions.GetExactFunction(_entryPointSymbol)!;
 
 
     public bool HasErrors() => _files.Any(p => p.Value.HasErrors());

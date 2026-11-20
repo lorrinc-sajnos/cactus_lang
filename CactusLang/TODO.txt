@@ -2,12 +2,13 @@ TODO:
 Test!
 Essential features
     X Linking multiple files    
+    Objects
+        TypeTable
     Templates
         Arrays
     String
     Interface
     
-    Class
     
     
     

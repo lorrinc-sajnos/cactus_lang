@@ -1,13 +1,13 @@
 using System.Linq.Expressions;
 using CactusLang.Model.CodeStructure;
 using CactusLang.Model.CodeStructure.CodeBlocks;
+using CactusLang.Model.CodeStructure.Entities.IncludedFiles;
+using CactusLang.Model.CodeStructure.Entities.Structs;
 using CactusLang.Model.CodeStructure.Expressions;
 using CactusLang.Model.CodeStructure.Expressions.PrimaryExpressions;
 using CactusLang.Model.CodeStructure.Expressions.PrimaryExpressions.LiteralExpressions;
 using CactusLang.Model.CodeStructure.Expressions.PrimaryExpressions.ObjectReference;
 using CactusLang.Model.CodeStructure.FileContent;
-using CactusLang.Model.CodeStructure.MemberHolders.IncludedFiles;
-using CactusLang.Model.CodeStructure.MemberHolders.Structs;
 using CactusLang.Model.CodeStructure.Statements;
 using CactusLang.Model.CodeStructure.Statements.ControlFlow;
 using CactusLang.Model.Operators;
@@ -73,8 +73,8 @@ public class CodeModelVisitor<T> {
             results.Add(result);
         }
 
-        foreach (var func in cactusStruct.Functions.GetFunctions()) {
-            var result = VisitStructFunction(func);
+        foreach (var func in cactusStruct.Methods.GetFunctions()) {
+            var result = VisitStructMethod(func);
             results.Add(result);
         }
 
@@ -86,15 +86,15 @@ public class CodeModelVisitor<T> {
         return _success;
     }
 
-    protected virtual T VisitStructFunction(StructFunction function) {
-        return VisitCodeBlock(function.CodeBody);
+    protected virtual T VisitStructMethod(StructMethod method) {
+        return VisitCodeBlock(method.CodeBody);
     }
 
     #endregion
 
     #region File Variables
 
-    protected virtual T VisitFileFields(List<FileField> fileVariables) {
+    protected virtual T VisitFileFields(List<FileVariable> fileVariables) {
         var results = new List<T>();
         foreach (var fileVariable in fileVariables) {
             var result = VisitFileField(fileVariable);
@@ -103,7 +103,7 @@ public class CodeModelVisitor<T> {
         return GetResult(results);
     }
 
-    protected virtual T VisitFileField(FileField fileField) {
+    protected virtual T VisitFileField(FileVariable fileVariable) {
         //Nothing to visit!
         return _success;
     }
@@ -129,7 +129,7 @@ public class CodeModelVisitor<T> {
     }
     #endregion
     
-    #region Functions
+    #region Methods
 
     protected virtual T VisitFileFunctions(List<FileFunction> fileFunctions) {
         var results = new List<T>();

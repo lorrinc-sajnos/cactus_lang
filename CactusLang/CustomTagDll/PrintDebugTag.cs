@@ -21,7 +21,7 @@ public class PrintDebugTag : Tag {
         bool isDebugMode = TagContainer.Global.HasCommonVariable("DEBUG_MODE");
         if (!isDebugMode) return;
 
-        ModelFunction func = statement.CodeBlock.Function;
+        CactusFunction func = statement.CodeBlock.Function;
 
         string exprStr = "";//ExpressionCodeFactory.Manufacture(statement.Expression, generator.GenState);
         generator.Source.AddLine(

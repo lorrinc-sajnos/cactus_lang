@@ -6,8 +6,8 @@ namespace CactusLang.Model.Types;
 /// <summary>
 /// This is the type of Integer literals. These are neccecary, because literals value matters when assigning, ie. 2 can be used as u08 and i08.
 /// </summary>
-public class LiteralIntegerType : BaseType {
-    private List<BaseType> _canBeUsedAs;
+public class LiteralIntegerType : CactusType {
+    private List<CactusType> _canBeUsedAs;
 
     public BigInteger Value { get; }
     public override string Name => $"Literal Integer ({Value})";
@@ -33,7 +33,7 @@ public class LiteralIntegerType : BaseType {
     }
 
     //Maybe slow but it runs
-    public override bool CanImplicitCastInto(BaseType superiorType) {
+    public override bool CanImplicitCastInto(CactusType superiorType) {
         return _canBeUsedAs.Any(possibleType => possibleType.CanBeUsedAs(superiorType));
     }
 

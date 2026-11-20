@@ -4,7 +4,7 @@ using CactusLang.Model.Types;
 namespace CactusLang.Model.CodeStructure.Expressions;
 
 public class OperationExpression : Expression {
-    private BaseType _resultType;
+    private CactusType _resultType;
 
     public Operator Operator { get; }
 
@@ -21,7 +21,7 @@ public class OperationExpression : Expression {
         _resultType = Operator.GetResultType(LeftExpression.GetResultType(), RightExpression.GetResultType());
     }
 
-    public override BaseType GetResultType() => _resultType;
+    public override CactusType GetResultType() => _resultType;
     
     
 }

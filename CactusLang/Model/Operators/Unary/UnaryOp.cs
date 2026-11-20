@@ -30,7 +30,7 @@ public abstract class UnaryOp {
             _RightUnaryOp[format] = this;
     }
 
-    public abstract BaseType Evaluate(BaseType val);
+    public abstract CactusType Evaluate(CactusType val);
 
     public static readonly BaseUnaryOp PRE_INC = new BaseUnaryOp(Side.LEFT, "++", t => t.IsNumber);
     public static readonly BaseUnaryOp PRE_DCR = new BaseUnaryOp(Side.LEFT, "--", t => t.IsNumber);

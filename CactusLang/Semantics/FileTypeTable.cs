@@ -1,8 +1,8 @@
 using CactusLang.Model;
-using CactusLang.Model.CodeStructure.MemberHolders.Structs;
+using CactusLang.Model.CodeStructure.Entities.Structs;
 using CactusLang.Model.Errors;
 using CactusLang.Model.Types;
-using CactusLang.Model.Types.MemberHolderTypes;
+using CactusLang.Model.Types.EntityTypes;
 using CactusLang.Model.Types.PrimitiveTypes;
 using CactusLang.Semantics.Errors;
 using GP = GrammarParser;
@@ -11,13 +11,13 @@ namespace CactusLang.Semantics;
 
 //
 
-public class TypeTable {
+public class FileTypeTable {
     private readonly CactusFile _file;
     private readonly ErrorHandler _errorHandler;
-    private readonly OrderedDictionary<string, BaseType> _types;
+    private readonly OrderedDictionary<string, CactusType> _types;
     private readonly OrderedDictionary<string, CactusStruct> _structs;
     
-    public TypeTable(CactusFile file) {
+    public FileTypeTable(CactusFile file) {
         _file = file;
         _errorHandler = file.ErrorHandler;
         _types = new();
@@ -25,15 +25,13 @@ public class TypeTable {
         AddPrimitives();
     }
     
-    public BaseType? GetFromName(string rawText) {
+    public CactusType? GetFromName(string rawText) {
         //Works, because * can only be at the end of the type
         int ptrLvl = rawText.Count(c => c == '*');
         string trueName = rawText.Substring(0, rawText.Length - ptrLvl);
 
-        if (!_types.ContainsKey(trueName))
+        if (!_types.TryGetValue(trueName, out var type))
             return null;
-
-        var type = _types[trueName];
 
         //If it is a pointer:
         if (ptrLvl > 0)
@@ -41,7 +39,7 @@ public class TypeTable {
         return type;
     }
 
-    public BaseType GetFromCtx(GP.TypeContext ctx) {
+    public CactusType GetFromCtx(GP.TypeContext ctx) {
         //Resolve, if type is included from a different file:
         string rawText = ctx.GetText();
         if (ctx.parentObj() != null && ctx.parentObj().Length > 0) {
@@ -51,18 +49,18 @@ public class TypeTable {
 
         var type = GetFromName(rawText);
         if (type == null)
-            return _errorHandler.ErrorInType(CctsError.TYPE_NOT_FOUND, ctx, ctx.GetText());
+            return _errorHandler.ErrorInType(CactusError.TYPE_NOT_FOUND, ctx, ctx.GetText());
 
         return type;
     }
 
-    private BaseType GetIncludedType(List<GP.ParentObjContext> parentChain, GP.TypeContext ctx) {
+    private CactusType GetIncludedType(List<GP.ParentObjContext> parentChain, GP.TypeContext ctx) {
         //TODO currently only first
         var currObj = parentChain[0];
         var parentName = parentChain[0].GetText();
         var parentFile = _file.IncludeManager.GetIncludedFile(parentName);
         if (parentFile == null)
-            return _errorHandler.ErrorInType(CctsError.FILE_DOENST_EXISTS, currObj, currObj.GetText());
+            return _errorHandler.ErrorInType(CactusError.FILE_DOENST_EXISTS, currObj, currObj.GetText());
 
         string rootTxt = ctx.root().GetText();
         int ptrLvl = rootTxt.Count(c => c == '*');
@@ -71,7 +69,7 @@ public class TypeTable {
         var innerMemHolder = parentFile.GetMemberHolder(key);
 
         if (innerMemHolder == null)
-            return _errorHandler.ErrorInType(CctsError.TYPE_NOT_FOUND, ctx, ctx.GetText());
+            return _errorHandler.ErrorInType(CactusError.TYPE_NOT_FOUND, ctx, ctx.GetText());
 
         var innerType = innerMemHolder.MemberType;
         if (ptrLvl > 0)
@@ -90,7 +88,7 @@ public class TypeTable {
     
     public bool DeclareStruct(CactusStruct cactusStruct) {
         //string structName = ctx.structName().GetText();
-        MemberHolderType structType = cactusStruct.StructType;
+        EntityType structType = cactusStruct.StructType;
 
         if (!_types.TryAdd(structType.Name, structType)) {
             return false;

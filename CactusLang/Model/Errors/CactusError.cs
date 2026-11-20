@@ -3,15 +3,15 @@ using CactusLang.Semantics.Errors;
 
 namespace CactusLang.Model.Errors;
 
-public class CctsError {
+public class CactusError {
     public int Code { get; private set; }
     public string Title { get; private set; }
     public string Msg { get; private set; }
     public Exception Exception { get; private set; }
 
-    private readonly List<CctsError> _errors = [];
+    private readonly List<CactusError> _errors = [];
 
-    private CctsError(int code, string title, string msg) {
+    private CactusError(int code, string title, string msg) {
         Code = code;
         Title = title;
         Msg = msg;
@@ -37,51 +37,51 @@ public class CctsError {
     public ErrorInstance CompTime(ErrorHandler errorHandler, IToken start, IToken end, params object[] msgParams) =>
         new(this, errorHandler, start, end, msgParams);
 
-    public static readonly CctsError TODO_ERROR = new(0, "Todo Error", "Todo Error ");
-    public static readonly CctsError ID_NOT_FOUND = new(1, "ID \"{0}\" Not Found", "Could not find ID \"{0}\".");
+    public static readonly CactusError TODO_ERROR = new(0, "Todo Error", "Todo Error ");
+    public static readonly CactusError ID_NOT_FOUND = new(1, "ID \"{0}\" Not Found", "Could not find ID \"{0}\".");
 
-    public static readonly CctsError ALREADY_DEFINED =
+    public static readonly CactusError ALREADY_DEFINED =
         new(2, "ID \"{0}\" already defined", "\"{0}\" is already defined");
 
-    public static readonly CctsError OP_MISMATCH = new(3, "Operator type mismatch", "No operator exists.");
+    public static readonly CactusError OP_MISMATCH = new(3, "Operator type mismatch", "No operator exists.");
 
-    public static readonly CctsError LITERAL_ERROR =
+    public static readonly CactusError LITERAL_ERROR =
         new(4, "Malformed literal #{0}#", "The value of \"{0}\" could not be parsed.");
 
-    public static readonly CctsError TYPE_NOT_FOUND = new(5, "Type {0} Not Found", "Could not find type {0}.");
+    public static readonly CactusError TYPE_NOT_FOUND = new(5, "Type {0} Not Found", "Could not find type {0}.");
 
-    public static readonly CctsError OVERLOAD_DOESNT_MATCH_RET_TYPE = new(6,
+    public static readonly CactusError OVERLOAD_DOESNT_MATCH_RET_TYPE = new(6,
         "Overload of {0} doesn't match return type \"{1}\"",
         "Overload of function \"{0}\" return type has to be \"{1}\"");
 
-    public static readonly CctsError BAD_OBJ_REF =
+    public static readonly CactusError BAD_OBJ_REF =
         new(7, "Invalid reference: {0}", "Object reference {0} is not valid.");
 
-    public static readonly CctsError TYPE_MISMATCH =
+    public static readonly CactusError TYPE_MISMATCH =
         new(8, "Cannot assign type {0} =/> {1}", "Cannot assign type {0} to {1}.");
 
-    public static readonly CctsError RVALUE_ASG = new(9, "Cannot assign to rvalue #{0}#",
+    public static readonly CactusError RVALUE_ASG = new(9, "Cannot assign to rvalue #{0}#",
         "Cannot assign value into #{0}#, as it is an rvalue, thus not accessible.");
 
-    public static readonly CctsError FREE_ERROR =
+    public static readonly CactusError FREE_ERROR =
         new(9, "Cannot free {0}", "Cannot free {0} as it is not a pointer.");
 
-    public static readonly CctsError CONDITION_ERROR =
+    public static readonly CactusError CONDITION_ERROR =
         new(10, "Condition type is {0}, not #bool#", "Condition type should be #bool#, instead of {0}");
     
-    public static readonly CctsError FILE_ERROR =
+    public static readonly CactusError FILE_ERROR =
         new (101, """Error when trying to include "{0}". """, """A error occured, while trying to include file "{0}" """);
-    public static readonly CctsError FILE_DOENST_EXISTS_ON_DISK =
+    public static readonly CactusError FILE_DOENST_EXISTS_ON_DISK =
         new (102, """File "{0}" does not exist""", """File "{0}" does not exist.""");
-    public static readonly CctsError FILE_DOENST_EXISTS =
+    public static readonly CactusError FILE_DOENST_EXISTS =
         new (103, """File "{0}" is not declared""", """File "{0}" is not included in this file.""");
-    public static readonly CctsError GROVE_DOENST_EXISTS =
+    public static readonly CactusError GROVE_DOENST_EXISTS =
         new (103, """Grove "{0}" is not declared""", """Grove "{0}" is not included in this file.""");
     
     
-    public static readonly CctsError EXPRESSION_ERROR =
+    public static readonly CactusError EXPRESSION_ERROR =
         new(201, "Expression error", "Error when evaluating the following expression: \"{0}\"");
-    public static readonly CctsError SYNTAX_WRONG_TOKEN =
+    public static readonly CactusError SYNTAX_WRONG_TOKEN =
         new(9001, "Syntax error: Unexpected token \"{0}\"", "Token \"{0}\" was unexpected.");
     
     

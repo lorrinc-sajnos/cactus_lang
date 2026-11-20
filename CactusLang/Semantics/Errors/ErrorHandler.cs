@@ -25,7 +25,7 @@ public class ErrorHandler {
             base.SyntaxError(output, recognizer, offendingSymbol, line, charPositionInLine, msg, e);
 
             _errorHandler.AddCompError(
-                CctsError.SYNTAX_WRONG_TOKEN.CompTime(_errorHandler, offendingSymbol, offendingSymbol.Text));
+                CactusError.SYNTAX_WRONG_TOKEN.CompTime(_errorHandler, offendingSymbol, offendingSymbol.Text));
         }
     }
 
@@ -49,21 +49,21 @@ public class ErrorHandler {
     }
 
     
-    public void Error(CctsError error, IToken token, params object[] msgParams) =>
+    public void Error(CactusError error, IToken token, params object[] msgParams) =>
         ErrorFromCompTime(error.CompTime(this, token, msgParams));
-    public void Error(CctsError error, IToken start, IToken end, params object[] msgParams) =>
+    public void Error(CactusError error, IToken start, IToken end, params object[] msgParams) =>
         ErrorFromCompTime(error.CompTime(this, start, end, msgParams));
-    public void Error(CctsError error, ParserRuleContext ctx, params object[] msgParams) =>
+    public void Error(CactusError error, ParserRuleContext ctx, params object[] msgParams) =>
         ErrorFromCompTime(error.CompTime(this, ctx, msgParams));
     
     
     
     #region Expression
-    public Expression.Error ErrorInExpression(CctsError error, IToken token, params object[] msgParams) =>
+    public Expression.Error ErrorInExpression(CactusError error, IToken token, params object[] msgParams) =>
         ErrorFromCompTime(error.CompTime(this, token, msgParams));
-    public Expression.Error ErrorInExpression(CctsError error, IToken start, IToken end, params object[] msgParams) =>
+    public Expression.Error ErrorInExpression(CactusError error, IToken start, IToken end, params object[] msgParams) =>
         ErrorFromCompTime(error.CompTime(this, start, end, msgParams));
-    public Expression.Error ErrorInExpression(CctsError error, ParserRuleContext ctx, params object[] msgParams) =>
+    public Expression.Error ErrorInExpression(CactusError error, ParserRuleContext ctx, params object[] msgParams) =>
         ErrorFromCompTime(error.CompTime(this, ctx, msgParams));
     private Expression.Error ErrorFromCompTime(ErrorInstance errorInstance) {
         AddCompError(errorInstance);
@@ -72,11 +72,11 @@ public class ErrorHandler {
     #endregion
     
     #region Type
-    public ErrorType ErrorInType(CctsError error, IToken token, params object[] msgParams) =>
+    public ErrorType ErrorInType(CactusError error, IToken token, params object[] msgParams) =>
         ErrorInTypeFromCompTime(error.CompTime(this, token, msgParams));
-    public ErrorType ErrorInType(CctsError error, IToken start, IToken end, params object[] msgParams) =>
+    public ErrorType ErrorInType(CactusError error, IToken start, IToken end, params object[] msgParams) =>
         ErrorInTypeFromCompTime(error.CompTime(this, start, end, msgParams));
-    public ErrorType ErrorInType(CctsError error, ParserRuleContext ctx, params object[] msgParams) =>
+    public ErrorType ErrorInType(CactusError error, ParserRuleContext ctx, params object[] msgParams) =>
         ErrorInTypeFromCompTime(error.CompTime(this, ctx, msgParams));
     private ErrorType ErrorInTypeFromCompTime(ErrorInstance errorInstance) {
         AddCompError(errorInstance);

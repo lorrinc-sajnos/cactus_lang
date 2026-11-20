@@ -5,7 +5,7 @@ using CactusLang.Tags;
 
 namespace CactusLang.Model.CodeStructure;
 
-public abstract class ModelFunction {
+public abstract class CactusFunction {
     protected CodeBlock _codeBody;
     public CodeBlock CodeBody => _codeBody;
     
@@ -15,10 +15,10 @@ public abstract class ModelFunction {
     public TagContainer TagContainer { get; } = new();
     public CactusFile CactusFile { get; protected set; }
     public string Name => _symbol.Name;
-    public BaseType ReturnType => _symbol.ReturnType;
+    public CactusType ReturnType => _symbol.ReturnType;
 
 
-    protected ModelFunction(CactusFile cactusFile, FunctionSymbol symbol) {
+    protected CactusFunction(CactusFile cactusFile, FunctionSymbol symbol) {
         _symbol = symbol;
         _codeBody = new CodeBlock(this);
         CactusFile = cactusFile;

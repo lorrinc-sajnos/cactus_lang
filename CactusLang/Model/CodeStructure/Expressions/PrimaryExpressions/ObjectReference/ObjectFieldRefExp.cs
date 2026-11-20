@@ -9,5 +9,5 @@ public class ObjectFieldRefExp(PrimaryExpression objExpression, ObjectFieldRef f
 
     public override bool IsLValue() => true;
 
-    public override BaseType GetResultType() => FieldRef.Field!.Type;
+    public override CactusType GetResultType() => FieldRef.Variable!.Type;
 }

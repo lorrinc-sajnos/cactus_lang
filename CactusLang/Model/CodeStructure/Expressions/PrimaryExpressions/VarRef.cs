@@ -9,7 +9,7 @@ public class VarRef(VariableSymbol variable) : PrimaryExpression {
 
     public override bool IsLValue() => true;
 
-    public override BaseType GetResultType() => Variable.Type;
+    public override CactusType GetResultType() => Variable.Type;
 
     public override string ToString() => $"{Variable.Name}<{Variable.Type}>";
 }

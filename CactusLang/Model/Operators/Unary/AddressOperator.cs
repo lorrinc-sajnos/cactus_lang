@@ -5,7 +5,7 @@ namespace CactusLang.Model.Operators.Unary;
 public class AddressOperator : UnaryOp {
     internal AddressOperator() : base(Side.LEFT, "&") { }
 
-    public override BaseType Evaluate(BaseType val) {
+    public override CactusType Evaluate(CactusType val) {
         return val.GetPointer();
         // if (val is not PointerType ptr) 
         //     return ErrorType.ERROR;

@@ -7,5 +7,5 @@ public class VoidLiteral :  LiteralExpression {
     public override string Value => "void";
 
     public VoidLiteral() { }
-    public override BaseType GetResultType() => NumberType.VOID;
+    public override CactusType GetResultType() => NumberType.VOID;
 }

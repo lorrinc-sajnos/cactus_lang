@@ -16,7 +16,8 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Model\CodeStructure\MemberHolders\Classes\" />
+      <Folder Include="CodeGeneration\TypeTable\" />
+      <Folder Include="Model\CodeStructure\Entities\Classes\" />
     </ItemGroup>
 
 </Project>

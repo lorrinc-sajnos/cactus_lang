@@ -1,6 +1,6 @@
 namespace CactusLang.Model.Types.PrimitiveTypes;
 
-public abstract class PrimitiveType : BaseType{
+public abstract class PrimitiveType : CactusType{
 	
 	public enum PrimType {
 		Float,

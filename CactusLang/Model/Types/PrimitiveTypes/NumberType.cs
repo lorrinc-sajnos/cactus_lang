@@ -38,7 +38,7 @@ public class NumberType : PrimitiveType {
 		_subset.UnionWith(type._subset);
 	}
 
-	public override bool CanImplicitCastInto(BaseType superiorType) {
+	public override bool CanImplicitCastInto(CactusType superiorType) {
 		if (superiorType is NumberType superiorPrim) {
 			return (superiorPrim._subset.Contains(this) || Equals(superiorPrim));
 		}

@@ -3,7 +3,7 @@ using CactusLang.Model.Symbols;
 
 namespace CactusLang.Model.Holders;
 
-public interface IFunctionHolder<FUNC> where FUNC : ModelFunction {
+public interface IFunctionHolder<FUNC> where FUNC : CactusFunction {
     public FUNC? GetExactFunction(FunctionSymbol id);
     public bool ContainsExactFunction(FuncCandidate id);
 

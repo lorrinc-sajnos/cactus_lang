@@ -6,7 +6,7 @@ namespace CactusLang.Model.Operators.Unary;
 public class DereferenceOperator : UnaryOp {
     internal DereferenceOperator() : base(Side.LEFT, "*") { }
 
-    public override BaseType Evaluate(BaseType val) {
+    public override CactusType Evaluate(CactusType val) {
         if (val is not PointerType ptr)
             return ErrorType.ERROR;
 

@@ -1,13 +1,14 @@
 using CactusLang.Model.CodeStructure;
-using CactusLang.Model.CodeStructure.MemberHolders;
-using CactusLang.Model.CodeStructure.MemberHolders.Structs;
+
+using CactusLang.Model.CodeStructure.Entities;
+using CactusLang.Model.CodeStructure.Entities.Structs;
 using CactusLang.Model.Symbols;
 using CactusLang.Model.Types;
 
 namespace CactusLang.Model.Scopes;
 
 public class MemberFuncScope : Scope {
-    private readonly IMemberHolder _mHolder;
+    private readonly IEntity _mHolder;
     private VariableSymbol _thisPtr;
 
     public MemberFuncScope(CactusStruct mHolder) {
@@ -23,7 +24,7 @@ public class MemberFuncScope : Scope {
         }
     }
 
-    public override ModelFunction? GetMatchingFunction(FuncCandidate signature) {
+    public override CactusFunction? GetMatchingFunction(FuncCandidate signature) {
         if (_mHolder.ContainsMatchingFunction(signature))
             return _mHolder.GetMatchingFunction(signature);
 

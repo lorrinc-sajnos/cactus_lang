@@ -55,7 +55,7 @@ public class Scope {
     /// </summary>
     /// <param name="signature"></param>
     /// <returns></returns>
-    public virtual ModelFunction? GetMatchingFunction(FuncCandidate cand) {
+    public virtual CactusFunction? GetMatchingFunction(FuncCandidate cand) {
         return Parent.GetMatchingFunction(cand);
     }
 

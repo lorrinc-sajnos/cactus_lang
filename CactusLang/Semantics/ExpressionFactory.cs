@@ -6,8 +6,8 @@ using CactusLang.Model.CodeStructure.Expressions;
 using CactusLang.Model.CodeStructure.Expressions.PrimaryExpressions;
 using CactusLang.Model.CodeStructure.Expressions.PrimaryExpressions.LiteralExpressions;
 using CactusLang.Model.CodeStructure.Expressions.PrimaryExpressions.ObjectReference;
-using CactusLang.Model.CodeStructure.MemberHolders;
-using CactusLang.Model.CodeStructure.MemberHolders.Structs;
+
+using CactusLang.Model.CodeStructure.Entities;
 using CactusLang.Model.Errors;
 using CactusLang.Model.Operators;
 using CactusLang.Model.Operators.ObjectRefference;
@@ -15,7 +15,7 @@ using CactusLang.Model.Operators.Unary;
 using CactusLang.Model.Scopes;
 using CactusLang.Model.Symbols;
 using CactusLang.Model.Types;
-using CactusLang.Model.Types.MemberHolderTypes;
+using CactusLang.Model.Types.EntityTypes;
 using CactusLang.Model.Types.PrimitiveTypes;
 using CactusLang.Semantics.Errors;
 using CactusLang.Util;
@@ -28,7 +28,7 @@ namespace CactusLang.Semantics;
 public class ExpressionFactory {
 	private readonly CactusFile _file;
 	private readonly ErrorHandler _errorHandler;
-	private readonly TypeTable _typeTable;
+	private readonly FileTypeTable _fileTypeTable;
 	private readonly Scope _scope;
 	private readonly GrammarParser.ExpressionContext _startExpression;
 
@@ -36,7 +36,7 @@ public class ExpressionFactory {
 	public ExpressionFactory(CactusFile cactusFile, SemanticFileAnalyzer analyzer, Scope scope,
 		GP.ExpressionContext expNode) {
 		_errorHandler = analyzer.ErrorHandler;
-		_typeTable = analyzer.TypeTable;
+		_fileTypeTable = analyzer.FileTypeTable;
 		_scope = scope;
 		_file = cactusFile;
 		_startExpression = expNode;
@@ -85,12 +85,12 @@ public class ExpressionFactory {
 		Expression rightExp) {
 		if (rightExp.GetResultType().CanBeUsedAs(leftExp.GetResultType())) {
 			if (!leftExp.IsLValue())
-				return _errorHandler.ErrorInExpression(CctsError.RVALUE_ASG, ctx, ctx.expression()[0].GetText());
+				return _errorHandler.ErrorInExpression(CactusError.RVALUE_ASG, ctx, ctx.expression()[0].GetText());
 
 			return new OperationExpression(leftExp, nodeOperator, rightExp);
 		}
 
-		return _errorHandler.ErrorInExpression(CctsError.TYPE_MISMATCH, ctx, rightExp.GetResultType(),
+		return _errorHandler.ErrorInExpression(CactusError.TYPE_MISMATCH, ctx, rightExp.GetResultType(),
 			leftExp.GetResultType());
 	}
 
@@ -138,9 +138,9 @@ public class ExpressionFactory {
 		var funcCallCtx = ctx.objFuncCall();
 		AccessType refOp = GetRefOp(funcCallCtx.accOp());
 
-		IMemberHolder? refObj = GetRefObj(expression.GetResultType(), refOp);
+		IEntity? refObj = GetRefObj(expression.GetResultType(), refOp);
 		if (refObj == null)
-			return _errorHandler.ErrorInExpression(CctsError.BAD_OBJ_REF, ctx, ctx.GetText());
+			return _errorHandler.ErrorInExpression(CactusError.BAD_OBJ_REF, ctx, ctx.GetText());
 
 		var funcParams = GetFuncParams(funcCallCtx.funcCall());
 		var instFuncCand = GetFuncCandidate(funcCallCtx.funcCall().funcRef().GetText(), funcParams);
@@ -148,7 +148,7 @@ public class ExpressionFactory {
 		var structFunc = refObj.GetMatchingFunction(instFuncCand);
 
 		if (structFunc == null) {
-			return _errorHandler.ErrorInExpression(CctsError.ID_NOT_FOUND, funcCallCtx.funcCall(),
+			return _errorHandler.ErrorInExpression(CactusError.ID_NOT_FOUND, funcCallCtx.funcCall(),
 				funcCallCtx.funcCall().GetText());
 		}
 
@@ -157,7 +157,7 @@ public class ExpressionFactory {
 	}
 
 	//TODO 
-	//namármost ez Pointer legyen, vagy field?
+	//namármost ez Pointer legyen, vagy variable?
 	private Expression GetPrimaryExp_ObjFieldRef(GP.PrimaryExpContext ctx) {
 		var expression = GetPrimaryExp(ctx.primaryExp());
 		if (expression is not PrimaryExpression primaryExpr)
@@ -166,23 +166,23 @@ public class ExpressionFactory {
 		var fieldRefCtx = ctx.objFieldRef();
 		var refOp = GetRefOp(fieldRefCtx.accOp());
 
-		IMemberHolder? refObj = GetRefObj(expression.GetResultType(), refOp);
+		IEntity? refObj = GetRefObj(expression.GetResultType(), refOp);
 		if (refObj == null)
-			return _errorHandler.ErrorInExpression(CctsError.BAD_OBJ_REF, ctx, ctx.GetText());
+			return _errorHandler.ErrorInExpression(CactusError.BAD_OBJ_REF, ctx, ctx.GetText());
 
 
 		string fieldName = fieldRefCtx.fieldRef().GetText();
-		MemberField? field = refObj.GetField(fieldName);
+		CactusField? field = refObj.GetField(fieldName);
 
 		if (field == null) {
-			return _errorHandler.ErrorInExpression(CctsError.ID_NOT_FOUND, fieldRefCtx.fieldRef(), fieldName);
+			return _errorHandler.ErrorInExpression(CactusError.ID_NOT_FOUND, fieldRefCtx.fieldRef(), fieldName);
 		}
 
 		return new ObjectFieldRefExp(primaryExpr, new ObjectFieldRef(refObj, field, refOp));
 	}
 
 	private Expression GetPrimaryExp_GetAlloc(GP.AllocContext ctx) {
-		BaseType type = _typeTable.GetFromCtx(ctx.type());
+		CactusType type = _fileTypeTable.GetFromCtx(ctx.type());
 		return new Alloc(type);
 	}
 
@@ -215,9 +215,9 @@ public class ExpressionFactory {
 		var paramEpxs = GetFuncParams(ctx);
 		FuncCandidate funcCand = GetFuncCandidate(ctx.funcRef().GetText(), paramEpxs);
 
-		ModelFunction? func = _scope.GetMatchingFunction(funcCand);
+		CactusFunction? func = _scope.GetMatchingFunction(funcCand);
 		if (func == null) {
-			return _errorHandler.ErrorInExpression(CctsError.ID_NOT_FOUND, ctx, funcCand.ToString());
+			return _errorHandler.ErrorInExpression(CactusError.ID_NOT_FOUND, ctx, funcCand.ToString());
 		}
 
 		return new FuncCallExp(func, paramEpxs);
@@ -266,7 +266,7 @@ public class ExpressionFactory {
 				if (result.Type == FloatType.DOUBLE)
 					return new FloatLiteral(NumberType.F64, sign, floatCtx.GetText());
 
-				return _errorHandler.ErrorInExpression(CctsError.LITERAL_ERROR, literalCtx, literalTxt);
+				return _errorHandler.ErrorInExpression(CactusError.LITERAL_ERROR, literalCtx, literalTxt);
 			}
 
 			//Integer
@@ -276,12 +276,12 @@ public class ExpressionFactory {
 					BigInteger? value = IntegerParser.Parse(intCtx.GetText());
 					if (value == null)
 						return _errorHandler.ErrorInExpression(
-							CctsError.LITERAL_ERROR, literalCtx, literalTxt);
+							CactusError.LITERAL_ERROR, literalCtx, literalTxt);
 
 					return new IntLiteral(new LiteralIntegerType(value.Value, sign));
 				}
 				catch (FormatException) {
-					return _errorHandler.ErrorInExpression(CctsError.LITERAL_ERROR, literalCtx, literalTxt);
+					return _errorHandler.ErrorInExpression(CactusError.LITERAL_ERROR, literalCtx, literalTxt);
 				}
 			}
 		}
@@ -292,7 +292,7 @@ public class ExpressionFactory {
 				return new CharLiteral(NumberType.CH08, literalCtx.charLiteral().GetText());
 			}
 			catch (FormatException) {
-				return _errorHandler.ErrorInExpression(CctsError.LITERAL_ERROR, literalCtx, literalTxt);
+				return _errorHandler.ErrorInExpression(CactusError.LITERAL_ERROR, literalCtx, literalTxt);
 			}
 		}
 
@@ -311,7 +311,7 @@ public class ExpressionFactory {
 	#endregion
 
 	/*private Expression GetAlloc(GP.AllocContext ctx) {
-	    BaseType allocType;
+	    CactusType allocType;
 	    if (ctx.type() != null) {
 	        allocType = _typeSystem.Get(ctx.type());
 	    }
@@ -319,7 +319,7 @@ public class ExpressionFactory {
 	        allocType = EvaluateExpression(ctx.expression());
 	    }
 	    else {
-	        return _errorHandler.ErrorInExpression(CctsError.TODO_ERROR.CompTime(ctx));
+	        return _errorHandler.ErrorInExpression(CactusError.TODO_ERROR.CompTime(ctx));
 	    }
 
 	    return allocType.GetPointer();
@@ -359,8 +359,8 @@ public class ExpressionFactory {
 		return paramExps;
 	}
 
-	private FuncCandidate GetFuncCandidate(string funcName, List<Expression> paramExps, BaseType? returnType=null) {
-		List<BaseType> paramTypes = new List<BaseType>();
+	private FuncCandidate GetFuncCandidate(string funcName, List<Expression> paramExps, CactusType? returnType=null) {
+		List<CactusType> paramTypes = new List<CactusType>();
 
 		foreach (var exp in paramExps) {
 			paramTypes.Add(exp.GetResultType());
@@ -377,7 +377,7 @@ public class ExpressionFactory {
 		return AccessType.ACCESS;
 	}
 
-	private IMemberHolder? GetRefObj(BaseType objType, AccessType refOp) {
+	private IEntity? GetRefObj(CactusType objType, AccessType refOp) {
 		var from = objType;
 		
 		if (refOp == AccessType.REFERENCE) {
@@ -386,7 +386,7 @@ public class ExpressionFactory {
 			from =  pointer.PointsTo;
 		}
 
-		if (from is not MemberHolderType type) {
+		if (from is not EntityType type) {
 			return null;
 		}
 

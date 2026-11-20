@@ -28,8 +28,8 @@ public static class IntegerParser {
         }
     }
 
-    public static List<BaseType> GetLiteralTypes(BigInteger value) {
-        List<BaseType> types = new();
+    public static List<CactusType> GetLiteralTypes(BigInteger value) {
+        List<CactusType> types = new();
 
         //8-bit
         if (value >= byte.MinValue && value <= byte.MaxValue)

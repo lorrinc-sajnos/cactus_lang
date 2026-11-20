@@ -31,7 +31,7 @@ public static class CctsAssert {
 
 	
 
-	public static void AssertTypeCompatibility(BaseType expected, BaseType actual) {
+	public static void AssertTypeCompatibility(CactusType expected, CactusType actual) {
 		Assert.IsTrue(actual.CanBeUsedAs(expected));
 	}
     

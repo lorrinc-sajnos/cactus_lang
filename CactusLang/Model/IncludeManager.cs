@@ -1,5 +1,5 @@
 using CactusLang.Model.CodeStructure;
-using CactusLang.Model.CodeStructure.MemberHolders.IncludedFiles;
+using CactusLang.Model.CodeStructure.Entities.IncludedFiles;
 using CactusLang.Model.Symbols;
 
 namespace CactusLang.Model;

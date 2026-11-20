@@ -15,5 +15,5 @@ public class BoolLiteral :  LiteralExpression {
         else 
             throw new Exception("Invalid boolean literal");
     }
-    public override BaseType GetResultType() => NumberType.BOOL;
+    public override CactusType GetResultType() => NumberType.BOOL;
 }

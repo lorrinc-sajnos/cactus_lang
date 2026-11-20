@@ -14,5 +14,5 @@ public class CharLiteral :  LiteralExpression {
         _type = type;
     }
 
-    public override BaseType GetResultType() => _type;
+    public override CactusType GetResultType() => _type;
 }

@@ -2,7 +2,7 @@ using CactusLang.Util;
 
 namespace CactusLang.Model.Types;
 
-public abstract class BaseType : IHaveName {
+public abstract class CactusType : IHaveName {
     public abstract string Name { get; }
     public abstract int Size { get; }
 
@@ -15,15 +15,15 @@ public abstract class BaseType : IHaveName {
     /// </summary>
     public virtual bool IsAbstract => false;
 
-    public virtual BaseType GetPointer() {
+    public virtual CactusType GetPointer() {
         return new PointerType(this);
     }
 
-    public virtual bool CanBeUsedAs(BaseType superiorType) {
+    public virtual bool CanBeUsedAs(CactusType superiorType) {
         return Equals(superiorType) || CanImplicitCastInto(superiorType);
     }
 
-    public abstract bool CanImplicitCastInto(BaseType superiorType);
+    public abstract bool CanImplicitCastInto(CactusType superiorType);
     public override string ToString() => Name;
 
     //public abstract string CName { get; }

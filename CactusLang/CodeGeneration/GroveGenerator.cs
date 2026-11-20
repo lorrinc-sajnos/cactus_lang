@@ -40,20 +40,23 @@ public class GroveGenerator {
     private void GenerateTypeTableFile() {
         TypeTable_H.AddAsMultipleLines(
             CodeScope.Location.TOP,
-            $$""""
-              #ifndef __CCTS_TYPE_TABLE_H
-              #define __CCTS_TYPE_TABLE_H
-              """"
+            """"
+            #ifndef __CCTS_TYPE_TABLE_H
+            #define __CCTS_TYPE_TABLE_H
+            """"
         );
         
+        var structs = Grove.GetAllStructs();
+        
+        CodeScope structIDs = new CodeScope(); 
+        
         //Collect structs
-        foreach (var structDef in Grove.GetAllStructs()) {
-            
+        foreach (var structDef in structs) {
         }
-        
-        
+
+
         TypeTable_H.AddLineBot("#endif");
-        
+
         TypeTable_H.WriteToFile();
     }
 
